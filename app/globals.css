@@ -291,3 +291,26 @@ a { color: inherit; }
   .modal-header { padding:16px; }
   .modal-footer { padding:13px 16px; }
 }
+
+
+/* Public privacy-policy page */
+.privacy-page { min-height:100vh;background:var(--canvas);color:var(--ink);padding:0 20px; }
+.privacy-container { max-width:820px;margin:0 auto;padding:32px 0 64px;line-height:1.75;font-size:15px; }
+.privacy-back,.privacy-footer a { color:var(--forest);font-weight:600;text-decoration:underline;text-underline-offset:3px; }
+.privacy-header { margin:48px 0 36px;padding-bottom:28px;border-bottom:1px solid var(--border); }
+.privacy-header h1 { margin:8px 0 6px;font-size:clamp(34px,5vw,48px);line-height:1.1;letter-spacing:-.04em;color:var(--forest-deep); }
+.privacy-updated { font-size:13px;color:var(--ink-soft);margin:0 0 20px; }
+.privacy-container section { margin:30px 0; }
+.privacy-container h2 { margin:0 0 10px;font-size:21px;line-height:1.3;letter-spacing:-.02em;color:var(--forest); }
+.privacy-container p,.privacy-container li { color:var(--ink-muted); }
+.privacy-container ul { padding-left:24px; }
+.privacy-container li { margin:8px 0; }
+.privacy-container a:not(.privacy-back) { color:var(--forest);text-decoration:underline;text-underline-offset:3px; }
+.privacy-container code { font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.9em;background:var(--surface-low);padding:2px 5px;border-radius:4px;overflow-wrap:anywhere; }
+.privacy-footer { display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:22px;margin-top:44px;color:var(--ink-soft);font-size:12px; }
+@media (max-width:640px) {
+  .privacy-container { padding-top:22px;font-size:14px; }
+  .privacy-header { margin-top:36px; }
+  .privacy-container h2 { font-size:19px; }
+  .privacy-footer { flex-direction:column; }
+}
