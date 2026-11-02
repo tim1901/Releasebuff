@@ -107,22 +107,25 @@ Private repository contents are sensitive. Releasebuff submits relevant excerpts
 
 ## Buffer OAuth and publishing (optional)
 
-1. Register a Buffer OAuth app and configure the exact callback URL below.
-2. Add the OAuth credentials to `.env.local`:
+Because this repository is public, register Releasebuff as a **Public client (no client secret)** in Buffer's Settings → API → App Clients. Buffer documents this choice as permanent. The app implements Authorization Code + PKCE and now supports public clients by omitting `client_secret` from both authorization-code exchange and refresh-token requests. The code can still send a secret if one is configured for an existing confidential client, but for this public repository choose a public client and leave `BUFFER_CLIENT_SECRET` empty.
+
+1. Deploy the app to a stable HTTPS origin before registering the production Buffer callback. Use `https://YOUR-SITE.netlify.app/privacy` as the Privacy Policy URL after the site is live, and configure the exact callback `https://YOUR-SITE.netlify.app/api/buffer/callback`. Replace the example hostname with the real site hostname.
+2. In Netlify environment-variable settings, configure:
 
    ```dotenv
-   APP_BASE_URL=http://localhost:3000
-   BUFFER_CLIENT_ID=your-client-id
-   BUFFER_CLIENT_SECRET=your-client-secret
-   BUFFER_REDIRECT_URI=http://localhost:3000/api/buffer/callback
+   APP_BASE_URL=https://YOUR-SITE.netlify.app
+   BUFFER_CLIENT_ID=your-public-client-id
+   BUFFER_CLIENT_SECRET=
+   BUFFER_REDIRECT_URI=https://YOUR-SITE.netlify.app/api/buffer/callback
    BUFFER_SCOPES=account:read posts:write offline_access
+   SESSION_ENCRYPTION_KEY=your-generated-random-secret
    ```
 
-3. Ensure `SESSION_ENCRYPTION_KEY` has a strong, newly generated value and restart the server.
+3. Generate a strong `SESSION_ENCRYPTION_KEY` using `openssl rand -base64 32`. Keep the real value in Netlify's environment settings, never in GitHub. Buffer requires the registered redirect URI to match the request exactly; current Buffer documentation requires HTTPS for redirect URIs, including localhost, so do not assume the default plain-HTTP local callback can be used for OAuth.
 4. Select **Sign in with Buffer** / **Connect Buffer**, complete consent, and confirm the real authorized channels are loaded.
-5. Test **Save draft to Buffer** with a low-risk post. Then try scheduling for a near-future time on a test channel. Test publish-now only when you are comfortable with the selected destination.
+5. Test **Save draft to Buffer** with a low-risk post. Then try scheduling on a test channel. Test publish-now only when you are comfortable with the selected destination.
 
-Releasebuff implements Buffer OAuth Authorization Code + PKCE. It requests only the scopes needed for account and post operations. Publishing actions require explicit confirmation in the UI. A post is shown as successfully saved/published/scheduled only after Buffer responds successfully.
+Request only the scopes the Buffer client is allowed to request. Releasebuff asks for account/channel access and post-writing capability; each user must grant access through Buffer. Publishing actions require explicit confirmation in the UI, and the app reports success only after Buffer responds successfully.
 
 ## Netlify deployment setup
 
