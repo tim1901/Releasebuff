@@ -19,8 +19,7 @@ function tokenResponse(tokens: Record<string, unknown>) {
   });
 }
 
-function requestBody(mock: ReturnType<typeof vi.fn>) {
-  const init = mock.mock.calls[0]?.[1] as RequestInit | undefined;
+function requestBody(init: RequestInit | undefined) {
   return new URLSearchParams(String(init?.body ?? ""));
 }
 
@@ -62,7 +61,7 @@ describe("Buffer public OAuth client support", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const session = await exchangeAuthorizationCode("test-code", "test-verifier");
-    const body = requestBody(fetchMock);
+    const body = requestBody(fetchMock.mock.calls[0]?.[1]);
 
     expect(session.accessToken).toBe("access-public");
     expect(session.refreshToken).toBe("refresh-public");
@@ -80,7 +79,7 @@ describe("Buffer public OAuth client support", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await exchangeAuthorizationCode("test-code", "test-verifier");
-    expect(requestBody(fetchMock).get("client_secret")).toBe("test-confidential-secret");
+    expect(requestBody(fetchMock.mock.calls[0]?.[1]).get("client_secret")).toBe("test-confidential-secret");
   });
 
   it("refreshes a public client's session without sending client_secret", async () => {
@@ -98,7 +97,7 @@ describe("Buffer public OAuth client support", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const session = await getValidBufferSession(sid);
-    const body = requestBody(fetchMock);
+    const body = requestBody(fetchMock.mock.calls[0]?.[1]);
 
     expect(session.accessToken).toBe("access-refreshed");
     expect(session.refreshToken).toBe("refresh-rotated");
