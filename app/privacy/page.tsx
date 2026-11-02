@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
             browser/device feature affects its storage.
           </p>
           <p>
-            Clearing this site's browser storage can remove local project information and drafts. The current MVP
+            Clearing this site&apos;s browser storage can remove local project information and drafts. The current MVP
             does not yet provide cross-device syncing, a cloud workspace, or a built-in export/import backup workflow.
             Keep your own copies of material you cannot afford to lose.
           </p>
@@ -77,7 +77,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <p>
             OpenAI processes those requests under its own terms, privacy documentation, and applicable API data
-            controls. Do not assume that the way Releasebuff stores information determines the provider's retention
+            controls. Do not assume that the way Releasebuff stores information determines the provider&apos;s retention
             or processing practices. If AI is not configured, Releasebuff uses its labelled non-AI fallback paths.
           </p>
         </section>
@@ -95,11 +95,11 @@ export default function PrivacyPolicyPage() {
             When you ask Releasebuff to load your channels or save, schedule, or publish a post, it sends the
             information needed for that request to Buffer, such as post text, the chosen channel, and any requested
             schedule time. Generating a draft does not publish it. Saving, scheduling, or publishing requires a
-            separate user action and confirmation. Buffer processes connected-account data under Buffer's own
+            separate user action and confirmation. Buffer processes connected-account data under Buffer&apos;s own
             policies and terms.
           </p>
           <p>
-            You can disconnect Buffer inside Releasebuff and may also revoke the app's access in your Buffer
+            You can disconnect Buffer inside Releasebuff and may also revoke the app&apos;s access in your Buffer
             account settings. Disconnecting removes the stored session record for that Releasebuff session; it does
             not delete your local drafts or any posts already created in Buffer.
           </p>
@@ -122,7 +122,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <p>
             The interface loads fonts from Google Fonts. When your browser requests those fonts, Google may receive
-            technical information such as your IP address and browser request metadata under Google's applicable
+            technical information such as your IP address and browser request metadata under Google&apos;s applicable
             policies.
           </p>
           <p>
@@ -135,7 +135,7 @@ export default function PrivacyPolicyPage() {
           <h2>7. Retention and deletion</h2>
           <p>
             Browser workspace data remains in your browser until you delete it or browser/device storage is removed.
-            You can clear the site's browser storage to remove local projects and drafts. Connected integration
+            You can clear the site&apos;s browser storage to remove local projects and drafts. Connected integration
             records are encrypted and assigned an application expiry (30 days for Buffer sessions and GitHub
             installation records; temporary GitHub authorization records expire sooner). Expired records are removed
             when the application detects them; hosting-provider logs and backups may follow separate retention rules.
@@ -144,7 +144,7 @@ export default function PrivacyPolicyPage() {
             You can disconnect GitHub or Buffer from within Releasebuff and can revoke authorization directly with
             the relevant provider. Those actions do not automatically remove local workspace data, content already
             sent to an AI provider, posts already created in Buffer, or copies retained under a third-party
-            provider's own policies.
+            provider&apos;s own policies.
           </p>
         </section>
 
@@ -154,7 +154,7 @@ export default function PrivacyPolicyPage() {
             Depending on the features you use, the relevant third parties may include GitHub (repository access),
             OpenAI (AI-enabled actions), Buffer (connected social publishing), Netlify (hosting and integration
             storage when deployed), and Google Fonts (interface typography). Releasebuff does not control these
-            providers' independent services or their privacy practices. Review the policies applicable to services
+            providers&apos; independent services or their privacy practices. Review the policies applicable to services
             you choose to connect.
           </p>
         </section>
@@ -182,7 +182,7 @@ export default function PrivacyPolicyPage() {
           <h2>11. Contact</h2>
           <p>
             For privacy questions or requests, contact the Releasebuff maintainer through the
-            {" "}<a href="https://github.com/tim1901" target="_blank" rel="noreferrer">maintainer's GitHub profile</a>.
+            {" "}<a href="https://github.com/tim1901" target="_blank" rel="noreferrer">maintainer&apos;s GitHub profile</a>.
             Please do not post private personal information or account credentials in public issues.
           </p>
         </section>
