@@ -51,7 +51,9 @@ export function isBufferOAuthConfigured(): boolean {
     redirectMatchesApp = Boolean(base && redirectUri === new URL("/api/buffer/callback", base).toString());
   } catch { /* Invalid URL configuration is not ready for OAuth. */ }
   const baseUrlReady = process.env.NODE_ENV !== "production" || Boolean(appBase);
-  return Boolean(CLIENT_ID() && CLIENT_SECRET() && redirectUri && redirectMatchesApp && isSessionEncryptionConfigured() && baseUrlReady && persistentIntegrationStoreConfigured());
+  // Public Buffer clients use Authorization Code + PKCE without a client secret.
+  // A secret is sent only when configured for an existing confidential client.
+  return Boolean(CLIENT_ID() && redirectUri && redirectMatchesApp && isSessionEncryptionConfigured() && baseUrlReady && persistentIntegrationStoreConfigured());
 }
 
 export function createPkcePair() {
@@ -67,7 +69,7 @@ export function constantTimeEqual(a: string, b: string): boolean {
 export function bufferAuthorizationUrl(state: string, codeChallenge: string): string {
   const clientId = CLIENT_ID();
   const redirectUri = process.env.BUFFER_REDIRECT_URI?.trim();
-  if (!clientId || !redirectUri || !CLIENT_SECRET()) throw new Error("Configure BUFFER_CLIENT_ID, BUFFER_CLIENT_SECRET and BUFFER_REDIRECT_URI first.");
+  if (!clientId || !redirectUri) throw new Error("Configure BUFFER_CLIENT_ID and BUFFER_REDIRECT_URI first.");
   const url = new URL("https://auth.buffer.com/auth");
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("redirect_uri", redirectUri);
@@ -82,15 +84,17 @@ export function bufferAuthorizationUrl(state: string, codeChallenge: string): st
 
 export async function exchangeAuthorizationCode(code: string, verifier: string): Promise<BufferSession> {
   const clientId = CLIENT_ID(); const clientSecret = CLIENT_SECRET(); const redirectUri = process.env.BUFFER_REDIRECT_URI?.trim();
-  if (!clientId || !clientSecret || !redirectUri) throw new Error("Buffer OAuth environment variables are not configured.");
-  const data = await tokenRequest(new URLSearchParams({
+  if (!clientId || !redirectUri) throw new Error("Buffer OAuth environment variables are not configured.");
+  const params = new URLSearchParams({
     client_id: clientId,
-    client_secret: clientSecret,
     grant_type: "authorization_code",
     code,
     redirect_uri: redirectUri,
     code_verifier: verifier
-  }));
+  });
+  // Buffer public clients must omit client_secret; confidential clients may include it.
+  if (clientSecret) params.set("client_secret", clientSecret);
+  const data = await tokenRequest(params);
   return {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
@@ -118,10 +122,13 @@ export async function getValidBufferSession(sid: string): Promise<BufferSession>
     if (latest.expiresAt > Date.now() + 90_000) return latest;
     if (!latest.refreshToken) throw new BufferApiError("The Buffer session has expired. Reconnect your account.", 401, "reauthorization_required");
     const clientId = CLIENT_ID(); const clientSecret = CLIENT_SECRET();
-    if (!clientId || !clientSecret) throw new Error("Buffer OAuth client configuration is missing.");
+    if (!clientId) throw new Error("Buffer OAuth client configuration is missing.");
+    const refreshParams = new URLSearchParams({ client_id: clientId, grant_type: "refresh_token", refresh_token: latest.refreshToken });
+    // Buffer public clients refresh with client_id + refresh_token only.
+    if (clientSecret) refreshParams.set("client_secret", clientSecret);
     let tokens;
     try {
-      tokens = await tokenRequest(new URLSearchParams({ client_id: clientId, client_secret: clientSecret, grant_type: "refresh_token", refresh_token: latest.refreshToken }));
+      tokens = await tokenRequest(refreshParams);
     } catch (error) {
       if (error instanceof BufferApiError && error.status === 401) throw error;
       throw error;
