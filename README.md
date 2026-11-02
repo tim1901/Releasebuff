@@ -124,9 +124,16 @@ Private repository contents are sensitive. Releasebuff submits relevant excerpts
 
 Releasebuff implements Buffer OAuth Authorization Code + PKCE. It requests only the scopes needed for account and post operations. Publishing actions require explicit confirmation in the UI. A post is shown as successfully saved/published/scheduled only after Buffer responds successfully.
 
+## Netlify deployment setup
+
+1. Import this GitHub repository into Netlify. The build command is `npm run build` (configured in `netlify.toml`); let Netlify's maintained Next.js adapter handle the App Router and Route Handlers. Do not configure this project as a static export.
+2. In the Netlify site's environment-variable settings, set `APP_BASE_URL` to the site's full HTTPS origin (for example, `https://your-site-name.netlify.app`) and set `SESSION_ENCRYPTION_KEY` to a newly generated secret from `openssl rand -base64 32`. Add `OPENAI_API_KEY` only if you want AI-backed analysis and drafting. Add the GitHub App and Buffer variables only if you intend to enable those integrations.
+3. For Buffer in a deployed site, set `BUFFER_REDIRECT_URI` to `https://your-site-name.netlify.app/api/buffer/callback` and configure that exact URL in the Buffer OAuth app. For the GitHub App, configure the user-authorization callback as `https://your-site-name.netlify.app/api/github/oauth/callback` and the setup URL as `https://your-site-name.netlify.app/api/github/callback`. Replace the example hostname with the final Netlify site hostname.
+4. Keep all real credentials in Netlify's environment-variable settings, never in GitHub. `.env.example` contains blank placeholders for local setup; use `cp .env.example .env.local` locally, then set the values you need. Do not commit `.env.local`.
+
 ### Integration token storage and production caveat
 
-During `npm run dev`, encrypted integration records are written under `.data/integration-state/`; the encryption key is kept in `.env.local`, and `.data/` is gitignored. Production mode refuses this local-file fallback. On Netlify, `NETLIFY=true` selects Netlify Blobs via `@netlify/blobs`; configure the environment variables on the site, never in the repository. You do not need to provision a relational database.
+During `npm run dev`, encrypted integration records are written under `.data/integration-state/`; the encryption key is kept in `.env.local`, and `.data/` is gitignored. Production mode refuses this local-file fallback. In Netlify's runtime, Releasebuff selects Netlify Blobs via `@netlify/blobs` when `SITE_ID` and `URL` are present, or when `NETLIFY=true` / `NETLIFY_DEV=true`. Configure environment variables on the site, never in the repository. You do not need to provision a relational database.
 
 **Important limitation before public multi-user launch:** Buffer refresh tokens rotate and are single-use. The current refresh coordination is process-local. Netlify Blobs provides persistence but not a distributed transaction/lock, so simultaneous refresh attempts across separate function instances are not fully serialized by this prototype. Before serving meaningful production traffic, add a cross-instance refresh lease/lock or another coordination mechanism, and test concurrent refresh behaviour. This rebuild is meant for local validation and controlled integration testing, not a claim that the OAuth flow has passed production concurrency testing.
 
