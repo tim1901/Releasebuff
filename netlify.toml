@@ -1,0 +1,5 @@
+[build]
+  command = "npm run build"
+
+# Netlify's maintained Next.js adapter handles App Router and Route Handlers.
+# Add environment variables through Netlify Site configuration, never in this file.

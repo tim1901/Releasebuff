@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"tertiary-fixed-dim":"#c2c8bf","on-surface":"#1a1c19","primary-fixed":"#c2ecd5","secondary-fixed":"#c2f271","outline-variant":"#c1c8c2","surface":"#fafaf4","on-primary":"#ffffff","on-tertiary-fixed-variant":"#424841","on-error-container":"#93000a","primary-container":"#173d2d","tertiary":"#1d231d","on-primary-fixed-variant":"#294e3d","on-tertiary":"#ffffff","surface-container":"#eeeee8","secondary":"#466800","primary-fixed-dim":"#a7d0b9","on-primary-fixed":"#002114","inverse-primary":"#a7d0b9","on-error":"#ffffff","error-container":"#ffdad6","inverse-on-surface":"#f1f1eb","outline":"#717973","inverse-surface":"#2f312d","tertiary-container":"#323831","on-primary-container":"#80a893","on-tertiary-container":"#9ba198","surface-container-lowest":"#ffffff","surface-container-high":"#e8e8e3","secondary-fixed-dim":"#a7d558","surface-variant":"#e3e3dd","tertiary-fixed":"#dee4da","surface-container-highest":"#e3e3dd","on-secondary-fixed-variant":"#344e00","error":"#ba1a1a","background":"#fafaf4","surface-tint":"#406654","surface-dim":"#dadad5","on-surface-variant":"#414844","surface-bright":"#fafaf4","on-tertiary-fixed":"#171d17","on-background":"#1a1c19","on-secondary-container":"#4a6d00","on-secondary":"#ffffff","surface-container-low":"#f4f4ee","on-secondary-fixed":"#121f00","primary":"#002719","secondary-container":"#bfef6f"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-xs":"0.25rem","space-sm":"0.5rem",gutter:"1rem",margin:"1.25rem","space-xl":"1.5rem","space-md":"0.75rem","margin-lg":"2rem","gutter-lg":"1.5rem","space-2xl":"2rem","space-lg":"1rem"},fontFamily:{"headline-xl":["Hanken Grotesk"],"label-md":["JetBrains Mono"],"body-lg":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"headline-xl-mobile":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"body-sm":["Hanken Grotesk"],"headline-lg-mobile":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"label-sm":["JetBrains Mono"],"label-lg":["JetBrains Mono"]},fontSize:{"headline-xl":["32px",{lineHeight:"38px",letterSpacing:"-0.03em",fontWeight:"700"}],"label-md":["11px",{lineHeight:"15px",letterSpacing:"0.04em",fontWeight:"500"}],"body-lg":["15px",{lineHeight:"22px",fontWeight:"400"}],"headline-md":["18px",{lineHeight:"24px",letterSpacing:"-0.01em",fontWeight:"600"}],"headline-xl-mobile":["26px",{lineHeight:"32px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-lg":["24px",{lineHeight:"30px",letterSpacing:"-0.02em",fontWeight:"600"}],"body-sm":["12px",{lineHeight:"17px",fontWeight:"400"}],"headline-lg-mobile":["20px",{lineHeight:"26px",letterSpacing:"-0.01em",fontWeight:"600"}],"body-md":["13px",{lineHeight:"19px",fontWeight:"400"}],"label-sm":["10px",{lineHeight:"13px",letterSpacing:"0.06em",fontWeight:"600"}],"label-lg":["13px",{lineHeight:"18px",letterSpacing:"0.01em",fontWeight:"500"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="px-space-lg pt-space-xl pb-space-lg flex items-center gap-space-md"><img alt="Releasebuff Brand Mark" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnuOHahNbIGj8Hyr9IpYtEqh4Wd55kSh20NGuWjYG4YXjCUZxHCB8HjQE-8ntfG0V__JsNO0H1pBI4KP2rmIDLPTwVAWlokdh8t_jkrGRb-kUH3gt2w2G19hrdnBLGk2FsIDgWuz49D2TlxNJ6JR86P0ycnRudMdY3VZrV7Hm02g6H8I_uANF83nL_QtknpOArLcvJG6KPQ3pIgch87ZmoIB8SkJIpt7BqTug2_Vs"/><div class="flex flex-col"><span class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">Releasebuff</span><span class="font-label-sm text-label-sm text-outline tracking-wider uppercase">SYSTEMS PRD.01</span></div></div><div class="px-space-lg py-space-sm"><div class="bg-surface-container px-space-md py-space-sm rounded flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline uppercase">Pipeline Active</span><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-secondary-container"></span><span class="font-label-sm text-label-sm text-on-surface font-semibold">LIVE SYNC</span></div></div></div><nav class="flex flex-col gap-space-xs px-space-md mt-space-md" data-active-classes="bg-primary-container text-on-primary font-semibold shadow-sm"><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="story-inbox" href="#"><span class="font-label-lg text-label-lg tracking-normal">Story Inbox</span><span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed px-space-xs py-0.5 rounded font-semibold">8 new</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="story-categories" href="#"><span class="font-label-lg text-label-lg tracking-normal">Story Categories</span><span class="font-label-sm text-label-sm text-outline">16 MODS</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="draft-studio" href="#"><span class="font-label-lg text-label-lg tracking-normal">Draft Studio</span><span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="draft-library" href="#"><span class="font-label-lg text-label-lg tracking-normal">Draft Library</span><span class="font-label-sm text-label-sm text-outline">14</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="project-setup" href="#"><span class="font-label-lg text-label-lg tracking-normal">Project Setup</span><span class="font-label-sm text-label-sm text-outline">GIT / API</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="landing-preview" href="#"><span class="font-label-lg text-label-lg tracking-normal">Landing Preview</span><span class="material-symbols-outlined text-[14px] text-outline">arrow_outward</span></a></nav></div><div class="p-space-lg bg-surface-container-low flex flex-col gap-space-sm"><div class="bg-surface p-space-sm rounded flex flex-col gap-space-xs shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline uppercase">Engine Status</span><span class="font-label-sm text-label-sm text-secondary font-bold">ONLINE</span></div><div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant"><span class="material-symbols-outlined text-[13px] text-outline">commit</span><span>HEAD: 3c8e42f</span></div></div><div class="flex items-center justify-between px-space-xs pt-space-xs"><span class="font-label-sm text-label-sm text-outline">v1.4.2-rbf</span><span class="font-label-sm text-label-sm text-outline">SYS_OK</span></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-28 bg-surface/90 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="bg-surface-container px-space-sm py-space-xs rounded flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-outline">fork_right</span><span class="font-label-sm text-label-sm text-on-surface font-semibold">github.com/trellis-app/engine</span><span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span><span class="font-label-sm text-label-sm text-outline">Synced 14m ago</span></div><div class="bg-surface-container px-space-sm py-space-xs rounded flex items-center gap-space-xs"><span class="material-symbols-outlined text-[15px] text-secondary">sync_alt</span><span class="font-label-sm text-label-sm text-on-surface">Buffer • 2 Channels (LinkedIn, X)</span></div></div><div class="flex items-center gap-space-md"><button class="bg-secondary-container text-on-secondary-fixed hover:bg-secondary-fixed-dim hover:text-on-secondary-fixed px-space-md py-space-xs rounded font-label-sm text-label-sm font-semibold flex items-center gap-space-xs transition-colors" type="button"><span class="material-symbols-outlined text-[16px]">refresh</span>Scan Repository</button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="h-12 px-space-lg bg-surface-container-low flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-space-md"><span class="font-label-sm text-label-sm text-outline uppercase">Lifecycle Map</span><div class="flex items-center gap-space-sm font-label-sm text-label-sm"><span class="flex items-center gap-1 text-on-surface font-semibold"><span class="w-1.5 h-1.5 bg-secondary-container rounded-none inline-block"></span>RBF.01 / CAPTURE</span><span class="text-outline-variant">→</span><span class="flex items-center gap-1 text-on-surface font-semibold"><span class="w-1.5 h-1.5 bg-secondary-container rounded-none inline-block"></span>RBF.02 / INTERPRET</span><span class="text-outline-variant">→</span><span class="flex items-center gap-1 text-on-surface font-semibold"><span class="w-1.5 h-1.5 bg-secondary-container rounded-none inline-block"></span>RBF.03 / DRAFT</span><span class="text-outline-variant">→</span><span class="text-outline">RBF.04 / PUBLISH</span></div></div><div class="flex items-center gap-space-sm"><span class="font-label-sm text-label-sm text-outline uppercase">Mode:</span><span class="font-label-sm text-label-sm bg-surface text-on-surface px-space-xs py-0.5 rounded font-medium shadow-[0_1px_8px_rgba(0,0,0,0.02)]">Autonomous Discover</span></div></div></header><main class="w-full pt-28 px-space-lg flex-1 bg-surface"><div class="flex flex-col w-full">
+<div class="pb-space-2xl flex flex-col gap-space-xl">
+<!-- Top Engineering Instrumentation Header -->
+<div class="bg-surface-container-low p-space-xl rounded-xl shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm bg-primary text-secondary-container px-space-xs py-0.5 rounded font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse"></span>
+              CLASSIFICATION ENGINE // RBF.02
+            </span>
+<span class="font-label-sm text-label-sm text-outline">TAXONOMY SCHEMA v1.4.2-STRICT</span>
+<span class="font-label-sm text-label-sm text-outline">LOC: 16 MODS VERIFIED</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Story Categories &amp; Taxonomy Matrix</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-4xl">
+            All 16 content archetypes mapped across 4 builder quadrants. Categories operate continuously in the discovery engine, but only surface in the Story Inbox when verified by repository AST diffs, ADR docs, or verified builder context.
+          </p>
+</div>
+<div class="flex items-center gap-space-md">
+<a class="bg-surface-container-highest hover:bg-surface-container-high text-on-surface px-space-md py-space-sm rounded font-label-md text-label-md flex items-center gap-space-xs transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px] text-outline">tune</span>
+            Matrix Config
+          </a>
+<a class="bg-secondary-container text-on-secondary-fixed hover:bg-secondary-fixed-dim px-space-lg py-space-sm rounded font-label-md text-label-md font-semibold flex items-center gap-space-xs transition-colors shadow-sm" href="#">
+<span class="material-symbols-outlined text-[16px]">all_inbox</span>
+            View Unified Story Inbox (8)
+          </a>
+</div>
+</div>
+<!-- Telemetry Strip & Summary Visualizer -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-xl flex-wrap">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 bg-secondary-container rounded-sm"></span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">16 Taxonomy Archetypes Active</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline uppercase">Inbox Yield:</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">8 Surfaced in Current Scan</span>
+<span class="font-label-sm text-label-sm bg-primary-fixed text-on-primary-fixed-variant px-space-xs py-0.5 rounded">50% Active Yield</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline uppercase">Awaiting Evidence:</span>
+<span class="font-label-md text-label-md text-outline">8 Idle (Awaiting Code or Builder Context)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="font-label-sm text-label-sm text-secondary bg-surface-container px-space-sm py-1 rounded hover:bg-surface-container-high transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">filter_alt</span>
+            Filter Inbox by Active (8)
+          </button>
+<span class="font-label-sm text-label-sm text-outline">GIT_HEAD: 3c8e42f</span>
+</div>
+</div>
+</div>
+<!-- Quadrant Metric Distribution Rails -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Q1 Metric Pill -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">QUADRANT 01</span>
+<span class="font-label-sm text-label-sm font-bold text-on-surface bg-secondary-container px-1.5 py-0.5 rounded">3 / 4 SURFACED</span>
+</div>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-headline-md text-on-surface">Product Progress</span>
+<span class="font-label-sm text-label-sm text-outline">75% Yield</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Tangible code evolution, shipped capabilities, measurable gains.</p>
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-2 overflow-hidden flex">
+<div class="bg-secondary-container h-full" style="width: 75%;"></div>
+</div>
+</div>
+<!-- Q2 Metric Pill -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">QUADRANT 02</span>
+<span class="font-label-sm text-label-sm font-bold text-on-surface bg-secondary-container px-1.5 py-0.5 rounded">3 / 4 SURFACED</span>
+</div>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-headline-md text-on-surface">Learning &amp; Craft</span>
+<span class="font-label-sm text-label-sm text-outline">75% Yield</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Technical depth, architectural decisions, post-mortems, hard-won insights.</p>
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-2 overflow-hidden flex">
+<div class="bg-secondary-container h-full" style="width: 75%;"></div>
+</div>
+</div>
+<!-- Q3 Metric Pill -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">QUADRANT 03</span>
+<span class="font-label-sm text-label-sm font-semibold text-on-surface bg-surface-container-high px-1.5 py-0.5 rounded">1 / 4 SURFACED</span>
+</div>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-headline-md text-on-surface">Product Marketing</span>
+<span class="font-label-sm text-label-sm text-outline">25% Yield</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Value framing, problem-solution arcs, feature demonstrations.</p>
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-2 overflow-hidden flex">
+<div class="bg-secondary-container h-full" style="width: 25%;"></div>
+</div>
+</div>
+<!-- Q4 Metric Pill -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">QUADRANT 04</span>
+<span class="font-label-sm text-label-sm font-semibold text-on-surface bg-surface-container-high px-1.5 py-0.5 rounded">1 / 4 SURFACED</span>
+</div>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-headline-md text-on-surface">Audience &amp; Growth</span>
+<span class="font-label-sm text-label-sm text-outline">25% Yield</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Community dialogue, traction milestones, authentic builder reflection.</p>
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-2 overflow-hidden flex">
+<div class="bg-secondary-container h-full" style="width: 25%;"></div>
+</div>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- QUADRANT 01: PRODUCT PROGRESS (4 Archetypes) -->
+<!-- ========================================== -->
+<div class="flex flex-col gap-space-md mt-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md bg-primary-container text-on-primary-fixed-variant px-space-sm py-0.5 rounded font-bold uppercase tracking-wider">
+            GROUP 01
+          </span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Product Progress</h2>
+<span class="font-label-sm text-label-sm text-outline">AST_ENGINE // DIFF_VERIFIED</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold bg-surface-container px-space-sm py-1 rounded">3 Active / 1 Idle</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- CAT.01 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.01 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed font-bold px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                ACTIVE (PR #142)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">New Feature Shipped</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Celebrate real customer utility unlocking in production with concrete execution metrics.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">PR diff (+142/-18), Merged branch main, semantic tag `feat:`</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Do not equate an open PR with a shipped feature. Verify merge commit to production default branch before generating celebratory copy.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"We just merged PR #142: webhooks can now be retried with exponential backoff directly from the dashboard."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container-high hover:bg-surface-container text-on-surface py-1.5 px-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center justify-between transition-colors" href="#">
+<span>Filter Inbox to CAT.01</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- CAT.02 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.02 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed font-bold px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                ACTIVE (1 STORY)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Product Improvement</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Highlight subtle, high-craft polish, faster load times, or refactored UI flows that reduce friction.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Lighthouse metrics, CSS refactors, bundle size JSON (-24kB)</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Quantify the improvement wherever possible; avoid hyperbolic adjectives without baseline and test delta evidence.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"Cut modal initialization latency from 410ms to 62ms by deferring uncompiled SVG trees."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container-high hover:bg-surface-container text-on-surface py-1.5 px-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center justify-between transition-colors" href="#">
+<span>Filter Inbox to CAT.02</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- CAT.03 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.03 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed font-bold px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                ACTIVE (ISSUE #89)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Bug Fixed / Solved</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Dissect an elusive bug, the investigative reproduction process, and the permanent resolution.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Issue closure `#89`, regression test suite additions, stack traces</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Focus on the root cause and learning mechanism; never assign blame to teammates, third-party libraries, or junior contributors.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"A silent race condition in our token refresher caused 0.4% of sessions to drop. Here's how we isolated it with 2 lines."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container-high hover:bg-surface-container text-on-surface py-1.5 px-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center justify-between transition-colors" href="#">
+<span>Filter Inbox to CAT.03</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- CAT.04 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md opacity-85 hover:opacity-100 transition-opacity">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.04 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-surface-container text-outline font-medium px-space-xs py-0.5 rounded">
+                IDLE (WINDOW: FRI 18:00)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Weekly Build Recap</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Aggregated roll-up of everything shipped during the 7-day sprint cycle with cadence discipline.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Git commit log (7-day window), CHANGELOG.md diffs, release tags</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Do not compile trivial dependency bumps (e.g., Dependabot lockfiles) into user-facing recaps unless security-critical.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"Sprint 34 recap: 12 PRs merged, 1 critical query optimized, and automated team invitations finally live."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container text-outline py-1.5 px-space-sm rounded font-label-sm text-label-sm flex items-center justify-between cursor-not-allowed" href="#">
+<span>Awaiting 7-Day Window Cutoff</span>
+<span class="material-symbols-outlined text-[14px]">lock_clock</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- QUADRANT 02: LEARNING & CRAFT (4 Archetypes) -->
+<!-- ========================================== -->
+<div class="flex flex-col gap-space-md mt-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md bg-primary-container text-on-primary-fixed-variant px-space-sm py-0.5 rounded font-bold uppercase tracking-wider">
+            GROUP 02
+          </span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Learning &amp; Craft</h2>
+<span class="font-label-sm text-label-sm text-outline">ARCHITECTURE // POST-MORTEM // ADR</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold bg-surface-container px-space-sm py-1 rounded">3 Active / 1 Context Needed</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- CAT.05 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.05 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed font-bold px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                ACTIVE (ADR #004)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Tech Decision / Trade-off</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Explain the "why" behind architecture pivots: why chosen tool X over tool Y despite tradeoffs.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Architecture Decision Records (`docs/adr/`), PR description discussion</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Always acknowledge the downside of the chosen approach. No technology choice is universally superior without compromises.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"Why we migrated our job queues from Redis Pub/Sub to SQS even though it added 40ms baseline overhead."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container-high hover:bg-surface-container text-on-surface py-1.5 px-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center justify-between transition-colors" href="#">
+<span>Filter Inbox to CAT.05</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- CAT.06 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.06 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed font-bold px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                ACTIVE (1 STORY)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Lesson Learned</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">A hard-won insight distilled into actionable advice for other systems engineers and technical leads.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Major migration commit diffs, config refactoring, post-deploy fixes</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">The lesson must be actionable and generalizable beyond the specific codebase. Avoid self-evident truisms like 'tests matter'.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"The silent trap with connection pool reuse in serverless lambdas: what 2 weeks of sporadic 502s taught us."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container-high hover:bg-surface-container text-on-surface py-1.5 px-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center justify-between transition-colors" href="#">
+<span>Filter Inbox to CAT.06</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- CAT.07 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.07 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high text-on-surface font-bold px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                NEEDS CONTEXT
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Failed Experiment</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">An honest dissection of an approach that didn't work and the concrete pivot that followed.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Reverted commits (`git revert 9a41...`), closed PR without merge</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Never infer 'failure' solely from a revert; ask the builder what was learned. Always frame failure as systematic discovery, not defeat.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"We spent 4 days building custom CRDT synchronization before throwing it away for simple last-write-wins. Why?"</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container-high hover:bg-surface-container text-on-surface py-1.5 px-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center justify-between transition-colors" href="#">
+<span>Add Context (Prompt Builder)</span>
+<span class="material-symbols-outlined text-[14px]">edit_note</span>
+</a>
+</div>
+</div>
+<!-- CAT.08 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.08 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed font-bold px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                ACTIVE (1 STORY)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Behind the Scenes</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">The unseen infrastructure, local setups, internal scripts, or CI/CD pipelines powering the product.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">GitHub Actions `.github/workflows/`, Dockerfiles, Terraform diffs</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Scrub all environment secrets, private hostnames, tokens, internal employee handles, and uncommitted staging credentials.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"The 38-line GitHub Action that runs isolated ephemeral staging DBs for every single pull request."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container-high hover:bg-surface-container text-on-surface py-1.5 px-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center justify-between transition-colors" href="#">
+<span>Filter Inbox to CAT.08</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- QUADRANT 03: PRODUCT MARKETING (4 Archetypes) -->
+<!-- ========================================== -->
+<div class="flex flex-col gap-space-md mt-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md bg-primary-container text-on-primary-fixed-variant px-space-sm py-0.5 rounded font-bold uppercase tracking-wider">
+            GROUP 03
+          </span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Product Marketing</h2>
+<span class="font-label-sm text-label-sm text-outline">VALUE POSITIONING // DEMO // HORIZON</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold bg-surface-container px-space-sm py-1 rounded">1 Active / 3 Idle</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- CAT.09 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.09 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed font-bold px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                ACTIVE (DIFF_PREVIEW)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Product Showcase / Demo</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Walk through a key feature in action, connecting UI mechanics directly to user relief.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Landing page copy PRs, CLI terminal recorded casts, Storybook tokens</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Always specify the user problem before demoing the solution; never lead with interface aesthetics alone.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"Here's what happens when you type `releasebuff sync` in a dirty git working tree: 4 seconds flat."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container-high hover:bg-surface-container text-on-surface py-1.5 px-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center justify-between transition-colors" href="#">
+<span>Filter Inbox to CAT.09</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- CAT.10 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md opacity-85 hover:opacity-100 transition-opacity">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.10 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-surface-container text-outline font-medium px-space-xs py-0.5 rounded">
+                IDLE (NO BUILDER INPUT)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Problem &amp; Solution</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Frame a widespread pain point in the developer ecosystem and demonstrate the fix.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">User issue reports, builder voice memo, customer interview transcription</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Do not invent customer personas or fabricate quotes. Ground pain points strictly in documented issues or actual quotes.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"Founders hate writing changelogs because git commits are written for machines. Here is how we bridge it."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container text-outline py-1.5 px-space-sm rounded font-label-sm text-label-sm flex items-center justify-between cursor-not-allowed" href="#">
+<span>Awaiting Builder Insight</span>
+<span class="material-symbols-outlined text-[14px]">hourglass_empty</span>
+</a>
+</div>
+</div>
+<!-- CAT.11 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md opacity-85 hover:opacity-100 transition-opacity">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.11 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-surface-container text-outline font-medium px-space-xs py-0.5 rounded">
+                IDLE (NO RELEASE EVENT)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Product Hype / Launch</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Generate authentic anticipation around an impending major version or milestone deployment.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Release milestone checklist, beta tester signup counts, v2.0 branch</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">No artificial urgency ('only 3 seats left!'). No unsubstantiated buzzwords. Keep the tone grounded in what was built.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"After 11 weeks of private testing with 40 engineering teams, Releasebuff v1.0 goes public this Thursday."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container text-outline py-1.5 px-space-sm rounded font-label-sm text-label-sm flex items-center justify-between cursor-not-allowed" href="#">
+<span>No Release Event Queued</span>
+<span class="material-symbols-outlined text-[14px]">event_busy</span>
+</a>
+</div>
+</div>
+<!-- CAT.12 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md opacity-85 hover:opacity-100 transition-opacity">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.12 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-surface-container text-outline font-medium px-space-xs py-0.5 rounded">
+                IDLE (NO ROADMAP SYNC)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">What's Next / Roadmap</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Share what's coming and why, inviting early feedback before high-effort code is locked in.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">GitHub Projects column cards, milestone issues, PR drafts labeled `RFC`</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Never guarantee ship dates unless the builder explicitly sets them. Frame upcoming items as active explorations.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"RFC: We're designing automated Buffer scheduling slots based on GitHub PR merge frequencies. Thoughts?"</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container text-outline py-1.5 px-space-sm rounded font-label-sm text-label-sm flex items-center justify-between cursor-not-allowed" href="#">
+<span>Sync GitHub Projects</span>
+<span class="material-symbols-outlined text-[14px]">sync_disabled</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- QUADRANT 04: AUDIENCE & GROWTH (4 Archetypes) -->
+<!-- ========================================== -->
+<div class="flex flex-col gap-space-md mt-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md bg-primary-container text-on-primary-fixed-variant px-space-sm py-0.5 rounded font-bold uppercase tracking-wider">
+            GROUP 04
+          </span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Audience &amp; Growth</h2>
+<span class="font-label-sm text-label-sm text-outline">COMMUNITY // METRICS // FOUNDER REFLECTION</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold bg-surface-container px-space-sm py-1 rounded">1 Active / 3 Idle</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- CAT.13 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md opacity-85 hover:opacity-100 transition-opacity">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.13 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-surface-container text-outline font-medium px-space-xs py-0.5 rounded">
+                IDLE (NO POLL PROMPT)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Ask the Audience</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pose a specific technical question or product dilemma to spark conversation and uncover blindspots.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Conflicting GitHub issues, community RFC threads, poll data</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">The question must be specific enough to answer in a comment. Avoid empty engagement bait like 'Agree or disagree?'.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"For local dev setups: do you prefer Docker Compose or native brew services for Postgres and Redis?"</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container text-outline py-1.5 px-space-sm rounded font-label-sm text-label-sm flex items-center justify-between cursor-not-allowed" href="#">
+<span>Awaiting Inquiry Prompt</span>
+<span class="material-symbols-outlined text-[14px]">question_mark</span>
+</a>
+</div>
+</div>
+<!-- CAT.14 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.14 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed font-bold px-space-xs py-0.5 rounded flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                ACTIVE (1,000 WAU)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Traction &amp; Milestones</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Share authentic progress: user counts, revenue, API calls, or GitHub stars with context.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Stripe webhook logs, PostHog event API, GitHub repository stargazers</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Requires real numbers; GitHub stars alone are not customer traction. Disclose context alongside raw volume metrics.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"1,000 weekly active builders just hit across 48 repos. Here is what broke first at scale."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container-high hover:bg-surface-container text-on-surface py-1.5 px-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center justify-between transition-colors" href="#">
+<span>Filter Inbox to CAT.14</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- CAT.15 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md opacity-85 hover:opacity-100 transition-opacity">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.15 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-surface-container text-outline font-medium px-space-xs py-0.5 rounded">
+                IDLE (NO QUOTE LOG)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Customer Feedback</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Celebrate what users love or publicly address what they asked to change, showing listening.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Discord feedback channel webhook, customer email snippet, support ticket</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Get explicit permission before quoting customers by name. Anonymize unless signed authorization is linked.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"'I used to spend Friday nights writing changelogs by hand.' How a feedback ticket reshaped our diff engine."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container text-outline py-1.5 px-space-sm rounded font-label-sm text-label-sm flex items-center justify-between cursor-not-allowed" href="#">
+<span>Connect Feedback Source</span>
+<span class="material-symbols-outlined text-[14px]">link_off</span>
+</a>
+</div>
+</div>
+<!-- CAT.16 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md opacity-85 hover:opacity-100 transition-opacity">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline font-semibold">CAT.16 // PRD.05</span>
+<span class="font-label-sm text-label-sm bg-surface-container text-outline font-medium px-space-xs py-0.5 rounded">
+                IDLE (PROMPT READY)
+              </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Founder Reflection</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">The human side of building: energy levels, focus, doubts, momentum, and the craft of creation.</p>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Evidence Ingestion:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Builder voice note, freeform journal note, calendar work block analysis</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span> Agent Guardrail:
+              </span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Never fabricate emotions or founder motivations. This archetype only generates if the builder provides direct context or voice input.</p>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Preview Pitch Hook:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">"What 60 consecutive days of shipping in public taught me about burnout vs authentic momentum."</p>
+</div>
+</div>
+<div class="pt-space-sm">
+<a class="w-full bg-surface-container text-outline py-1.5 px-space-sm rounded font-label-sm text-label-sm flex items-center justify-between cursor-not-allowed" href="#">
+<span>Record Voice Note</span>
+<span class="material-symbols-outlined text-[14px]">mic</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- SYSTEMS INTEGRITY & GUARDRAIL ARCHITECTURE -->
+<!-- ========================================== -->
+<div class="bg-surface-container-low p-space-xl rounded-xl shadow-sm flex flex-col gap-space-lg mt-space-md">
+<div class="flex items-center justify-between flex-wrap gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[24px]">verified_user</span>
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight">Systems Integrity &amp; Guardrail Architecture</h2>
+</div>
+<span class="font-label-sm text-label-sm text-outline uppercase">ENGINE DIRECTIVE // ZERO-HALLUCINATION POLICY</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+<div class="bg-surface-container-lowest p-space-lg rounded-lg flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+<h4 class="font-headline-md text-headline-md text-on-surface">Source-Driven Archetypes (Autonomous AST Extraction)</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Categories like <span class="font-label-sm text-label-sm text-on-surface font-semibold">CAT.01 (Feature Shipped)</span>, <span class="font-label-sm text-label-sm text-on-surface font-semibold">CAT.02 (Improvement)</span>, and <span class="font-label-sm text-label-sm text-on-surface font-semibold">CAT.08 (Behind the Scenes)</span> execute autonomously by parsing commit histories, merged GitHub PRs, changed file paths, and CI/CD configuration files. They surface stories automatically whenever git HEAD advances with valid semantic commits.
+          </p>
+</div>
+<div class="bg-surface-container-lowest p-space-lg rounded-lg flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<h4 class="font-headline-md text-headline-md text-on-surface">Context-Augmented Archetypes (Builder Prompted)</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Categories like <span class="font-label-sm text-label-sm text-on-surface font-semibold">CAT.07 (Failed Experiment)</span>, <span class="font-label-sm text-label-sm text-on-surface font-semibold">CAT.10 (Problem &amp; Solution)</span>, and <span class="font-label-sm text-label-sm text-on-surface font-semibold">CAT.16 (Founder Reflection)</span> deliberately require human insight. Releasebuff will never infer internal emotional states or invent speculative motivations from silent commit diffs.
+          </p>
+</div>
+</div>
+<div class="bg-surface-container p-space-md rounded-lg flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<span class="material-symbols-outlined text-[20px] text-outline">help_outline</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Why are 8 categories currently idle?</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Releasebuff will never hallucinate or invent stories to fill space. When code evidence or founder context is missing, the archetype remains dormant.</span>
+</div>
+</div>
+<a class="bg-surface-container-highest hover:bg-surface-container-high text-on-surface px-space-md py-space-sm rounded font-label-sm text-label-sm font-semibold flex items-center gap-space-xs transition-colors whitespace-nowrap" href="#">
+<span>Connect Additional Data Sources in Project Setup</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

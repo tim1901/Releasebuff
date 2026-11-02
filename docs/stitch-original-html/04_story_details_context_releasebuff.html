@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"tertiary-fixed-dim":"#c2c8bf","on-surface":"#1a1c19","primary-fixed":"#c2ecd5","secondary-fixed":"#c2f271","outline-variant":"#c1c8c2","surface":"#fafaf4","on-primary":"#ffffff","on-tertiary-fixed-variant":"#424841","on-error-container":"#93000a","primary-container":"#173d2d","tertiary":"#1d231d","on-primary-fixed-variant":"#294e3d","on-tertiary":"#ffffff","surface-container":"#eeeee8","secondary":"#466800","primary-fixed-dim":"#a7d0b9","on-primary-fixed":"#002114","inverse-primary":"#a7d0b9","on-error":"#ffffff","error-container":"#ffdad6","inverse-on-surface":"#f1f1eb","outline":"#717973","inverse-surface":"#2f312d","tertiary-container":"#323831","on-primary-container":"#80a893","on-tertiary-container":"#9ba198","surface-container-lowest":"#ffffff","surface-container-high":"#e8e8e3","secondary-fixed-dim":"#a7d558","surface-variant":"#e3e3dd","tertiary-fixed":"#dee4da","surface-container-highest":"#e3e3dd","on-secondary-fixed-variant":"#344e00","error":"#ba1a1a","background":"#fafaf4","surface-tint":"#406654","surface-dim":"#dadad5","on-surface-variant":"#414844","surface-bright":"#fafaf4","on-tertiary-fixed":"#171d17","on-background":"#1a1c19","on-secondary-container":"#4a6d00","on-secondary":"#ffffff","surface-container-low":"#f4f4ee","on-secondary-fixed":"#121f00","primary":"#002719","secondary-container":"#bfef6f"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-xs":"0.25rem","space-sm":"0.5rem",gutter:"1rem",margin:"1.25rem","space-xl":"1.5rem","space-md":"0.75rem","margin-lg":"2rem","gutter-lg":"1.5rem","space-2xl":"2rem","space-lg":"1rem"},fontFamily:{"headline-xl":["Hanken Grotesk"],"label-md":["JetBrains Mono"],"body-lg":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"headline-xl-mobile":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"body-sm":["Hanken Grotesk"],"headline-lg-mobile":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"label-sm":["JetBrains Mono"],"label-lg":["JetBrains Mono"]},fontSize:{"headline-xl":["32px",{lineHeight:"38px",letterSpacing:"-0.03em",fontWeight:"700"}],"label-md":["11px",{lineHeight:"15px",letterSpacing:"0.04em",fontWeight:"500"}],"body-lg":["15px",{lineHeight:"22px",fontWeight:"400"}],"headline-md":["18px",{lineHeight:"24px",letterSpacing:"-0.01em",fontWeight:"600"}],"headline-xl-mobile":["26px",{lineHeight:"32px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-lg":["24px",{lineHeight:"30px",letterSpacing:"-0.02em",fontWeight:"600"}],"body-sm":["12px",{lineHeight:"17px",fontWeight:"400"}],"headline-lg-mobile":["20px",{lineHeight:"26px",letterSpacing:"-0.01em",fontWeight:"600"}],"body-md":["13px",{lineHeight:"19px",fontWeight:"400"}],"label-sm":["10px",{lineHeight:"13px",letterSpacing:"0.06em",fontWeight:"600"}],"label-lg":["13px",{lineHeight:"18px",letterSpacing:"0.01em",fontWeight:"500"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="px-space-lg pt-space-xl pb-space-lg flex items-center gap-space-md"><img alt="Releasebuff Brand Mark" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnuOHahNbIGj8Hyr9IpYtEqh4Wd55kSh20NGuWjYG4YXjCUZxHCB8HjQE-8ntfG0V__JsNO0H1pBI4KP2rmIDLPTwVAWlokdh8t_jkrGRb-kUH3gt2w2G19hrdnBLGk2FsIDgWuz49D2TlxNJ6JR86P0ycnRudMdY3VZrV7Hm02g6H8I_uANF83nL_QtknpOArLcvJG6KPQ3pIgch87ZmoIB8SkJIpt7BqTug2_Vs"/><div class="flex flex-col"><span class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">Releasebuff</span><span class="font-label-sm text-label-sm text-outline tracking-wider uppercase">SYSTEMS PRD.01</span></div></div><div class="px-space-lg py-space-sm"><div class="bg-surface-container px-space-md py-space-sm rounded flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline uppercase">Pipeline Active</span><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-secondary-container"></span><span class="font-label-sm text-label-sm text-on-surface font-semibold">LIVE SYNC</span></div></div></div><nav class="flex flex-col gap-space-xs px-space-md mt-space-md" data-active-classes="bg-primary-container text-on-primary font-semibold shadow-sm"><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="story-inbox" href="#"><span class="font-label-lg text-label-lg tracking-normal">Story Inbox</span><span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed px-space-xs py-0.5 rounded font-semibold">8 new</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="story-categories" href="#"><span class="font-label-lg text-label-lg tracking-normal">Story Categories</span><span class="font-label-sm text-label-sm text-outline">16 MODS</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="draft-studio" href="#"><span class="font-label-lg text-label-lg tracking-normal">Draft Studio</span><span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="draft-library" href="#"><span class="font-label-lg text-label-lg tracking-normal">Draft Library</span><span class="font-label-sm text-label-sm text-outline">14</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="project-setup" href="#"><span class="font-label-lg text-label-lg tracking-normal">Project Setup</span><span class="font-label-sm text-label-sm text-outline">GIT / API</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="landing-preview" href="#"><span class="font-label-lg text-label-lg tracking-normal">Landing Preview</span><span class="material-symbols-outlined text-[14px] text-outline">arrow_outward</span></a></nav></div><div class="p-space-lg bg-surface-container-low flex flex-col gap-space-sm"><div class="bg-surface p-space-sm rounded flex flex-col gap-space-xs shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline uppercase">Engine Status</span><span class="font-label-sm text-label-sm text-secondary font-bold">ONLINE</span></div><div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant"><span class="material-symbols-outlined text-[13px] text-outline">commit</span><span>HEAD: 3c8e42f</span></div></div><div class="flex items-center justify-between px-space-xs pt-space-xs"><span class="font-label-sm text-label-sm text-outline">v1.4.2-rbf</span><span class="font-label-sm text-label-sm text-outline">SYS_OK</span></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-28 bg-surface/90 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="bg-surface-container px-space-sm py-space-xs rounded flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-outline">fork_right</span><span class="font-label-sm text-label-sm text-on-surface font-semibold">github.com/trellis-app/engine</span><span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span><span class="font-label-sm text-label-sm text-outline">Synced 14m ago</span></div><div class="bg-surface-container px-space-sm py-space-xs rounded flex items-center gap-space-xs"><span class="material-symbols-outlined text-[15px] text-secondary">sync_alt</span><span class="font-label-sm text-label-sm text-on-surface">Buffer • 2 Channels (LinkedIn, X)</span></div></div><div class="flex items-center gap-space-md"><button class="bg-secondary-container text-on-secondary-fixed hover:bg-secondary-fixed-dim hover:text-on-secondary-fixed px-space-md py-space-xs rounded font-label-sm text-label-sm font-semibold flex items-center gap-space-xs transition-colors" type="button"><span class="material-symbols-outlined text-[16px]">refresh</span>Scan Repository</button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="h-12 px-space-lg bg-surface-container-low flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-space-md"><span class="font-label-sm text-label-sm text-outline uppercase">Lifecycle Map</span><div class="flex items-center gap-space-sm font-label-sm text-label-sm"><span class="flex items-center gap-1 text-on-surface font-semibold"><span class="w-1.5 h-1.5 bg-secondary-container rounded-none inline-block"></span>RBF.01 / CAPTURE</span><span class="text-outline-variant">→</span><span class="flex items-center gap-1 text-on-surface font-semibold"><span class="w-1.5 h-1.5 bg-secondary-container rounded-none inline-block"></span>RBF.02 / INTERPRET</span><span class="text-outline-variant">→</span><span class="flex items-center gap-1 text-on-surface font-semibold"><span class="w-1.5 h-1.5 bg-secondary-container rounded-none inline-block"></span>RBF.03 / DRAFT</span><span class="text-outline-variant">→</span><span class="text-outline">RBF.04 / PUBLISH</span></div></div><div class="flex items-center gap-space-sm"><span class="font-label-sm text-label-sm text-outline uppercase">Mode:</span><span class="font-label-sm text-label-sm bg-surface text-on-surface px-space-xs py-0.5 rounded font-medium shadow-[0_1px_8px_rgba(0,0,0,0.02)]">Autonomous Discover</span></div></div></header><main class="w-full pt-28 px-space-lg flex-1 bg-surface"><div class="flex flex-col w-full">
+<!-- Sub-Header Context & Breadcrumbs -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm pb-space-lg">
+<div class="flex flex-wrap items-center gap-space-sm font-label-sm text-label-sm">
+<a class="inline-flex items-center gap-space-xs text-primary-container font-semibold hover:text-secondary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[14px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+<span>Back to Story Inbox (Filtered: All Categories)</span>
+</a>
+<span class="text-outline-variant">/</span>
+<span class="bg-surface-container-high px-space-xs py-0.5 rounded text-on-surface-variant font-medium tracking-wide">RBF.INBOX</span>
+<span class="text-outline-variant">/</span>
+<span class="bg-surface-container-high px-space-xs py-0.5 rounded text-on-surface-variant font-medium tracking-wide">CLUSTERS</span>
+<span class="text-outline-variant">/</span>
+<span class="bg-secondary-container text-on-secondary-fixed px-space-xs py-0.5 rounded font-bold">#142-PGPOOL</span>
+</div>
+<!-- Active Stage Badge & Telemetry Indicator -->
+<div class="flex items-center gap-space-md self-start md:self-auto">
+<div class="bg-surface-container-low px-space-sm py-space-xs rounded flex items-center gap-space-sm shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface font-semibold">Active Mode: RBF.02 Grounded Verification</span>
+</div>
+<div class="hidden lg:flex items-center gap-space-xs bg-surface-container px-space-sm py-space-xs rounded font-label-sm text-label-sm text-outline">
+<span class="material-symbols-outlined text-[13px] text-secondary">verified_user</span>
+<span>PRD.01 Fact Lock Enabled</span>
+</div>
+</div>
+</div>
+<!-- Primary Workbench Split Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start pb-space-2xl">
+<!-- LEFT COLUMN: Story Synthesis, Facts & Angles (~55% width -> 7 cols) -->
+<section class="lg:col-span-7 flex flex-col gap-space-md">
+<!-- Main Synthesis Header Card -->
+<div class="bg-surface-container-lowest p-space-lg rounded shadow-sm relative overflow-hidden">
+<div class="flex flex-wrap items-center justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="bg-surface-container px-space-sm py-0.5 rounded font-label-sm text-label-sm uppercase tracking-wider text-primary-container font-semibold">
+              Product Progress // 1. New feature shipped
+            </span>
+<span class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+              MOD-01
+            </span>
+</div>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm">
+<span class="inline-flex items-center gap-1 bg-surface-container-high text-on-surface px-space-sm py-0.5 rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+              Needs Context / Ready to draft
+            </span>
+<span class="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-fixed font-bold px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px]">security</span>
+              98.4% grounded
+            </span>
+</div>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight mb-space-xs">
+          PgBouncer Connection Pooling Migration under Peak Invocations
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-md">
+          Discovered via autonomous git cluster scan. System detected substantial latency drop and architectural transition away from default unbound Prisma configuration on serverless webhooks.
+        </p>
+<!-- Metric Summary Chips -->
+<div class="grid grid-cols-3 gap-space-sm bg-surface-container-low p-space-sm rounded">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase">Cold Start Latency</span>
+<div class="flex items-baseline gap-space-xs mt-0.5">
+<span class="font-label-lg text-label-lg font-bold text-primary">9ms</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">↓ -411ms</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase">Max Pool Clients</span>
+<div class="flex items-baseline gap-space-xs mt-0.5">
+<span class="font-label-lg text-label-lg font-bold text-primary">250 Clients</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Tx-Mode</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase">Verified PR</span>
+<div class="flex items-baseline gap-space-xs mt-0.5">
+<span class="font-label-lg text-label-lg font-bold text-primary">#142</span>
+<span class="font-label-sm text-label-sm text-outline">Merged</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 1: Ground Truth Verified Codebase Facts -->
+<div class="bg-surface-container-lowest p-space-lg rounded shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 bg-primary-container rounded-none"></span>
+<h2 class="font-headline-md text-headline-md text-primary">Verified Codebase Facts (Ground Truth)</h2>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container px-space-xs py-0.5 rounded text-outline font-semibold">
+            PRD RULE // NON-HALLUCINATIVE
+          </span>
+</div>
+<ul class="space-y-space-sm">
+<li class="bg-surface-container-low p-space-sm rounded flex items-start gap-space-sm">
+<div class="w-5 h-5 rounded-full bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[13px]">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-on-surface">
+                Prisma client max connections reduced from unbounded (env fallback 10) to PgBouncer pool transaction mode (<span class="font-label-md text-label-md bg-surface-container px-1 py-0.5 rounded text-primary">max: 250</span>).
+              </span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">Artifact: PR #142 description line 14 &amp; commits</span>
+</div>
+</li>
+<li class="bg-surface-container-low p-space-sm rounded flex items-start gap-space-sm">
+<div class="w-5 h-5 rounded-full bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[13px]">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-on-surface">
+                Cold-start connection latency dropped from <span class="line-through text-outline">420ms</span> to <span class="font-semibold text-secondary">9ms</span> under burst simulated webhook test suite.
+              </span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">Artifact: Benchmark JSON log in stress test fixtures</span>
+</div>
+</li>
+<li class="bg-surface-container-low p-space-sm rounded flex items-start gap-space-sm">
+<div class="w-5 h-5 rounded-full bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[13px]">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-on-surface">
+                Committed modification: <code class="font-label-md text-label-md bg-surface px-1.5 py-0.5 rounded text-primary-container font-semibold">src/infra/database/pool.ts</code> (<span class="text-secondary font-label-md text-label-md font-bold">+148</span> / <span class="text-error font-label-md text-label-md font-bold">-24 LOC</span>).
+              </span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">Artifact: Git diff tree node 9fa40bc</span>
+</div>
+</li>
+</ul>
+</div>
+<!-- Section 2: Story Narrative & Suggested Angle Selector -->
+<div class="bg-surface-container-lowest p-space-lg rounded shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 bg-secondary-container rounded-none"></span>
+<h2 class="font-headline-md text-headline-md text-primary">Story Narrative &amp; Suggested Angle Selector</h2>
+</div>
+<span class="font-label-sm text-label-sm text-outline">SELECT 1 OF 3 HOOKS</span>
+</div>
+<div class="space-y-space-sm" id="angle-selector-group">
+<!-- Angle Option A (Default Selected) -->
+<div class="angle-card cursor-pointer p-space-md rounded bg-surface-container-low hover:bg-surface-container transition-all relative overflow-hidden bg-gradient-to-r from-secondary-container/15 via-transparent to-transparent shadow-sm" onclick="selectAngle(this)">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-bold uppercase tracking-wide">Angle Option A // High Authenticity Deep Dive</span>
+</div>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed px-space-xs py-0.5 rounded font-bold">Selected</span>
+</div>
+<p class="font-headline-md text-headline-md text-primary mt-space-xs font-semibold">
+              Technical War Story / Deep Dive: Why serverless concurrency choked our database and how PgBouncer saved 420ms latency.
+            </p>
+<div class="flex items-center gap-space-md mt-space-sm font-label-sm text-label-sm text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">psychology</span> Tone: Engineering Grit</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">share</span> Channels: X (Thread) + LinkedIn</span>
+</div>
+</div>
+<!-- Angle Option B -->
+<div class="angle-card cursor-pointer p-space-md rounded bg-surface-container hover:bg-surface-container-high transition-all" onclick="selectAngle(this)">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-outline"></span>
+<span class="font-label-sm text-label-sm text-outline font-bold uppercase tracking-wide">Angle Option B // Velocity &amp; Scale</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Alternative</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mt-space-xs font-medium">
+              Builder Milestone: Shipped database scalability fix handling 300 simultaneous webhook invocations without cold starts.
+            </p>
+<div class="flex items-center gap-space-md mt-space-sm font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">bolt</span> Tone: Direct &amp; Punchy</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> Est. Read: 45 sec</span>
+</div>
+</div>
+<!-- Angle Option C -->
+<div class="angle-card cursor-pointer p-space-md rounded bg-surface-container hover:bg-surface-container-high transition-all" onclick="selectAngle(this)">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-outline"></span>
+<span class="font-label-sm text-label-sm text-outline font-bold uppercase tracking-wide">Angle Option C // Architectural Perspective</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Alternative</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mt-space-xs font-medium">
+              Architecture Trade-off: Transaction vs Session pooling in serverless environments — lessons from modern microservices.
+            </p>
+<div class="flex items-center gap-space-md mt-space-sm font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">architecture</span> Tone: Pragmatic Lead</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">forum</span> Target: Hacker News / Tech LinkedIn</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Missing Context Prompt (PRD Agent Behavior) -->
+<div class="bg-surface-container-low p-space-lg rounded shadow-sm flex flex-col gap-space-sm relative">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">help_center</span>
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">Missing Context Prompt — RBF Discovery Agent</span>
+</div>
+<span class="bg-surface-container px-space-xs py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant font-medium">
+            One focused question to sharpen the hook
+          </span>
+</div>
+<div class="p-space-sm bg-surface-container-lowest rounded shadow-xs">
+<p class="font-headline-md text-headline-md text-on-surface mb-space-sm">
+            "Did this connection pool exhaustion cause a live user-facing outage or incident, or was it caught during staging stress tests?"
+          </p>
+<div class="flex flex-col sm:flex-row gap-space-sm">
+<input class="flex-1 bg-surface-container-low text-on-surface font-label-md text-label-md px-space-sm py-space-xs rounded focus:outline-none focus:bg-surface-container-lowest transition-colors" id="context-input" placeholder="e.g., Caught in staging during a 10k webhook load test on Monday..." type="text"/>
+<button class="bg-primary-container text-on-primary hover:bg-tertiary-container px-space-md py-space-xs rounded font-label-sm text-label-sm font-semibold flex items-center justify-center gap-space-xs transition-colors whitespace-nowrap shadow-sm" onclick="saveContextPrompt()" type="button">
+<span class="material-symbols-outlined text-[15px] text-secondary-container">save</span>
+              Save Context
+            </button>
+</div>
+<div class="hidden mt-space-xs font-label-sm text-label-sm text-secondary font-medium flex items-center gap-1" id="context-feedback">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+            Founder context attached to draft payload. Grounding score updated to 99.8%.
+          </div>
+</div>
+</div>
+<!-- Section 4: Action Footer -->
+<div class="flex flex-wrap items-center justify-between gap-space-md pt-space-xs">
+<div class="flex items-center gap-space-sm">
+<button class="bg-primary-container text-on-primary hover:bg-tertiary-container px-space-lg py-space-sm rounded font-label-md text-label-md font-bold flex items-center gap-space-xs shadow-md transition-transform hover:-translate-y-0.5" type="button">
+<span>Proceed to Draft Studio</span>
+<span class="material-symbols-outlined text-[16px] text-secondary-container">arrow_forward</span>
+</button>
+<button class="bg-surface-container-low text-on-surface hover:bg-surface-container px-space-md py-space-sm rounded font-label-md text-label-md font-medium transition-colors" type="button">
+            Save Changes locally
+          </button>
+</div>
+<button class="text-error hover:bg-error-container/20 px-space-sm py-space-xs rounded font-label-sm text-label-sm font-semibold flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">archive</span>
+          Mark Story Irrelevant / Dismiss
+        </button>
+</div>
+</section>
+<!-- RIGHT COLUMN: Deep Evidence Inspector Drawer (~45% width -> 5 cols) -->
+<aside class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Evidence Bundle Master Container -->
+<div class="bg-surface-container-lowest rounded shadow-sm overflow-hidden flex flex-col">
+<!-- Inspector Header & Navigation Tabs -->
+<div class="p-space-md bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">fact_check</span>
+<span class="font-headline-md text-headline-md text-primary">Evidence Bundle</span>
+</div>
+<span class="bg-surface-container-high text-on-surface font-label-sm text-label-sm px-space-xs py-0.5 rounded font-bold">
+              3 Artifacts Verified
+            </span>
+</div>
+<!-- Inspector Tabs -->
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm pt-space-xs">
+<button class="px-space-sm py-1 bg-surface-container-lowest text-primary font-bold rounded shadow-xs" id="tab-diff" onclick="switchEvidenceTab('diff')">
+              Diff Viewer
+            </button>
+<button class="px-space-sm py-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" id="tab-pr" onclick="switchEvidenceTab('pr')">
+              PR &amp; Commits
+            </button>
+<button class="px-space-sm py-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" id="tab-meta" onclick="switchEvidenceTab('meta')">
+              Raw Metadata
+            </button>
+</div>
+</div>
+<!-- TAB CONTENT 1: Code Diff Viewer -->
+<div class="p-space-md flex flex-col gap-space-sm" id="tab-content-diff">
+<!-- File Path Meta -->
+<div class="flex items-center justify-between bg-surface-container-low px-space-sm py-space-xs rounded font-label-sm text-label-sm">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-[14px] text-outline">description</span>
+<span class="font-semibold text-primary truncate">src/infra/database/pool.ts</span>
+</div>
+<span class="text-outline font-mono">commit: 9fa40bc</span>
+</div>
+<!-- Code Diff Block -->
+<div class="bg-tertiary text-on-tertiary font-label-sm text-label-sm rounded p-space-sm overflow-x-auto leading-relaxed shadow-inner">
+<div class="text-on-tertiary-container pb-space-xs select-none">// Connection pool initialization handler</div>
+<div class="text-on-tertiary-container select-none">@@ -18,7 +18,9 @@ export function getDatabasePool(): Pool {</div>
+<!-- Removed line -->
+<div class="bg-error/20 text-on-tertiary px-1 py-0.5 rounded-none flex items-start gap-2">
+<span class="text-error font-bold select-none">-</span>
+<span class="text-error-container">const pool = new Pool({ max: process.env.DB_MAX_CONNECTIONS ?? 10 });</span>
+</div>
+<!-- Added lines -->
+<div class="bg-secondary-container/20 text-on-tertiary px-1 py-0.5 rounded-none flex items-start gap-2">
+<span class="text-secondary-fixed font-bold select-none">+</span>
+<span class="text-primary-fixed">const pool = new PgBouncerPool({ mode: 'transaction', maxClients: 250 });</span>
+</div>
+<div class="bg-secondary-container/20 text-on-tertiary px-1 py-0.5 rounded-none flex items-start gap-2">
+<span class="text-secondary-fixed font-bold select-none">+</span>
+<span class="text-primary-fixed">registerMetricHook('db_pool_wait_ms', pool.monitorWaitTimes);</span>
+</div>
+<div class="text-on-tertiary-container pt-space-xs select-none">  return pool;</div>
+<div class="text-on-tertiary-container select-none">}</div>
+</div>
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm px-space-xs">
+<span>Unified Diff format (+2/-1 hunk)</span>
+<a class="inline-flex items-center gap-1 text-primary hover:underline" href="#">
+<span>View full diff on GitHub</span>
+<span class="material-symbols-outlined text-[12px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- TAB CONTENT 2: PR & Commits (Hidden by default) -->
+<div class="p-space-md hidden flex-col gap-space-sm" id="tab-content-pr">
+<div class="bg-surface-container-low p-space-sm rounded">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-bold">PR #142 Details</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed px-1 rounded">MERGED</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-1">
+              "fix(db): switch to pgbouncer transaction mode pooling to resolve connection spike"
+            </p>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm text-outline mt-2">
+<span>Author: @alex-dev</span>
+<span>•</span>
+<span>Merged by: @alex-dev</span>
+<span>•</span>
+<span>14 minutes ago</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded">
+<span class="font-label-sm text-label-sm text-outline uppercase">Linked Commits</span>
+<div class="mt-1 space-y-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-primary font-mono font-semibold">9fa40bc</span>
+<span class="text-on-surface-variant truncate max-w-[200px]">refactor: configure pgbouncer pool limits</span>
+<span class="text-secondary font-bold">+148/-24</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-primary font-mono font-semibold">3c8e42f</span>
+<span class="text-on-surface-variant truncate max-w-[200px]">test: add 300 client concurrent stress test</span>
+<span class="text-secondary font-bold">+62/-0</span>
+</div>
+</div>
+</div>
+</div>
+<!-- TAB CONTENT 3: Raw Metadata (Hidden by default) -->
+<div class="p-space-md hidden flex-col gap-space-sm" id="tab-content-meta">
+<pre class="bg-tertiary text-on-tertiary font-label-sm text-label-sm p-space-sm rounded overflow-x-auto text-[11px] leading-tight">{
+  "cluster_id": "rbf_cls_142_pgpool",
+  "confidence_score": 0.984,
+  "repo": "trellis-app/engine",
+  "branch": "main",
+  "actor": "alex-dev",
+  "detected_taxonomies": [
+    "product_progress.performance_win",
+    "product_progress.feature_ship"
+  ],
+  "heuristics": {
+    "latency_delta_ms": -411,
+    "concurrency_target": 300,
+    "files_affected": 3
+  }
+}
+          </pre>
+</div>
+<!-- Linked Artifact Cards Stack -->
+<div class="px-space-md pb-space-md flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold px-space-xs">
+            Attached Evidentiary Trail
+          </span>
+<!-- Artifact 1 -->
+<div class="bg-surface-container-low p-space-sm rounded flex items-center justify-between hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-7 h-7 rounded bg-surface-container-high flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[15px] text-primary">call_merge</span>
+</div>
+<div class="flex flex-col truncate">
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-primary font-bold">
+<span>Pull Request #142</span>
+<span class="text-outline font-normal">— fix(db): switch to pgbouncer</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Merged by @alex-dev • 14m ago</span>
+</div>
+</div>
+<a class="text-outline hover:text-primary p-1" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_outward</span>
+</a>
+</div>
+<!-- Artifact 2 -->
+<div class="bg-surface-container-low p-space-sm rounded flex items-center justify-between hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-7 h-7 rounded bg-surface-container-high flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[15px] text-primary">commit</span>
+</div>
+<div class="flex flex-col truncate">
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-primary font-bold">
+<span>Commit 9fa40bc</span>
+<span class="text-outline font-normal">— refactor: pool limits</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">3 files changed (+210 / -24)</span>
+</div>
+</div>
+<a class="text-outline hover:text-primary p-1" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_outward</span>
+</a>
+</div>
+<!-- Artifact 3 -->
+<div class="bg-surface-container-low p-space-sm rounded flex items-center justify-between hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-7 h-7 rounded bg-secondary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[15px] text-on-secondary-fixed">speed</span>
+</div>
+<div class="flex flex-col truncate">
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-primary font-bold">
+<span>tests/stress/pool_results.json</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">p99 wait time: 9.2ms (Delta: -410.8ms)</span>
+</div>
+</div>
+<a class="text-outline hover:text-primary p-1" href="#">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</a>
+</div>
+</div>
+<!-- PRD Factuality Guardrail & Verification Notice -->
+<div class="m-space-md p-space-sm bg-surface-container rounded flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-primary flex-shrink-0 mt-0.5">verified</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">
+              PRD Factuality Guardrail
+            </span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+              All diff lines and commit SHAs are verifiable on public GitHub. No unverified claims or hallucinated founder quotes will be injected into Draft Studio.
+            </p>
+</div>
+</div>
+</div>
+<!-- Quick Distribution Preview Widget -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">Destination Sync Target</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-secondary font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+            Buffer Ready
+          </span>
+</div>
+<div class="flex items-center gap-space-sm bg-surface-container-low p-space-sm rounded">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xs">
+            TR
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-on-surface font-semibold truncate">Trellis Engine Updates</span>
+<span class="font-label-sm text-label-sm text-outline truncate">@trellis_eng (X) + LinkedIn Org</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<script>
+  // Micro-interaction: Evidence Tabs Switcher
+  function switchEvidenceTab(tabName) {
+    const tabs = ['diff', 'pr', 'meta'];
+    tabs.forEach(t => {
+      const content = document.getElementById(`tab-content-${t}`);
+      const btn = document.getElementById(`tab-${t}`);
+      if (t === tabName) {
+        content.classList.remove('hidden');
+        content.classList.add('flex');
+        btn.classList.add('bg-surface-container-lowest', 'text-primary', 'font-bold', 'shadow-xs');
+        btn.classList.remove('text-on-surface-variant');
+      } else {
+        content.classList.add('hidden');
+        content.classList.remove('flex');
+        btn.classList.remove('bg-surface-container-lowest', 'text-primary', 'font-bold', 'shadow-xs');
+        btn.classList.add('text-on-surface-variant');
+      }
+    });
+  }
+
+  // Micro-interaction: Angle Selector
+  function selectAngle(element) {
+    const allCards = document.querySelectorAll('.angle-card');
+    allCards.forEach(card => {
+      card.classList.remove('bg-surface-container-low', 'bg-gradient-to-r', 'from-secondary-container/15', 'shadow-sm');
+      card.classList.add('bg-surface-container');
+      const badge = card.querySelector('.font-label-sm span:last-child') || card.querySelector('div > span:last-child');
+      if (badge) {
+        badge.className = 'font-label-sm text-label-sm text-outline';
+        badge.textContent = 'Alternative';
+      }
+      const pip = card.querySelector('span.rounded-full');
+      if (pip) {
+        pip.className = 'w-2.5 h-2.5 rounded-full bg-outline';
+      }
+    });
+
+    element.classList.remove('bg-surface-container');
+    element.classList.add('bg-surface-container-low', 'bg-gradient-to-r', 'from-secondary-container/15', 'shadow-sm');
+    
+    const selectedBadge = element.querySelector('div > span:last-child');
+    if (selectedBadge) {
+      selectedBadge.className = 'font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed px-space-xs py-0.5 rounded font-bold';
+      selectedBadge.textContent = 'Selected';
+    }
+    const pip = element.querySelector('span.rounded-full');
+    if (pip) {
+      pip.className = 'w-2.5 h-2.5 rounded-full bg-secondary-container';
+    }
+  }
+
+  // Micro-interaction: Context Input Save
+  function saveContextPrompt() {
+    const input = document.getElementById('context-input');
+    const feedback = document.getElementById('context-feedback');
+    if (input.value.trim().length > 0) {
+      feedback.classList.remove('hidden');
+      input.classList.add('bg-surface-container-highest');
+    }
+  }
+</script></main></div></body></html>

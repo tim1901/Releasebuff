@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_dashboard" name="shell-type"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+      main > :first-child { margin-top: 0 !important; }
+      main > :last-child { margin-bottom: 0 !important; }
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "tertiary-fixed-dim": "#c2c8bf",
+            "on-surface": "#1a1c19",
+            "primary-fixed": "#c2ecd5",
+            "secondary-fixed": "#c2f271",
+            "outline-variant": "#c1c8c2",
+            "surface": "#fafaf4",
+            "on-primary": "#ffffff",
+            "on-tertiary-fixed-variant": "#424841",
+            "on-error-container": "#93000a",
+            "primary-container": "#173d2d",
+            "tertiary": "#1d231d",
+            "on-primary-fixed-variant": "#294e3d",
+            "on-tertiary": "#ffffff",
+            "surface-container": "#eeeee8",
+            "secondary": "#466800",
+            "primary-fixed-dim": "#a7d0b9",
+            "on-primary-fixed": "#002114",
+            "inverse-primary": "#a7d0b9",
+            "on-error": "#ffffff",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#f1f1eb",
+            "outline": "#717973",
+            "inverse-surface": "#2f312d",
+            "tertiary-container": "#323831",
+            "on-primary-container": "#80a893",
+            "on-tertiary-container": "#9ba198",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-high": "#e8e8e3",
+            "secondary-fixed-dim": "#a7d558",
+            "surface-variant": "#e3e3dd",
+            "tertiary-fixed": "#dee4da",
+            "surface-container-highest": "#e3e3dd",
+            "on-secondary-fixed-variant": "#344e00",
+            "error": "#ba1a1a",
+            "background": "#fafaf4",
+            "surface-tint": "#406654",
+            "surface-dim": "#dadad5",
+            "on-surface-variant": "#414844",
+            "surface-bright": "#fafaf4",
+            "on-tertiary-fixed": "#171d17",
+            "on-background": "#1a1c19",
+            "on-secondary-container": "#4a6d00",
+            "on-secondary": "#ffffff",
+            "surface-container-low": "#f4f4ee",
+            "on-secondary-fixed": "#121f00",
+            "primary": "#002719",
+            "secondary-container": "#bfef6f"
+          },
+          borderRadius: {
+            DEFAULT: "0.125rem",
+            lg: "0.25rem",
+            xl: "0.5rem",
+            full: "0.75rem"
+          },
+          spacing: {
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            gutter: "1rem",
+            margin: "1.25rem",
+            "space-xl": "1.5rem",
+            "space-md": "0.75rem",
+            "margin-lg": "2rem",
+            "gutter-lg": "1.5rem",
+            "space-2xl": "2rem",
+            "space-lg": "1rem"
+          },
+          fontFamily: {
+            "headline-xl": ["Hanken Grotesk"],
+            "label-md": ["JetBrains Mono"],
+            "body-lg": ["Hanken Grotesk"],
+            "headline-md": ["Hanken Grotesk"],
+            "headline-xl-mobile": ["Hanken Grotesk"],
+            "headline-lg": ["Hanken Grotesk"],
+            "body-sm": ["Hanken Grotesk"],
+            "headline-lg-mobile": ["Hanken Grotesk"],
+            "body-md": ["Hanken Grotesk"],
+            "label-sm": ["JetBrains Mono"],
+            "label-lg": ["JetBrains Mono"]
+          },
+          fontSize: {
+            "headline-xl": ["32px", { lineHeight: "38px", letterSpacing: "-0.03em", fontWeight: "700" }],
+            "label-md": ["11px", { lineHeight: "15px", letterSpacing: "0.04em", fontWeight: "500" }],
+            "body-lg": ["15px", { lineHeight: "22px", fontWeight: "400" }],
+            "headline-md": ["18px", { lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "headline-xl-mobile": ["26px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "headline-lg": ["24px", { lineHeight: "30px", letterSpacing: "-0.02em", fontWeight: "600" }],
+            "body-sm": ["12px", { lineHeight: "17px", fontWeight: "400" }],
+            "headline-lg-mobile": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "body-md": ["13px", { lineHeight: "19px", fontWeight: "400" }],
+            "label-sm": ["10px", { lineHeight: "13px", letterSpacing: "0.06em", fontWeight: "600" }],
+            "label-lg": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "500" }]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-fixed">
+<!-- Left App Sidebar -->
+<aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-r border-outline-variant/30">
+<div class="flex flex-col">
+<div class="px-space-lg pt-space-xl pb-space-lg flex items-center gap-space-md border-b border-outline-variant/20">
+<img alt="Releasebuff Brand Mark" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnuOHahNbIGj8Hyr9IpYtEqh4Wd55kSh20NGuWjYG4YXjCUZxHCB8HjQE-8ntfG0V__JsNO0H1pBI4KP2rmIDLPTwVAWlokdh8t_jkrGRb-kUH3gt2w2G19hrdnBLGk2FsIDgWuz49D2TlxNJ6JR86P0ycnRudMdY3VZrV7Hm02g6H8I_uANF83nL_QtknpOArLcvJG6KPQ3pIgch87ZmoIB8SkJIpt7BqTug2_Vs"/>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight font-bold">Releasebuff</span>
+<span class="font-label-sm text-label-sm text-outline tracking-wider uppercase">SYSTEMS PRD.01</span>
+</div>
+</div>
+<div class="px-space-lg py-space-sm">
+<div class="bg-surface-container px-space-md py-space-sm rounded flex items-center justify-between border border-outline-variant/30">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Pipeline Active</span>
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">LIVE SYNC</span>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-space-xs px-space-md mt-space-md" data-active-classes="bg-primary-container text-on-primary font-semibold shadow-sm">
+<a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="story-inbox" href="#">
+<span class="font-label-lg text-label-lg tracking-normal">Story Inbox</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-fixed px-space-xs py-0.5 rounded font-semibold">8 new</span>
+</a>
+<a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="story-categories" href="#">
+<span class="font-label-lg text-label-lg tracking-normal">Story Categories</span>
+<span class="font-label-sm text-label-sm text-outline">16 MODS</span>
+</a>
+<!-- Active Draft Studio Navigation Item -->
+<a class="flex items-center justify-between px-space-md py-space-sm rounded bg-primary-container text-on-primary font-semibold shadow-sm" data-path="draft-studio" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-secondary-container">edit_note</span>
+<span class="font-label-lg text-label-lg tracking-normal text-on-primary">Draft Studio</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+</a>
+<a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="draft-library" href="#">
+<span class="font-label-lg text-label-lg tracking-normal">Draft Library</span>
+<span class="font-label-sm text-label-sm text-outline">14</span>
+</a>
+<a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="project-setup" href="#">
+<span class="font-label-lg text-label-lg tracking-normal">Project Setup</span>
+<span class="font-label-sm text-label-sm text-outline">GIT / API</span>
+</a>
+<a class="flex items-center justify-between px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="landing-preview" href="#">
+<span class="font-label-lg text-label-lg tracking-normal">Landing Preview</span>
+<span class="material-symbols-outlined text-[14px] text-outline">arrow_outward</span>
+</a>
+</nav>
+</div>
+<div class="p-space-lg bg-surface-container-low flex flex-col gap-space-sm border-t border-outline-variant/20">
+<div class="bg-surface p-space-sm rounded flex flex-col gap-space-xs shadow-[0_1px_8px_rgba(0,0,0,0.02)] border border-outline-variant/30">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Engine Status</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>ONLINE
+          </span>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[13px] text-outline">commit</span>
+<span class="font-mono">HEAD: 3c8e42f</span>
+</div>
+</div>
+<div class="flex items-center justify-between px-space-xs pt-space-xs">
+<span class="font-label-sm text-label-sm text-outline">v1.4.2-rbf</span>
+<span class="font-label-sm text-label-sm text-outline">SYS_OK</span>
+</div>
+</div>
+</aside>
+<!-- Main View Container -->
+<div class="pl-72 flex flex-col min-h-screen">
+<!-- Top System Header & LifeCycle Breadcrumb -->
+<header class="fixed top-0 left-72 right-0 h-28 bg-surface/95 backdrop-blur-xl z-40 border-b border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.03)]">
+<!-- Upper Status Row -->
+<div class="h-16 px-space-lg flex items-center justify-between border-b border-outline-variant/20">
+<div class="flex items-center gap-space-md">
+<div class="bg-surface-container px-space-sm py-space-xs rounded flex items-center gap-space-xs border border-outline-variant/30">
+<span class="material-symbols-outlined text-[16px] text-outline">fork_right</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">github.com/trellis-app/engine</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+<span class="font-label-sm text-label-sm text-outline">Synced 14m ago</span>
+</div>
+<div class="bg-surface-container px-space-sm py-space-xs rounded flex items-center gap-space-xs border border-outline-variant/30">
+<span class="material-symbols-outlined text-[15px] text-secondary">sync_alt</span>
+<span class="font-label-sm text-label-sm text-on-surface">Buffer Connected • LinkedIn: Alex Dev, X: @trellis_app</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider hidden lg:inline-block">SYS.03 // DRAFT STUDIO</span>
+<button class="bg-secondary-container text-on-secondary-fixed hover:bg-secondary-fixed-dim hover:text-on-secondary-fixed px-space-md py-space-xs rounded font-label-sm text-label-sm font-semibold flex items-center gap-space-xs transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">refresh</span>Scan Repository
+          </button>
+<div class="w-8 h-8 rounded bg-primary-container text-on-primary flex items-center justify-center font-label-sm font-bold border border-primary">
+            AD
+          </div>
+</div>
+</div>
+<!-- Lower Lifecycle Row -->
+<div class="h-12 px-space-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Lifecycle Map:</span>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm">
+<span class="flex items-center gap-1 text-on-surface-variant"><span class="w-1.5 h-1.5 bg-outline rounded-none inline-block"></span>RBF.01 / CAPTURE</span>
+<span class="text-outline-variant">→</span>
+<span class="flex items-center gap-1 text-on-surface-variant"><span class="w-1.5 h-1.5 bg-outline rounded-none inline-block"></span>RBF.02 / INTERPRET</span>
+<span class="text-outline-variant">→</span>
+<span class="flex items-center gap-1.5 text-primary-container bg-surface px-space-sm py-0.5 rounded font-bold shadow-xs border border-primary-container/20">
+<span class="w-2 h-2 bg-secondary-container rounded-none inline-block"></span>RBF.03 / DRAFT (Active)
+            </span>
+<span class="text-outline-variant">→</span>
+<span class="text-outline flex items-center gap-1"><span class="w-1.5 h-1.5 bg-outline-variant rounded-none inline-block"></span>RBF.04 / PUBLISH</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Mode:</span>
+<span class="font-label-sm text-label-sm bg-surface text-on-surface px-space-xs py-0.5 rounded font-semibold border border-outline-variant/30 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Autonomous Discover
+          </span>
+</div>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="w-full pt-32 px-space-lg pb-16 flex-1 bg-surface flex flex-col gap-space-lg max-w-[1600px]">
+<!-- Story Anchor Header -->
+<div class="bg-surface-container-lowest p-space-lg rounded border border-outline-variant/40 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center gap-space-sm flex-wrap">
+<a class="inline-flex items-center gap-1 font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors font-medium" href="#">
+<span class="material-symbols-outlined text-[14px]">arrow_back</span> Back to Story Details (#142-PGPOOL)
+            </a>
+<span class="text-outline-variant">|</span>
+<span class="bg-primary-container/10 text-primary-container border border-primary-container/20 px-2 py-0.5 rounded font-label-sm text-label-sm font-semibold uppercase tracking-wider">
+              Product Progress // New Feature Shipped
+            </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">
+            Draft Studio: PgBouncer Connection Pooling Migration under Peak Invocations
+          </h1>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="flex items-center gap-2 bg-secondary-container/20 border border-secondary-container px-3 py-1.5 rounded">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-secondary font-bold uppercase tracking-wider leading-none">Ground Truth Lock</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold leading-tight">98.4% Grounded</span>
+</div>
+</div>
+<button class="bg-surface-container border border-outline-variant/50 hover:bg-surface-container-high text-on-surface px-space-md py-1.5 rounded font-label-sm text-label-sm font-medium flex items-center gap-1 transition-colors" id="saveLocalDraftBtn" type="button">
+<span class="material-symbols-outlined text-[15px] text-outline">save</span> Save Local Draft
+          </button>
+</div>
+</div>
+<!-- Two-Column Balanced Composition Area -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: Post Editor & Composition Studio (7 cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded border border-outline-variant/40 shadow-xs flex flex-col overflow-hidden">
+<!-- Platform Tabs -->
+<div class="bg-surface-container-low px-space-md pt-space-sm flex items-center justify-between border-b border-outline-variant/30">
+<div class="flex items-center gap-1">
+<button class="platform-tab active px-space-md py-2 border-b-2 border-primary-container text-on-surface font-label-sm text-label-sm font-bold flex items-center gap-2 bg-surface-container-lowest rounded-t" type="button">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+<span>LinkedIn (Active / Primary)</span>
+</button>
+<button class="platform-tab px-space-md py-2 border-b-2 border-transparent text-outline hover:text-on-surface font-label-sm text-label-sm font-medium flex items-center gap-2 transition-colors" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span>X / Twitter (Thread Mode)</span>
+</button>
+</div>
+<span class="font-label-sm text-[10px] text-outline uppercase tracking-wider font-mono">SYS.SYNTH // v1.4</span>
+</div>
+<!-- Narrative Angle & Tone Bar -->
+<div class="p-space-md bg-surface border-b border-outline-variant/20 flex flex-col gap-space-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">Narrative Angle:</span>
+<div class="flex items-center gap-1" id="angleContainer">
+<button class="angle-btn active bg-primary-container text-on-primary px-space-sm py-1 rounded font-label-sm text-label-sm font-semibold transition-colors" type="button">
+                      Technical War Story (Active)
+                    </button>
+<button class="angle-btn bg-surface-container text-on-surface-variant hover:text-on-surface px-space-sm py-1 rounded font-label-sm text-label-sm font-medium transition-colors border border-outline-variant/30" type="button">
+                      Builder Milestone
+                    </button>
+<button class="angle-btn bg-surface-container text-on-surface-variant hover:text-on-surface px-space-sm py-1 rounded font-label-sm text-label-sm font-medium transition-colors border border-outline-variant/30" type="button">
+                      Architectural Trade-off
+                    </button>
+</div>
+</div>
+</div>
+<!-- Tone & Length Row -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pt-space-xs border-t border-outline-variant/15">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">Tone:</span>
+<span class="inline-flex items-center gap-1 bg-secondary-container/40 text-on-secondary-fixed border border-secondary-container px-2 py-0.5 rounded font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Engineering Grit (Active)
+                  </span>
+<button class="text-on-surface-variant hover:text-on-surface bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm border border-outline-variant/30" type="button">
+                    Concise &amp; Punchy
+                  </button>
+<button class="text-on-surface-variant hover:text-on-surface bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm border border-outline-variant/30" type="button">
+                    Executive Summary
+                  </button>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-outline font-mono">Length: Standard (1.8k char)</span>
+</div>
+</div>
+</div>
+<!-- Formatting Toolbar -->
+<div class="px-space-md py-1.5 bg-surface-container-low border-b border-outline-variant/20 flex items-center justify-between">
+<div class="flex items-center gap-1">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface" title="Bold" type="button"><span class="material-symbols-outlined text-[16px]">format_bold</span></button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface" title="Italic" type="button"><span class="material-symbols-outlined text-[16px]">format_italic</span></button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface" title="Code" type="button"><span class="material-symbols-outlined text-[16px]">code</span></button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface" title="Insert Git Diff Link" type="button"><span class="material-symbols-outlined text-[16px]">link</span></button>
+<span class="text-outline-variant mx-1">|</span>
+<button class="text-outline hover:text-on-surface font-label-sm text-[11px] px-2 py-0.5 rounded bg-surface border border-outline-variant/30" type="button">
+                  Insert Evidence Citation [#142]
+                </button>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-on-surface font-label-sm text-label-sm flex items-center gap-1 hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">visibility</span> Preview Toggle
+                </button>
+</div>
+</div>
+<!-- Rich Post Textarea -->
+<div class="p-space-md bg-surface-container-lowest">
+<textarea class="w-full bg-transparent border-0 text-on-surface font-body-md text-body-md focus:ring-0 resize-y outline-none leading-relaxed tracking-normal p-0 font-sans" id="postEditor" placeholder="Write or synthesize post content..." rows="18">We accidentally choked our database with 300 simultaneous webhook invocations on Tuesday. Here’s how moving to transaction-mode PgBouncer saved 410ms of p99 latency — backed by the exact diff.
+
+1. The Bottleneck:
+Under burst load, our default Prisma connection pool hit exhaustion. Every worker lambda spawned unbounded connections (max: 250 limit breached), creating 420ms cold-start connection queue stalls.
+
+2. The Architecture Shift:
+In PR #142 (commit 9fa40bc), we routed traffic through an intermediate PgBouncer cluster running transaction pooling mode (`max_client_conn = 250`, `pool_mode = transaction`).
+
+3. Verified Benchmark:
+Cold-start wait dropped from 420ms down to 9.2ms under identical 10,000 synthetic webhook burst tests.
+
+Full git diff and benchmarks: github.com/trellis-app/engine/pull/142
+
+#buildinpublic #systemdesign #database #backend</textarea>
+</div>
+<!-- Footer / Character Counter / Compliance -->
+<div class="px-space-md py-space-sm bg-surface-container-low border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="font-label-sm text-label-sm text-on-surface font-mono font-medium" id="charCountLabel">1,842 / 3,000 characters</span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary font-semibold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Compliant with LinkedIn Limits
+                </span>
+</div>
+<div class="flex items-center gap-2">
+<button class="font-label-sm text-label-sm text-outline hover:text-error transition-colors" id="resetDraftBtn" type="button">Reset</button>
+<button class="bg-surface border border-outline-variant px-space-sm py-1 rounded font-label-sm text-label-sm text-on-surface font-semibold hover:bg-surface-container transition-colors flex items-center gap-1" id="regenerateCopyBtn" type="button">
+<span class="material-symbols-outlined text-[14px]">auto_fix_high</span> Re-synthesize
+                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Evidence Inspector & Publishing Control Center (5 cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<!-- Card 1: Verified Ground Truth Bundle -->
+<div class="bg-surface-container-lowest rounded border border-outline-variant/40 shadow-xs flex flex-col overflow-hidden">
+<div class="px-space-md py-space-sm bg-surface-container-low border-b border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">verified</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-bold text-on-surface">Verified Ground Truth Bundle</span>
+</div>
+<span class="font-label-sm text-label-sm bg-primary-container text-on-primary px-2 py-0.5 rounded font-mono font-bold">PR #142</span>
+</div>
+<div class="p-space-md flex flex-col gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">Source Artifact</span>
+<a class="font-label-sm text-label-sm text-secondary hover:underline flex items-center gap-0.5 font-mono" href="https://github.com/trellis-app/engine/pull/142" target="_blank">
+                    github.com/trellis-app/engine #142 <span class="material-symbols-outlined text-[12px]">open_in_new</span>
+</a>
+</div>
+<div class="bg-surface-container p-space-sm rounded border border-outline-variant/20 flex flex-col gap-1">
+<div class="flex items-center justify-between font-mono text-[11px]">
+<span class="text-on-surface font-bold">src/infra/database/pool.ts</span>
+<span class="text-secondary font-semibold">+148 / -24 LOC</span>
+</div>
+<!-- Mini Code Snippet Preview -->
+<div class="bg-primary-container p-space-sm rounded text-[11px] font-mono text-on-primary-container overflow-x-auto border border-primary leading-tight">
+<div class="text-secondary-container">// PgBouncer client pool initialization</div>
+<div>+ const pool = new PgBouncerPool({</div>
+<div>+   poolMode: 'transaction',</div>
+<div>+   maxClientConn: 250,</div>
+<div>+   defaultPoolSize: 20</div>
+<div>+ });</div>
+</div>
+</div>
+</div>
+<!-- Metric Fact Verification -->
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-surface-container p-space-sm rounded border border-outline-variant/20 flex flex-col">
+<span class="font-label-sm text-[10px] text-outline uppercase">p99 wait time</span>
+<span class="font-mono text-headline-md font-bold text-on-surface">9.2ms</span>
+<span class="font-label-sm text-[11px] text-secondary font-semibold">Delta: -410.8ms</span>
+</div>
+<div class="bg-surface-container p-space-sm rounded border border-outline-variant/20 flex flex-col">
+<span class="font-label-sm text-[10px] text-outline uppercase">Burst Concurrency</span>
+<span class="font-mono text-headline-md font-bold text-on-surface">10,000</span>
+<span class="font-label-sm text-[11px] text-outline">Synthetic Webhooks</span>
+</div>
+</div>
+<!-- Builder Context Note -->
+<div class="bg-surface-container-low p-space-sm rounded border-l-2 border-primary-container flex flex-col gap-1">
+<span class="font-label-sm text-[10px] text-outline uppercase font-semibold">Builder Context</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+                  "Caught during staging stress test prior to launch. Verified with Alex Dev (Lead Systems Engineer)."
+                </p>
+</div>
+<!-- Verifiable Links -->
+<div class="flex items-center gap-space-sm flex-wrap font-label-sm text-label-sm">
+<span class="text-outline">Refs:</span>
+<span class="bg-surface px-2 py-0.5 rounded border border-outline-variant/40 font-mono text-on-surface">Commit 9fa40bc</span>
+<span class="bg-surface px-2 py-0.5 rounded border border-outline-variant/40 font-mono text-on-surface">fixtures/webhook_burst.js</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Buffer Publishing Dispatch Panel (PRD DS-04, DS-05, DS-06, DS-07, DS-09) -->
+<div class="bg-surface-container-lowest rounded border border-outline-variant/40 shadow-xs flex flex-col overflow-hidden">
+<div class="px-space-md py-space-sm bg-surface-container-low border-b border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">send_and_archive</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-bold text-on-surface">Buffer Dispatch Control Center</span>
+</div>
+<span class="font-label-sm text-[10px] bg-secondary-container text-on-secondary-fixed px-2 py-0.5 rounded font-mono font-bold">API v1 Connected</span>
+</div>
+<div class="p-space-md flex flex-col gap-space-md">
+<!-- Target Channel Selector -->
+<div class="flex flex-col gap-1.5">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">Target Channels</span>
+<div class="grid grid-cols-2 gap-2">
+<label class="flex items-center gap-2 p-2 bg-surface-container rounded border border-secondary-container cursor-pointer select-none">
+<input checked="" class="rounded text-primary focus:ring-0 h-4 w-4" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">LinkedIn</span>
+<span class="font-label-sm text-[10px] text-outline">Alex Dev (Personal)</span>
+</div>
+</label>
+<label class="flex items-center gap-2 p-2 bg-surface-container rounded border border-outline-variant/40 cursor-pointer select-none">
+<input class="rounded text-primary focus:ring-0 h-4 w-4" id="twitterChannelCheckbox" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">X / Twitter</span>
+<span class="font-label-sm text-[10px] text-outline">@trellis_app</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Schedule Configuration Dropdown / Panel -->
+<div class="bg-surface-container p-space-sm rounded border border-outline-variant/30 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">calendar_month</span> Scheduled Slot
+                  </span>
+<span class="font-label-sm text-[10px] text-secondary font-mono font-bold">TIMEZONE: PST (UTC-8)</span>
+</div>
+<div class="flex items-center gap-2">
+<input class="w-full bg-surface border border-outline-variant/50 rounded px-2 py-1 font-mono text-[12px] text-on-surface focus:outline-none focus:border-primary" type="datetime-local" value="2026-11-02T09:00"/>
+</div>
+<span class="font-label-sm text-[10px] text-outline font-mono">Equivalent UTC: Nov 02, 2026 17:00:00Z</span>
+</div>
+<!-- The 3 Core Buffer Publishing Actions (PRD DS-04, DS-05, DS-06) -->
+<div class="flex flex-col gap-2 pt-1">
+<!-- Action 1: Primary Save Draft to Buffer -->
+<button class="w-full bg-primary-container text-on-primary hover:bg-primary px-space-md py-2.5 rounded font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 transition-all shadow-xs" id="saveBufferDraftBtn" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary-container">bookmark_add</span>
+<span>Save Draft to Buffer</span>
+</button>
+<!-- Action 2: Schedule Post -->
+<button class="w-full bg-secondary-container text-on-secondary-fixed hover:bg-secondary-fixed-dim px-space-md py-2.5 rounded font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 transition-all shadow-xs" id="schedulePostBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span>Schedule Post (Nov 2, 09:00 AM)</span>
+</button>
+<!-- Action 3: Direct Publish Now -->
+<button class="w-full bg-surface-container border border-error/30 text-error hover:bg-error-container hover:text-on-error-container px-space-md py-2 rounded font-label-sm text-label-sm font-bold flex items-center justify-center gap-1.5 transition-colors" id="publishNowBtn" type="button">
+<span class="material-symbols-outlined text-[16px]">bolt</span>
+<span>Publish Now (Direct Dispatch)</span>
+</button>
+</div>
+<!-- Local Storage Fallback & Security Notice (PRD DS-07, DS-09) -->
+<div class="pt-2 border-t border-outline-variant/20 flex flex-col gap-1.5">
+<button class="w-full py-1.5 px-space-sm bg-surface border border-outline-variant/40 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container flex items-center justify-center gap-1 transition-colors" id="localFallbackBtn" type="button">
+<span class="material-symbols-outlined text-[14px]">save</span>
+<span>Save to Local Drafts (Offline Safe Fallback)</span>
+</button>
+<div class="flex items-center gap-1 font-label-sm text-[10px] text-outline">
+<span class="material-symbols-outlined text-[12px] text-secondary">lock</span>
+<span>OAuth 2.0 PKCE active. No access tokens stored in localStorage.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Notification Toast Container -->
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none" id="toastNotification">
+<div class="bg-primary-container text-on-primary px-space-md py- space-sm py-3 rounded shadow-lg border border-primary flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-container text-[20px]" id="toastIcon">check_circle</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold text-on-primary" id="toastTitle">Action Executed</span>
+<span class="font-body-sm text-[12px] text-on-primary-container" id="toastMessage">Details updated successfully.</span>
+</div>
+</div>
+</div>
+<!-- Client Interaction Logic -->
+<script>
+    const editor = document.getElementById('postEditor');
+    const charCounter = document.getElementById('charCountLabel');
+    const toast = document.getElementById('toastNotification');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
+
+    function showToast(title, message, icon = 'check_circle') {
+      if (!toast) return;
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+      toastIcon.textContent = icon;
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 3600);
+    }
+
+    function updateCharCount() {
+      if (!editor || !charCounter) return;
+      const count = editor.value.length;
+      charCounter.textContent = `${count.toLocaleString()} / 3,000 characters`;
+      if (count > 3000) {
+        charCounter.classList.add('text-error');
+      } else {
+        charCounter.classList.remove('text-error');
+      }
+    }
+
+    if (editor) {
+      editor.addEventListener('input', updateCharCount);
+      updateCharCount();
+    }
+
+    // Angle Selector buttons
+    document.querySelectorAll('.angle-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.angle-btn').forEach(b => {
+          b.className = 'angle-btn bg-surface-container text-on-surface-variant hover:text-on-surface px-space-sm py-1 rounded font-label-sm text-label-sm font-medium transition-colors border border-outline-variant/30';
+        });
+        this.className = 'angle-btn active bg-primary-container text-on-primary px-space-sm py-1 rounded font-label-sm text-label-sm font-semibold transition-colors';
+        showToast('Narrative Angle Applied', `Post synthesized for angle: ${this.textContent.trim()}`);
+      });
+    });
+
+    // Buffer Actions
+    document.getElementById('saveBufferDraftBtn')?.addEventListener('click', () => {
+      showToast('Buffer Draft Staged', 'Payload sent to Buffer API (LinkedIn profile: Alex Dev). Mode: saveToDraft.', 'bookmark_added');
+    });
+
+    document.getElementById('schedulePostBtn')?.addEventListener('click', () => {
+      showToast('Post Scheduled', 'Post scheduled in Buffer for Nov 02, 2026 at 09:00 AM PST (17:00 UTC).', 'schedule');
+    });
+
+    document.getElementById('publishNowBtn')?.addEventListener('click', () => {
+      const confirmed = window.confirm('Are you sure you want to publish immediately to connected channels?');
+      if (confirmed) {
+        showToast('Dispatched to Channels', 'Post broadcast initiated across 1 verified channel.', 'rocket_launch');
+      }
+    });
+
+    document.getElementById('saveLocalDraftBtn')?.addEventListener('click', () => {
+      showToast('Local Draft Cached', 'Saved to browser session state (SHA: 3c8e42f).', 'save');
+    });
+
+    document.getElementById('localFallbackBtn')?.addEventListener('click', () => {
+      showToast('Offline Snapshot Saved', 'Draft backup written to local index.', 'save');
+    });
+
+    document.getElementById('regenerateCopyBtn')?.addEventListener('click', () => {
+      showToast('Evidence Synthesizer', 'Re-parsed PR #142 AST and refreshed latency benchmarks.', 'auto_fix_high');
+    });
+  </script>
+</body></html>
