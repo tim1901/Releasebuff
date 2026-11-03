@@ -41,7 +41,14 @@ export async function POST(request: Request) {
       audience: typeof body.audience === "string" ? body.audience.slice(0, 1000) : "",
       materials: Array.isArray(body.materials) ? body.materials.slice(0, 20) : []
     });
-    return NextResponse.json({ ...analysis, stories: discovery.stories, storyDiscoveryMode: discovery.mode, aiConfigured: hasAiConfiguration(), accessMode: token ? "github-app" : "public" }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({
+      ...analysis,
+      stories: discovery.stories,
+      storyDiscoveryMode: discovery.mode,
+      storyDiscoveryWarning: discovery.warning ?? null,
+      aiConfigured: hasAiConfiguration(),
+      accessMode: token ? "github-app" : "public"
+    }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     return jsonError(safeErrorMessage(error, "Could not analyze this repository."), errorStatus(error, 422), "github_analysis_failed");
   }
