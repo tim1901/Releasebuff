@@ -36,9 +36,12 @@ export async function discoverStories(input: {
   materials?: ProductMaterial[];
   productDescription?: string;
   audience?: string;
-}): Promise<{ stories: StoryOpportunity[]; mode: "ai-assisted" | "evidence-rules" }> {
+}): Promise<{ stories: StoryOpportunity[]; mode: "ai-assisted" | "evidence-rules"; warning?: string }> {
   const candidates = (input.candidates ?? []).filter(story => story.evidence.length > 0);
-  if (!hasAiConfiguration()) return { stories: candidates, mode: "evidence-rules" };
+  if (!hasAiConfiguration()) return {
+    stories: candidates, mode: "evidence-rules",
+    warning: "OpenAI is not configured. These are evidence-rule suggestions, not AI-refined stories."
+  };
 
   const evidenceById = new Map<string, StoryEvidence>();
   for (const story of candidates) for (const item of story.evidence) evidenceById.set(item.id, item);
@@ -50,7 +53,10 @@ export async function discoverStories(input: {
     ...materials.map(material => ({ id: `material-${material.id}`, label: material.title, type: material.kind, url: material.sourceUrl ?? null, excerpt: (material.textContent ?? "").slice(0, 2000), candidateContext: null }))
   ].filter((item, index, all) => all.findIndex(other => other.id === item.id) === index).slice(0, 50);
 
-  if (!sourceBundle.length) return { stories: [], mode: "ai-assisted" };
+  if (!sourceBundle.length) return {
+    stories: [], mode: "evidence-rules",
+    warning: "No source evidence was available for AI story discovery."
+  };
   const inputObject = {
     objective: "Discover the most interesting build-in-public story opportunities from the supplied source evidence, in the context of the builder's product.",
     productProfile: input.profile ?? null,
@@ -89,10 +95,16 @@ export async function discoverStories(input: {
       signal: AbortSignal.timeout(35_000)
     });
     const payload = await response.json().catch(() => ({})) as OutputPayload;
-    if (!response.ok) return { stories: candidates, mode: "evidence-rules" };
+    if (!response.ok) return {
+      stories: candidates, mode: "evidence-rules",
+      warning: `OpenAI story discovery failed with HTTP ${response.status} using model "${configuredAiModel()}". Rule-based suggestions are being shown instead. Check OPENAI_MODEL and API project access in Netlify.`
+    };
     const raw = outputText(payload).replace(/^```json\s*/i, "").replace(/```\s*$/i, "");
     const parsed = JSON.parse(raw) as { stories?: CandidateJson[] };
-    if (!Array.isArray(parsed.stories)) return { stories: candidates, mode: "evidence-rules" };
+    if (!Array.isArray(parsed.stories)) return {
+      stories: candidates, mode: "evidence-rules",
+      warning: "OpenAI returned an unexpected response for story discovery. Rule-based suggestions are being shown instead."
+    };
 
     const output: StoryOpportunity[] = [];
     const dedupe = new Set<string>();
@@ -121,9 +133,15 @@ export async function discoverStories(input: {
         evidenceCoverage: status === "ready-to-draft" ? "strong" : status === "needs-context" ? "context-needed" : "partial", generatedAt
       });
     }
-    if (!output.length) return { stories: candidates, mode: "evidence-rules" };
+    if (!output.length) return {
+      stories: candidates, mode: "evidence-rules",
+      warning: "OpenAI did not return any usable, source-linked stories. Rule-based suggestions are being shown instead."
+    };
     return { stories: output, mode: "ai-assisted" };
   } catch {
-    return { stories: candidates, mode: "evidence-rules" };
+    return {
+      stories: candidates, mode: "evidence-rules",
+      warning: "OpenAI story discovery failed, timed out, or returned invalid JSON. Rule-based suggestions are being shown instead."
+    };
   }
 }
