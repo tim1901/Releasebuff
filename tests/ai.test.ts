@@ -59,8 +59,32 @@ describe("OpenAI Responses API draft generation", () => {
     const body = JSON.parse(String(init.body)) as Record<string, unknown>;
     expect(body.model).toBe("gpt-6.1-terra");
     expect(body.store).toBe(false);
-    expect(body.max_output_tokens).toBe(1200);
-    expect(String(body.instructions)).toContain("Never invent motivations");
+    expect(body.max_output_tokens).toBe(450);
+    expect(String(body.instructions)).toContain("Never invent motivation");
+    expect(String(body.instructions)).toContain("Target 70–120 words");
+    expect(String(body.instructions)).toContain("Every sentence must add a detail, decision, insight or necessary context.");
+  });
+
+
+  it("sets a strict short-post contract for X", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      output_text: "One concrete point, in a short post."
+    }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await generateGroundedDraft({
+      story: TRELLIS_DEMO_STORIES[0],
+      platform: "x",
+      voice: "direct and concise"
+    });
+
+    expect(result.mode).toBe("ai");
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.max_output_tokens).toBe(160);
+    expect(String(body.instructions)).toContain("never exceed 260 characters");
+    expect(String(body.instructions)).toContain("ONE standalone post, not a thread");
   });
 
   it("returns a useful error if OpenAI rejects the API key", async () => {
