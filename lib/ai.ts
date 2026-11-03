@@ -1,7 +1,7 @@
 import "server-only";
 import type { ProductMaterial, ProductProfile, StoryInterviewAnswer, StoryOpportunity, StoryWritingPreferences } from "@/lib/types";
 
-const DEFAULT_MODEL = "gpt-6.1-terra";
+const DEFAULT_MODEL = "gpt-6.1-sol";
 const MAX_CONTEXT_LENGTH = 12_000;
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 
