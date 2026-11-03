@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // The AI module is server-only in Next.js; mock that marker for unit tests.
 vi.mock("server-only", () => ({}));
 
-import { generateGroundedDraft } from "@/lib/ai";
+import { configuredAiModel, generateGroundedDraft } from "@/lib/ai";
 import { TRELLIS_DEMO_STORIES } from "@/lib/demo-data";
 
 beforeEach(() => {
@@ -19,6 +19,11 @@ afterEach(() => {
 });
 
 describe("OpenAI Responses API draft generation", () => {
+  it("defaults to the supported GPT-6.1 Sol model when OPENAI_MODEL is unset", () => {
+    expect(configuredAiModel()).toBe("gpt-6.1-sol");
+  });
+
+
   it("uses a grounded template when no OpenAI key is configured", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
@@ -36,7 +41,7 @@ describe("OpenAI Responses API draft generation", () => {
 
   it("calls OpenAI's Responses API server-side and extracts output text", async () => {
     vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
-    vi.stubEnv("OPENAI_MODEL", "gpt-6.1-terra");
+    vi.stubEnv("OPENAI_MODEL", "gpt-6.1-sol");
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       id: "resp_test",
       output: [{ type: "message", content: [{ type: "output_text", text: "A grounded draft from OpenAI." }] }]
@@ -50,14 +55,14 @@ describe("OpenAI Responses API draft generation", () => {
       extraContext: "Keep the copy factual."
     });
 
-    expect(result).toMatchObject({ draft: "A grounded draft from OpenAI.", mode: "ai", model: "gpt-6.1-terra" });
+    expect(result).toMatchObject({ draft: "A grounded draft from OpenAI.", mode: "ai", model: "gpt-6.1-sol" });
     expect(Array.isArray(result.reviewWarnings)).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://api.openai.com/v1/responses");
     expect(new Headers(init.headers).get("authorization")).toBe("Bearer test-openai-key");
     const body = JSON.parse(String(init.body)) as Record<string, unknown>;
-    expect(body.model).toBe("gpt-6.1-terra");
+    expect(body.model).toBe("gpt-6.1-sol");
     expect(body.store).toBe(false);
     expect(body.max_output_tokens).toBe(450);
     expect(String(body.instructions)).toContain("Never invent motivation");

@@ -70,7 +70,7 @@ Set these values in `.env.local`:
 
 ```dotenv
 OPENAI_API_KEY=your-openai-api-key
-OPENAI_MODEL=gpt-6.1-terra
+OPENAI_MODEL=gpt-6.1-sol
 ```
 
 Restart the dev server after changing environment variables. The app calls the OpenAI Responses API from server-side routes and sets `store: false` on one-shot requests. API usage is billed separately from a ChatGPT subscription. If you do not configure an API key, product understanding returns a local, source-limited profile; story generation uses evidence rules; the interview uses a guided question sequence; and drafting uses a clearly labelled grounded template instead of claiming it used AI.

@@ -466,7 +466,15 @@ export default function ReleasebuffApp() {
       setSettings(prev => ({ ...prev, repositoryUrl: loadedAnalysis.repository.url }));
       setAnalysis(loadedAnalysis); setStories(mergedStories); setAnalysisMode("live");
       setSelectedCategory("All categories"); setSelectedStoryId(mergedStories[0]?.id ?? null); setView("inbox"); setMobileNavOpen(false);
-      say(`Analysis complete. ${mergedStories.length} story opportunities surfaced from ${loadedAnalysis.repository.fullName}.`, "success");
+      const storyDiscoveryMode = data.storyDiscoveryMode;
+      const storyDiscoveryWarning = typeof data.storyDiscoveryWarning === "string" ? data.storyDiscoveryWarning : "";
+      if (storyDiscoveryMode === "ai-assisted") {
+        say(`AI-assisted story discovery complete. ${mergedStories.length} story opportunities surfaced from ${loadedAnalysis.repository.fullName}.`, "success");
+      } else if (data.aiConfigured) {
+        say(`Repository scan completed, but AI story refinement failed; the suggestions shown are rule-based, not AI-generated. ${storyDiscoveryWarning}`, "error");
+      } else {
+        say(`Repository scan completed. The ${mergedStories.length} suggestions are rule-based because no OpenAI API key is configured.`, "info");
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not analyze this repository.";
       setScanError(message); say(message, "error");
