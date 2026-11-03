@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hasAiConfiguration } from "@/lib/ai";
+import { configuredAiModel, hasAiConfiguration } from "@/lib/ai";
 import { isBufferOAuthConfigured } from "@/lib/buffer-api";
 import { isGitHubAppConfigured } from "@/lib/github-app";
 import { isSessionEncryptionConfigured, persistentIntegrationStoreConfigured } from "@/lib/session-store";
@@ -13,7 +13,8 @@ export async function GET() {
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
     capabilities: {
       publicGitHubAnalysis: true, privateGitHubApp: isGitHubAppConfigured(),
-      aiDrafts: hasAiConfiguration(), bufferOAuth: isBufferOAuthConfigured(),
+      aiDrafts: hasAiConfiguration(), aiModel: hasAiConfiguration() ? configuredAiModel() : null,
+      bufferOAuth: isBufferOAuthConfigured(),
       encryptedIntegrationStore: isSessionEncryptionConfigured() && persistentIntegrationStoreConfigured(),
       productMaterials: true, adaptiveStoryInterview: true
     }
