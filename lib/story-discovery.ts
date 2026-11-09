@@ -66,7 +66,10 @@ export async function discoverStories(input: {
     sources: sourceBundle,
     allowedCategories: CATEGORY_NAMES,
     instructions: [
-      "Return at most 12 genuinely useful, distinct story opportunities. Do not maximize quantity.",
+      "Return at most 12 genuinely useful, distinct story opportunities. Do not maximize quantity; rank the strongest narrative opportunities first.",
+      "Prioritize concrete editorial signals in this order when evidence supports them: a reversal or changed direction; a difficult problem or explicit trade-off; an unexpected finding; an experiment with an observed result; a launch or milestone; a connected set of meaningful changes that forms a coherent weekly recap.",
+      "A change log, README, architecture description or list of implemented features is often only raw material. Do not turn documentation wording into a story by itself. Prefer a specific event with a clear before/after, decision, constraint, or verified observation.",
+      "A story can be promising but not ready to draft. When the evidence shows what changed but not why, what was difficult, or what happened next, set requiresContext to one precise, useful builder question instead of inventing the missing narrative.",
       "Each story MUST include evidenceIds selected exactly from the supplied source IDs. Do not create stories with zero evidence.",
       "You may improve existing candidates or identify new stories from uploaded/pasted source materials, but do not invent sources or source IDs.",
       "Use the product profile to explain why the change matters, but do not treat a product intention as proof that a feature is implemented or available.",
@@ -123,7 +126,8 @@ export async function discoverStories(input: {
       if (dedupe.has(id)) continue;
       dedupe.add(id);
       const overlapCount = base?.count ?? 0;
-      const status: StoryOpportunity["status"] = baseCandidate?.status === "ready-to-draft" && overlapCount >= Math.min(2, baseCandidate.evidence.length) ? "ready-to-draft" : "needs-context";
+      const hasContextQuestion = typeof item.requiresContext === "string" && item.requiresContext.trim().length > 0;
+      const status: StoryOpportunity["status"] = !hasContextQuestion && baseCandidate?.status === "ready-to-draft" && overlapCount >= Math.min(2, baseCandidate.evidence.length) ? "ready-to-draft" : "needs-context";
       const confidence = item.confidence === "high" && pickedIds.length >= 2 ? "high" : pickedIds.length >= 2 ? "medium" : "low";
       output.push({
         id, category, group: groupFor(category), title: item.title.trim().slice(0, 180), summary: item.summary.trim().slice(0, 1200), angle: item.angle.trim().slice(0, 1200),

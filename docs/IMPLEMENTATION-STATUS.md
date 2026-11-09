@@ -13,7 +13,8 @@ This file distinguishes current source implementation from planned work and conf
 - GitHub App installation and selected-repository routes. The connection flow first obtains a temporary GitHub user token, then verifies the returned installation appears in that user’s accessible-installations list before storing it. Repository access uses server-generated short-lived installation tokens. Both GitHub OAuth client credentials and GitHub App credentials must be configured.
 - Rule-driven story candidate engine and OpenAI evidence-constrained story-discovery layer. Discovered stories must cite IDs from actual collected source records; generic no-evidence prompts are removed from the Story Inbox.
 - Category-aware adaptive story interview endpoint with AI and guided fallback modes, multi-question answer persistence and a maximum interview length.
-- OpenAI Responses API draft generation using the Product Profile, story evidence, builder interview, optional custom opening/closing and writing voice; deterministic fallback is labelled as a grounded template.
+- OpenAI Responses API draft generation using the Product Profile, story evidence, builder interview, optional custom opening/closing and writing voice; editor prompts prioritize concrete changes, decisions, reversals and observed outcomes over generic source-document summaries; deterministic fallback is labelled as a grounded template.
+- Browser-local Brand Kit with logo upload, color/font/theme/style/aspect-ratio settings, saved to IndexedDB; brand-consistent story graphics generated alongside the draft with SVG, PNG and animated GIF export from reusable templates.
 - Heuristic draft review warnings for common unsupported number/impact/customer reaction claims. These are review aids, not a complete factual-verification system.
 - Buffer OAuth Authorization Code + PKCE routes, account/channel retrieval, save-draft, schedule and publish-now API paths, session-server token handling and UTC scheduling conversion.
 - Encrypted provider integration record storage: encrypted local-file fallback during ordinary local development and encrypted Netlify Blobs records under Netlify. No conventional database required.
@@ -33,7 +34,7 @@ This file distinguishes current source implementation from planned work and conf
 - User accounts, centralized project persistence and cross-device sync.
 - Export/import project backups.
 - Direct Notion/Linear integrations and direct analytics, customer support or revenue integrations. The MVP supports URLs, notes, documents, screenshots and manually supplied exports where implemented.
-- Full claim-level semantic verification, deduplication quality evaluation, editorial scoring and end-to-end evaluations using representative builder projects.
+- Full claim-level semantic verification, dedicated editorial scoring benchmarks, deduplication quality evaluation and end-to-end evaluations using representative builder projects.
 - Cross-instance lock/lease for Buffer refresh-token rotation. The current refresh coordination is process-local; Netlify Blobs is persistence, not a distributed lock or transaction coordinator.
 - Actual OAuth, private-repository and Buffer publish/schedule flows have not been tested against the user's own configured provider accounts as part of preparing this source bundle.
 
@@ -41,3 +42,10 @@ This file distinguishes current source implementation from planned work and conf
 
 - TypeScript/TSX source syntax is checked with the globally available TypeScript parser.
 - Full `npm run typecheck`, `npm test`, `npm run lint`, and `npm run build` need to be run after dependencies install successfully. Package installation could not complete in the preparation environment, so do not assume the complete toolchain checks have passed here.
+
+
+## Visual workflow notes
+
+- Story graphics are generated client-side from the selected story, current draft text and the saved Brand Kit. The first version uses editable SVG templates and browser-side PNG/GIF export; generated metrics or design details are not independently verified.
+- Brand Kit settings and uploaded logo data are stored in the current browser's IndexedDB. They are not synchronized across devices or users.
+- Landing-page hero preview animations respect the operating system's reduced-motion preference and use the existing forest-green, electric-lime and warm-neutral palette.
