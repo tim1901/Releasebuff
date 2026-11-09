@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Download, Image as ImageIcon, LoaderCircle, RefreshCw, Sparkles } from "lucide-react";
 import type { BrandKit, StoryOpportunity } from "@/lib/types";
 import { buildStoryVisualSvg, getVisualDimensions, type VisualLayout } from "@/lib/visual-template";
@@ -32,13 +32,18 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 function slug(value: string) { return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "story-visual"; }
 
-export default function StoryVisualStudio({ story, draftText, productName, kit }: { story: StoryOpportunity | null; draftText: string; productName: string; kit: BrandKit }) {
+type StoryVisualStudioProps = { story: StoryOpportunity | null; draftText: string; productName: string; kit: BrandKit };
+
+export default function StoryVisualStudio(props: StoryVisualStudioProps) {
+  return <StoryVisualStudioEditor key={props.story?.id ?? "no-story"} {...props} />;
+}
+
+function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVisualStudioProps) {
   const [layout, setLayout] = useState<VisualLayout>("spotlight");
   const [headlineOverride, setHeadlineOverride] = useState("");
   const [supportingOverride, setSupportingOverride] = useState("");
   const [exportBusy, setExportBusy] = useState<"" | "png" | "gif">("");
   const [exportError, setExportError] = useState("");
-  useEffect(() => { setHeadlineOverride(""); setSupportingOverride(""); setLayout("spotlight"); }, [story?.id]);
   const headline = headlineOverride.trim() || story?.title || draftText.split(/\n|[.!?]/).map(part => part.trim()).find(Boolean) || "A story from this build";
   const supporting = supportingOverride.trim() || story?.summary || draftText.replace(/\s+/g, " ").slice(0, 220) || "A small, specific look at the work behind the product.";
   const svg = useMemo(() => buildStoryVisualSvg({ kit, story, draftText, productName, headlineOverride: headline, supportingLineOverride: supporting, layout }), [kit, story, draftText, productName, headline, supporting, layout]);
