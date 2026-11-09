@@ -58,7 +58,9 @@ export default function StoryVisualStudio({ story, draftText, productName, kit }
       canvas.width = dimensions.width; canvas.height = dimensions.height;
       const context = canvas.getContext("2d");
       if (!context) throw new Error("PNG export is not available in this browser.");
-      context.putImageData(new ImageData(rgba, dimensions.width, dimensions.height), 0, 0);
+      const imageData = context.createImageData(dimensions.width, dimensions.height);
+      imageData.data.set(rgba);
+      context.putImageData(imageData, 0, 0);
       const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(result => result ? resolve(result) : reject(new Error("Could not encode the PNG file.")), "image/png"));
       downloadBlob(blob, slug(headline) + ".png");
     } catch (error) { setExportError(error instanceof Error ? error.message : "Could not export PNG."); }
