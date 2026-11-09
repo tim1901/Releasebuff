@@ -75,7 +75,7 @@ export default function BrandKitStudio({ kit, onChange }: { kit: BrandKit; onCha
             <p style={{ color: kit.textColor }}>Make the work visible without making the story up.</p>
             <span className="brand-kit-preview-footer" style={{ borderColor: kit.primaryColor }}>STORY / EVIDENCE / CONTEXT</span>
           </div>
-          <p className="form-help">These settings affect generated visuals, not Releasebuff's interface palette. The app stays in its existing forest-green, lime and warm-neutral design system.</p>
+          <p className="form-help">These settings affect generated visuals, not Releasebuff&apos;s interface palette. The app stays in its existing forest-green, lime and warm-neutral design system.</p>
         </div>
       </aside>
     </div>
