@@ -8,8 +8,7 @@ export const DEFAULT_BRAND_KIT: BrandKit = {
   theme: "light",
   style: "editorial",
   fontFamily: "Hanken Grotesk",
-  aspectRatio: "square",
-  showLogo: true
+  aspectRatio: "square"
 };
 
 const validHex = (value: unknown, fallback: string) =>
@@ -21,7 +20,6 @@ export function normaliseBrandKit(value: unknown): BrandKit {
   const fontFamily = ["Hanken Grotesk", "JetBrains Mono", "Georgia", "Arial"].includes(saved.fontFamily ?? "") ? saved.fontFamily! : DEFAULT_BRAND_KIT.fontFamily;
   const aspectRatio = ["square", "landscape", "portrait"].includes(saved.aspectRatio ?? "") ? saved.aspectRatio! : DEFAULT_BRAND_KIT.aspectRatio;
   const theme = saved.theme === "dark" ? "dark" : "light";
-  const logoDataUrl = typeof saved.logoDataUrl === "string" && saved.logoDataUrl.length <= 2_000_000 && /^data:image\/(?:png|jpeg|webp|svg\+xml)/i.test(saved.logoDataUrl) ? saved.logoDataUrl : undefined;
   return {
     ...DEFAULT_BRAND_KIT,
     primaryColor: validHex(saved.primaryColor, DEFAULT_BRAND_KIT.primaryColor),
@@ -32,7 +30,5 @@ export function normaliseBrandKit(value: unknown): BrandKit {
     style: style as BrandKit["style"],
     fontFamily: fontFamily as BrandKit["fontFamily"],
     aspectRatio: aspectRatio as BrandKit["aspectRatio"],
-    showLogo: saved.showLogo !== false,
-    ...(logoDataUrl ? { logoDataUrl, logoName: typeof saved.logoName === "string" ? saved.logoName.slice(0, 120) : "Product logo" } : {})
   };
 }
