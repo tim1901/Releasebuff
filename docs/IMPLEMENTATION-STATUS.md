@@ -14,7 +14,7 @@ This file distinguishes current source implementation from planned work and conf
 - Rule-driven story candidate engine and OpenAI evidence-constrained story-discovery layer. Discovered stories must cite IDs from actual collected source records; generic no-evidence prompts are removed from the Story Inbox.
 - Category-aware adaptive story interview endpoint with AI and guided fallback modes, multi-question answer persistence and a maximum interview length.
 - OpenAI Responses API draft generation using the Product Profile, story evidence, builder interview, optional custom opening/closing and writing voice; editor prompts prioritize concrete changes, decisions, reversals and observed outcomes over generic source-document summaries; deterministic fallback is labelled as a grounded template.
-- Browser-local Brand Kit with logo upload, color/font/theme/style/aspect-ratio settings, saved to IndexedDB; brand-consistent story graphics generated alongside the draft with SVG, PNG and animated GIF export from reusable templates.
+- Browser-local Brand Kit with color/font/theme/style/aspect-ratio settings, saved to IndexedDB; context-planned story graphics generated alongside the draft with typographic product-name signatures and SVG, PNG and animated GIF export.
 - Heuristic draft review warnings for common unsupported number/impact/customer reaction claims. These are review aids, not a complete factual-verification system.
 - Buffer OAuth Authorization Code + PKCE routes, account/channel retrieval, save-draft, schedule and publish-now API paths, session-server token handling and UTC scheduling conversion.
 - Encrypted provider integration record storage: encrypted local-file fallback during ordinary local development and encrypted Netlify Blobs records under Netlify. No conventional database required.
@@ -46,6 +46,6 @@ This file distinguishes current source implementation from planned work and conf
 
 ## Visual workflow notes
 
-- Story graphics are generated client-side from the selected story, current draft text and the saved Brand Kit. The first version uses editable SVG templates and browser-side PNG/GIF export; generated metrics or design details are not independently verified.
-- Brand Kit settings and uploaded logo data are stored in the current browser's IndexedDB. They are not synchronized across devices or users.
+- Story graphics use an AI art-direction route to choose a context-specific composition, headline and supported facts when AI is configured, with a deterministic context-aware fallback. The client renders editable SVG compositions and browser-side PNG/GIF exports. Numbers are only promoted to metric layouts when a selected source fact contains a measurable value; content should still be reviewed before publication.
+- Brand Kit settings are stored in the current browser's IndexedDB. Generated graphics use the product name as a typographic signature and do not place logos on the visual. Settings are not synchronized across devices or users.
 - Landing-page hero preview animations respect the operating system's reduced-motion preference and use the existing forest-green, electric-lime and warm-neutral palette.
