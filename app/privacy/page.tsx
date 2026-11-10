@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,7 +11,7 @@ export default function PrivacyPolicyPage() {
   return (
     <main className="privacy-page">
       <article className="privacy-container">
-        <a className="privacy-back" href="/">← Back to Releasebuff</a>
+        <Link className="privacy-back" href="/">← Back to Releasebuff</Link>
         <header className="privacy-header">
           <p className="eyebrow">RELEASEBUFF / PRIVACY</p>
           <h1>Privacy Policy</h1>
@@ -188,7 +189,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <footer className="privacy-footer">
-          <a href="/">Releasebuff home</a>
+          <Link href="/">Releasebuff home</Link>
           <span>Grounded in evidence. Written with the builder.</span>
         </footer>
       </article>

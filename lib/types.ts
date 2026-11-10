@@ -93,6 +93,21 @@ export interface LocalDraft {
   writingPreferences?: StoryWritingPreferences;
 }
 
+export type BrandVisualStyle = "editorial" | "technical" | "bold" | "minimal";
+export type BrandAspectRatio = "square" | "landscape" | "portrait";
+export type BrandFontFamily = "Hanken Grotesk" | "JetBrains Mono" | "Georgia" | "Arial";
+
+export interface BrandKit {
+  primaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  textColor: string;
+  theme: "light" | "dark";
+  style: BrandVisualStyle;
+  fontFamily: BrandFontFamily;
+  aspectRatio: BrandAspectRatio;
+}
+
 export type ProductStage = "idea" | "prototype" | "actively-building" | "early-launch" | "established";
 export type KnowledgeStatus = "source-supported" | "builder-provided" | "hypothesis" | "unknown";
 
