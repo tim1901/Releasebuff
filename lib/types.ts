@@ -98,8 +98,6 @@ export type BrandAspectRatio = "square" | "landscape" | "portrait";
 export type BrandFontFamily = "Hanken Grotesk" | "JetBrains Mono" | "Georgia" | "Arial";
 
 export interface BrandKit {
-  logoDataUrl?: string;
-  logoName?: string;
   primaryColor: string;
   accentColor: string;
   backgroundColor: string;
@@ -108,7 +106,6 @@ export interface BrandKit {
   style: BrandVisualStyle;
   fontFamily: BrandFontFamily;
   aspectRatio: BrandAspectRatio;
-  showLogo: boolean;
 }
 
 export type ProductStage = "idea" | "prototype" | "actively-building" | "early-launch" | "established";
