@@ -4,7 +4,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import { configuredAiModel, generateGroundedDraft } from "@/lib/ai";
-import { TRELLIS_DEMO_STORIES } from "@/lib/demo-data";
+import { buildBuilderStorySeeds } from "@/lib/builder-story-seeds";
+import type { ProjectPreferences } from "@/lib/types";
+
+const testSettings: ProjectPreferences = {
+  productName: "Launchpad",
+  productSummary: "A tool that helps independent founders turn product work into useful public stories.",
+  audience: "solo SaaS founders",
+  productStage: "actively-building",
+  websiteUrl: "",
+  repositoryUrl: "",
+  goals: ["Grow an audience"],
+  writingVoice: "Natural and specific"
+};
+const testStory = buildBuilderStorySeeds(testSettings, null, [])[0];
 
 beforeEach(() => {
   vi.unstubAllEnvs();
@@ -29,13 +42,13 @@ describe("OpenAI Responses API draft generation", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await generateGroundedDraft({
-      story: TRELLIS_DEMO_STORIES[0],
+      story: testStory,
       platform: "linkedin",
       voice: "natural"
     });
 
     expect(result.mode).toBe("grounded-template");
-    expect(result.draft).toContain(TRELLIS_DEMO_STORIES[0].title);
+    expect(result.draft).toContain(testStory.title);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -49,7 +62,7 @@ describe("OpenAI Responses API draft generation", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await generateGroundedDraft({
-      story: TRELLIS_DEMO_STORIES[0],
+      story: testStory,
       platform: "linkedin",
       voice: "natural, builder-to-builder",
       extraContext: "Keep the copy factual."
@@ -79,7 +92,7 @@ describe("OpenAI Responses API draft generation", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await generateGroundedDraft({
-      story: TRELLIS_DEMO_STORIES[0],
+      story: testStory,
       platform: "x",
       voice: "direct and concise"
     });
@@ -99,7 +112,7 @@ describe("OpenAI Responses API draft generation", () => {
     }), { status: 401, headers: { "Content-Type": "application/json" } })));
 
     await expect(generateGroundedDraft({
-      story: TRELLIS_DEMO_STORIES[0],
+      story: testStory,
       platform: "linkedin",
       voice: "natural"
     })).rejects.toMatchObject({ status: 401, message: expect.stringContaining("OPENAI_API_KEY") });
