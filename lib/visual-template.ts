@@ -13,7 +13,7 @@ function escapeXml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 function wrapWords(value: string, limit: number, maxLines: number): string[] {
-  const normalized = value.replace(/\\s+/g, " ").trim();
+  const normalized = value.replace(/\s+/g, " ").trim();
   if (!normalized || maxLines < 1) return [];
   const safeLimit = Math.max(1, Math.floor(limit));
   const words = normalized.split(" ").filter(Boolean);
@@ -55,7 +55,7 @@ function wrapWords(value: string, limit: number, maxLines: number): string[] {
   const consumedText = lines.join(" ").replace(/…$/, "");
   if (truncated || consumedText.length < normalized.length) {
     const last = lines.length - 1;
-    if (last >= 0) lines[last] = lines[last].replace(/[\\s.,;:!?-]+$/, "") + "…";
+    if (last >= 0) lines[last] = lines[last].replace(/[\s.,;:!?-]+$/, "") + "…";
   }
   return lines.slice(0, maxLines);
 }
@@ -234,7 +234,7 @@ export function buildStoryVisualSvg(input: { kit: BrandKit; story?: StoryOpportu
     const cardTitleSize = Math.max(12, 15 * scale);
     const bodySize = Math.max(15, 20 * scale);
     const leftLines = wrapWords(leftText, Math.max(15, Math.floor((half - 44 * scale) / (bodySize * 0.66))), 4);
-    const rightLines = wrapWords(rightText, Math.max(15, Math.floor((half - 44 * scale) / (bodySize * 0.55))), 4);
+    const rightLines = wrapWords(rightText, Math.max(15, Math.floor((half - 44 * scale) / (bodySize * 0.66))), 4);
     content = rect(margin, leftY, half, cardHeight, panel, 22 * scale, primary + "44") +
       rect(margin + half + gap, leftY, half, cardHeight, accent, 22 * scale) +
       "<text x=\"" + (margin + 22 * scale) + "\" y=\"" + (leftY + 32 * scale) + "\" fill=\"" + primary + "\" font-family=\"JetBrains Mono, monospace\" font-size=\"" + cardTitleSize + "\" font-weight=\"700\" letter-spacing=\"1\">EVIDENCE</text>" +
