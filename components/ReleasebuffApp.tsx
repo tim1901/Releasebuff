@@ -386,7 +386,7 @@ export default function ReleasebuffApp() {
       }
       const response = await fetch("/api/product/understand", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ settings, materials: materialsForServerRequest(materialsForProfile), useGitHubApp: Boolean(settings.useGitHubApp) }), cache: "no-store"
+        body: JSON.stringify({ settings, materials: materialsForServerRequest(materialsForProfile), existingProfile: productProfile, includeGitHub: false, useGitHubApp: Boolean(settings.useGitHubApp) }), cache: "no-store"
       });
       const data = await response.json();
       if (!response.ok || !data.profile) throw new Error(data.error || "Could not create the Product Profile.");
@@ -460,7 +460,7 @@ export default function ReleasebuffApp() {
       try {
         const profileResponse = await fetch("/api/product/understand", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ settings, materials: materialsForServerRequest(materialsForDiscovery), includeGitHub: false }),
+          body: JSON.stringify({ settings, materials: materialsForServerRequest(materialsForDiscovery), existingProfile: productProfile, includeGitHub: false }),
           cache: "no-store"
         });
         const profileData = await profileResponse.json();
