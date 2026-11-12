@@ -538,7 +538,7 @@ export default function ReleasebuffApp() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Could not continue the story interview.");
       const fallbackSummary = answers.filter(a => !a.skipped && a.answer.trim()).map(a => `${a.dimension ?? "Context"}: ${a.answer.trim()}`).join("\n");
-      const current: StoryInterview = { storyId: story.id, answers, currentQuestion: data.question, currentDimension: data.dimension, complete: Boolean(data.done), summary: typeof data.summary === "string" && data.summary.trim() ? data.summary : (data.done ? fallbackSummary : undefined), readinessNotes: Array.isArray(data.readinessNotes) ? data.readinessNotes.filter((note: unknown): note is string => typeof note === "string" && note.trim()).slice(0, 6) : (data.done ? ["Review the story summary for accuracy before drafting.", "Only include outcomes and metrics that can be verified."] : undefined), updatedAt: new Date().toISOString() };
+      const current: StoryInterview = { storyId: story.id, answers, currentQuestion: data.question, currentDimension: data.dimension, complete: Boolean(data.done), summary: typeof data.summary === "string" && data.summary.trim() ? data.summary : (data.done ? fallbackSummary : undefined), readinessNotes: Array.isArray(data.readinessNotes) ? data.readinessNotes.filter((note: unknown): note is string => typeof note === "string" && note.trim().length > 0).slice(0, 6) : (data.done ? ["Review the story summary for accuracy before drafting.", "Only include outcomes and metrics that can be verified."] : undefined), updatedAt: new Date().toISOString() };
       setInterviews(prev => ({ ...prev, [story.id]: current }));
       setInterviewAnswerDraft("");
       if (data.done) {
