@@ -154,7 +154,7 @@ export function buildStoryVisualSvg(input: { kit: BrandKit; story?: StoryOpportu
   const panel = kit.theme === "dark" ? "#14251D" : "#FFFFFF";
   const muted = kit.theme === "dark" ? "#B5C7BD" : "#52685D";
   const font = ["Hanken Grotesk", "JetBrains Mono", "Georgia", "Arial"].includes(kit.fontFamily) ? kit.fontFamily : "Hanken Grotesk";
-  const facts = getVisualFacts(input.story);
+  const facts = getVisualFacts(input.story, input.draftText);
   const plan = input.visualPlan ?? createContextualVisualPlan(input);
   let layout: PlannedVisualLayout = (input.layout ?? "auto") === "auto" ? plan.layout : input.layout as PlannedVisualLayout;
   const metricIndex = plan.metricFactIndex !== null && facts[plan.metricFactIndex] ? plan.metricFactIndex : facts.findIndex(fact => Boolean(extractMetricDetails(fact)));
