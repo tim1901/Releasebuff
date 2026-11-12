@@ -419,7 +419,7 @@ export default function ReleasebuffApp() {
     say("Source removed from this browser's Product Profile.", "info");
   }, [say]);
 
-  const findStories = useCallback(async (githubStoriesOverride?: StoryOpportunity[]) => {
+  const findStories = useCallback(async (githubStoriesOverride?: StoryOpportunity[], targetCategory?: string): Promise<StoryOpportunity[]> => {
     const normalizeRepositoryUrl = (value?: string) => (value ?? "").trim().replace(/\.git$/i, "").replace(/\/$/, "").toLowerCase();
     const configuredRepositoryUrl = normalizeRepositoryUrl(settings.repositoryUrl);
     const analyzedRepositoryUrl = normalizeRepositoryUrl(analysis?.repository.url);
@@ -490,24 +490,29 @@ export default function ReleasebuffApp() {
       const foundStories = (Array.isArray(data.stories) ? data.stories : []).filter(story => !dismissedIds.includes(story.id));
       if (!foundStories.length) throw new Error("No stories could be prepared yet. Add a little more context in Product Setup and try again.");
       setStories(foundStories);
-      setSelectedStoryId(foundStories[0]?.id ?? null);
-      setSelectedCategory("All categories");
+      const categoryStories = targetCategory ? foundStories.filter(story => story.category === targetCategory) : foundStories;
+      const selectedStory = categoryStories[0] ?? foundStories[0];
+      setSelectedStoryId(selectedStory?.id ?? null);
+      setSelectedCategory(targetCategory ?? "All categories");
       setSearchQuery("");
       setAnalysisMode(githubStoriesOverride !== undefined ? "live" : currentAnalysis ? analysisMode : "none");
       if (githubStoriesOverride === undefined && !currentAnalysis && analysis) setAnalysis(null);
-      setView("inbox");
+      setView(targetCategory && selectedStory ? "story" : "inbox");
       setMobileNavOpen(false);
       const contextSummary = [
         currentProfile ? "Product Intelligence Profile" : "current product details",
         `${materialsForDiscovery.length} supporting source(s)`,
         githubStories.length ? "optional GitHub evidence" : ""
       ].filter(Boolean).join(", ");
-      if (data.mode === "evidence-rules" && data.warning) say(`Found ${foundStories.length} starting points using ${contextSummary}. ${data.warning}`, "info");
+      if (targetCategory) say(`Prepared a story path for ${targetCategory}. Review the story and complete the adaptive interview before drafting.`, "success");
+      else if (data.mode === "evidence-rules" && data.warning) say(`Found ${foundStories.length} starting points using ${contextSummary}. ${data.warning}`, "info");
       else say(`Found ${foundStories.length} story opportunities using ${contextSummary}.`, "success");
+      return categoryStories.length ? categoryStories : foundStories;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not find stories from your product context.";
       setScanError(message);
       say(message, "error");
+      return [];
     } finally {
       setStoryDiscoveryBusy(false);
     }
@@ -800,7 +805,24 @@ export default function ReleasebuffApp() {
           {view === "setup" && <ProjectSetup onResetWorkspace={resetProductWorkspace} settings={settings} setSettings={setSettings} analysis={analysis} analysisMode={analysisMode} scanRepository={scanRepository} scanBusy={scanBusy} scanError={scanError} health={health} bufferStatus={bufferStatus} channels={bufferChannels} channelsBusy={channelsBusy} onRefreshChannels={refreshChannels} onConnectBuffer={() => navigateToAuthEndpoint("/api/buffer/connect")} onDisconnectBuffer={disconnectBuffer} profile={productProfile} materials={productMaterials} onAddMaterial={addProductMaterial} onRemoveMaterial={removeProductMaterial} onBuildProfile={buildProductProfile} profileBusy={profileBusy} onFindStories={findStories} storyDiscoveryBusy={storyDiscoveryBusy} githubStatus={githubStatus} onConnectGitHub={() => { setGithubBusy(true); navigateToAuthEndpoint("/api/github/connect"); }} onDisconnectGitHub={disconnectGitHub} githubBusy={githubBusy} />}
           {view === "inbox" && <StoryInbox analysis={analysis} stories={visibleStories} allCount={stories.filter(s => !dismissedIds.includes(s.id)).length} analysisMode={analysisMode} loading={storyDiscoveryBusy} scanError={scanError} settings={settings} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onFindStories={findStories} canFindStories={Boolean(settings.productName.trim() && settings.productSummary.trim())} onGoSetup={() => go("setup")} onOpenStory={openStory} onDraftStory={openDraftForStory} onDismiss={dismissStory} onShowCategories={() => go("categories")} />}
           {view === "story" && <StoryDetails story={activeStory} extraContext={extraContext} setExtraContext={setExtraContext} interview={activeInterview} interviewAnswerDraft={interviewAnswerDraft} setInterviewAnswerDraft={setInterviewAnswerDraft} interviewBusy={interviewBusy} onStartInterview={() => activeStory && startInterview(activeStory)} onAnswerInterview={() => answerInterview(false)} onSkipInterview={() => answerInterview(true)} onBack={() => go("inbox")} onDraft={() => activeStory && openDraftForStory(activeStory)} onDismiss={() => activeStory && dismissStory(activeStory)} />}
-          {view === "categories" && <StoryCategories stories={stories} onChoose={category => { setSelectedCategory(category); setSearchQuery(""); go("inbox"); }} />}
+          {view === "categories" && <StoryCategories stories={stories} onChoose={async category => {
+             setSelectedCategory(category); setSearchQuery("");
+             const existing = stories.find(story => story.category === category && !dismissedIds.includes(story.id));
+             if (existing) {
+               openStory(existing);
+               if (!interviews[existing.id]?.complete) await startInterview(existing);
+               return;
+             }
+             const found = await findStories(undefined, category);
+             const target = found.find(story => story.category === category) ?? found[0];
+             if (target) {
+               setSelectedStoryId(target.id); setView("story");
+               if (!interviews[target.id]?.complete) await startInterview(target);
+             } else {
+               setView("inbox");
+               say(`No story could be prepared for ${category} yet. Add more product context and try again.`, "info");
+             }
+           }} />}
           {view === "draft" && <DraftStudio story={activeStory} drafts={drafts} currentDraftId={currentDraftId} draftText={draftText} setDraftText={setDraftText} draftPlatform={draftPlatform} setDraftPlatform={setDraftPlatform} draftMode={draftMode} draftBusy={draftBusy} extraContext={extraContext} setExtraContext={setExtraContext} onGenerate={generateDraft} onSaveLocal={saveLocalDraft} onCopy={copyDraft} onBufferAction={beginBufferAction} onBack={() => go(activeStory ? "story" : "inbox")} bufferStatus={bufferStatus} health={health} writingPreferences={writingPreferences} setWritingPreferences={setWritingPreferences} interviewSummary={activeInterview?.summary ?? ""} reviewWarnings={draftReviewWarnings} brandKit={brandKit} productName={settings.productName} />}
           {view === "library" && <DraftLibrary drafts={drafts} search={draftSearch} setSearch={setDraftSearch} filter={draftFilter} setFilter={setDraftFilter} onOpen={openExistingDraft} onDelete={id => { setDrafts(prev => prev.filter(d => d.id !== id)); if (currentDraftId === id) setCurrentDraftId(null); say("Draft removed from this browser.", "success"); }} />}
         </main>
