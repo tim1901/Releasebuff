@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import { configuredAiModel, generateGroundedDraft } from "@/lib/ai";
+import { assertSameOrigin } from "@/lib/http";
 import { buildBuilderStorySeeds } from "@/lib/builder-story-seeds";
 import type { ProjectPreferences } from "@/lib/types";
 
@@ -29,6 +30,33 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
+});
+
+
+describe("same-origin validation behind hosting proxies", () => {
+  it("accepts the public Netlify origin when the server request URL is internal", () => {
+    const request = new Request("http://localhost:8888/api/ai/interview", {
+      method: "POST",
+      headers: {
+        origin: "https://deploy-preview-3--releasebuff.netlify.app",
+        "x-forwarded-host": "deploy-preview-3--releasebuff.netlify.app",
+        "x-forwarded-proto": "https"
+      }
+    });
+    expect(() => assertSameOrigin(request)).not.toThrow();
+  });
+
+  it("still rejects a genuinely different browser origin", () => {
+    const request = new Request("http://localhost:8888/api/ai/interview", {
+      method: "POST",
+      headers: {
+        origin: "https://attacker.example",
+        "x-forwarded-host": "deploy-preview-3--releasebuff.netlify.app",
+        "x-forwarded-proto": "https"
+      }
+    });
+    expect(() => assertSameOrigin(request)).toThrow(/Cross-origin request blocked/);
+  });
 });
 
 describe("OpenAI Responses API draft generation", () => {
