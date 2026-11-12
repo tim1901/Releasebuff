@@ -54,7 +54,7 @@ This is an evolving local-first MVP. It includes a Next.js App Router UI and ser
    npm run dev
    ```
 
-6. Open <http://localhost:3000>. Start from **Get started** to describe a product, add optional sources, and create a Product Profile. **Explore the agent** loads sample Trellis stories; those are illustrative demo stories and do not run a live GitHub scan.
+6. Open <http://localhost:3000>. Start from **Get started** to describe your product, add optional sources, and create a Product Profile. No sample project is preloaded; connect your own sources or use your Product Profile and notes.
 
 Before calling the rebuild ready for continued development, run:
 
