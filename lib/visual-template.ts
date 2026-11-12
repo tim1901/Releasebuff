@@ -58,9 +58,17 @@ function wrapWords(value: string, limit: number, maxLines: number): string[] {
   }
   return lines.slice(0, maxLines);
 }
-function textMarkup(lines: string[], x: number, y: number, lineHeight: number, fontSize: number, fill: string, font: string, weight: number, letterSpacing = -0.6): string {
-  return "<text x=\"" + x + "\" y=\"" + y + "\" fill=\"" + fill + "\" font-family=\"" + escapeXml(font) + "\" font-size=\"" + fontSize + "\" font-weight=\"" + weight + "\" letter-spacing=\"" + letterSpacing + "\">" +
-    lines.map((line, index) => "<tspan x=\"" + x + "\" dy=\"" + (index === 0 ? 0 : lineHeight) + "\">" + escapeXml(line) + "</tspan>").join("") + "</text>";
+function textMarkup(lines: string[], x: number, y: number, lineHeight: number, fontSize: number, fill: string, font: string, weight: number, letterSpacing = -0.6, maxWidth?: number): string {
+  return "<text x=\\"" + x + "\\" y=\\"" + y + "\\" fill=\\"" + fill + "\\" font-family=\\"" + escapeXml(font) + "\\" font-size=\\"" + fontSize + "\\" font-weight=\\"" + weight + "\\" letter-spacing=\\"" + letterSpacing + "\\">" +
+    lines.map((line, index) => {
+      // SVG does not wrap text automatically. Constrain each rendered line to its real
+      // column width as a final guard against font-metric differences between preview/export.
+      const estimatedWidth = line.length * fontSize * 0.72;
+      const fit = maxWidth && estimatedWidth > maxWidth
+        ? " textLength=\\"" + maxWidth + "\\" lengthAdjust=\\"spacingAndGlyphs\\""
+        : "";
+      return "<tspan x=\\"" + x + "\\" dy=\\"" + (index === 0 ? 0 : lineHeight) + "\\"" + fit + ">" + escapeXml(line) + "</tspan>";
+    }).join("") + "</text>";
 }
 function rect(x: number, y: number, w: number, h: number, fill: string, radius: number, stroke?: string): string {
   return "<rect x=\"" + x + "\" y=\"" + y + "\" width=\"" + Math.max(1, w) + "\" height=\"" + Math.max(1, h) + "\" rx=\"" + radius + "\" fill=\"" + fill + "\"" + (stroke ? " stroke=\"" + stroke + "\" stroke-width=\"1.5\"" : "") + "/>";
@@ -215,8 +223,8 @@ export function buildStoryVisualSvg(input: { kit: BrandKit; story?: StoryOpportu
   const header = "<text x=\"" + margin + "\" y=\"" + (margin + 24 * scale) + "\" fill=\"" + primary + "\" font-family=\"" + escapeXml(font) + "\" font-size=\"" + Math.max(15, 23 * scale) + "\" font-weight=\"750\" letter-spacing=\".2\">" + productSignature + "</text>" +
     "<text x=\"" + (width - margin) + "\" y=\"" + (margin + 23 * scale) + "\" text-anchor=\"end\" fill=\"" + muted + "\" font-family=\"JetBrains Mono, monospace\" font-size=\"" + Math.max(10, 12 * scale) + "\" font-weight=\"600\" letter-spacing=\"1\">" + escapeXml(label.slice(0, 42)) + "</text>" +
     "<path d=\"M" + margin + " " + (margin + 46 * scale) + "H" + (width - margin) + "\" stroke=\"" + primary + "\" opacity=\".22\"/>";
-  const heading = textMarkup(titleLines, margin, titleY, titleLineHeight, titleSize, ink, font, kit.style === "bold" ? 820 : 740, -1.25 * scale);
-  const supportingMarkup = textMarkup(supportLines, margin, supportY, supportLineHeight, supportSize, muted, font, 480, -0.15);
+  const heading = textMarkup(titleLines, margin, titleY, titleLineHeight, titleSize, ink, font, kit.style === "bold" ? 820 : 740, -1.25 * scale, width - margin * 2);
+  const supportingMarkup = textMarkup(supportLines, margin, supportY, supportLineHeight, supportSize, muted, font, 480, -0.15, width - margin * 2);
   let content = "";
   if (layout === "metric" && metric) {
     const cardHeight = Math.min(290 * scale, contentHeight * 0.82);
