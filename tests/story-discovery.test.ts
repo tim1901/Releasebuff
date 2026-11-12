@@ -3,7 +3,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import { discoverStories } from "@/lib/story-discovery";
-import { TRELLIS_DEMO_STORIES } from "@/lib/demo-data";
+import { buildBuilderStorySeeds } from "@/lib/builder-story-seeds";
+import type { ProjectPreferences } from "@/lib/types";
+
+const settings: ProjectPreferences = {
+  productName: "Launchpad",
+  productSummary: "A tool that helps independent founders turn product work into useful public stories.",
+  audience: "solo SaaS founders",
+  productStage: "actively-building",
+  websiteUrl: "",
+  repositoryUrl: "",
+  goals: ["Grow an audience"],
+  writingVoice: "Natural and specific"
+};
+const candidate = buildBuilderStorySeeds(settings, null, [])[0];
 
 beforeEach(() => {
   vi.unstubAllEnvs();
@@ -19,7 +32,6 @@ afterEach(() => {
 
 describe("AI-assisted story discovery", () => {
   it("uses the configured model and returns AI-refined story opportunities on success", async () => {
-    const candidate = TRELLIS_DEMO_STORIES[0];
     const evidenceId = candidate.evidence[0]?.id;
     expect(evidenceId).toBeTruthy();
     const story = {
@@ -47,7 +59,6 @@ describe("AI-assisted story discovery", () => {
   });
 
   it("asks for missing category-specific context before marking an AI story ready", async () => {
-    const candidate = TRELLIS_DEMO_STORIES[0];
     const evidenceId = candidate.evidence[0]?.id;
     expect(evidenceId).toBeTruthy();
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
@@ -74,7 +85,7 @@ describe("AI-assisted story discovery", () => {
     }), { status: 400, headers: { "Content-Type": "application/json" } }));
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await discoverStories({ candidates: [TRELLIS_DEMO_STORIES[0]] });
+    const result = await discoverStories({ candidates: [candidate] });
 
     expect(result.mode).toBe("evidence-rules");
     expect(result.stories).toHaveLength(1);
@@ -88,7 +99,7 @@ describe("AI-assisted story discovery", () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await discoverStories({ candidates: [TRELLIS_DEMO_STORIES[0]] });
+    const result = await discoverStories({ candidates: [candidate] });
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(result.mode).toBe("evidence-rules");
