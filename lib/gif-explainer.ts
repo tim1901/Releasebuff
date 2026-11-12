@@ -191,7 +191,7 @@ export function buildGifExplainerSvg(input: {
     const centerY = cardTop + cardHeight / 2;
     const leftW = cardW * 0.34;
     art = roundedRect(cardX, centerY - 27 * scale, leftW, 54 * scale, panel, border) +
-      `<circle cx="${cardX + 15*scale}" cy="${centerY}" r="${5*scale}" fill="${accent}"/` +
+      `<circle cx="${cardX + 15*scale}" cy="${centerY}" r="${5*scale}" fill="${accent}"/>` +
       text(wrap(labels[0] || "Constraint", 14, 2), cardX + 28 * scale, centerY - 3 * scale, Math.max(8, 10 * scale), 11 * scale, ink, 600) +
       arrow(cardX + leftW + 5 * scale, centerY, cardX + leftW + 40 * scale, centerY, accent) +
       roundedRect(cardX + leftW + 46 * scale, centerY - 30 * scale, cardW - leftW - 46 * scale, 60 * scale, primary, primary) +
@@ -202,7 +202,7 @@ export function buildGifExplainerSvg(input: {
       const y = cardTop + i * Math.min(48 * scale, cardHeight / Math.max(1, rows.length));
       const w = cardW - 5 * scale;
       return roundedRect(cardX, y, w, 36 * scale, i === 0 ? (dark ? "#223E2F" : "#EDF5E6") : panel, border, 10 * scale) +
-        `<circle cx="${cardX + 15*scale}" cy="${y + 18*scale}" r="${5*scale}" fill="${accent}"/` +
+        `<circle cx="${cardX + 15*scale}" cy="${y + 18*scale}" r="${5*scale}" fill="${accent}"/>` +
         text(wrap(label, Math.max(8, Math.floor((w - 34*scale)/(6*scale))), 2), cardX + 28*scale, y + 14*scale, Math.max(8, 9.5*scale), 11*scale, ink, 600);
     }).join("");
     if (!rows.length) art = roundedRect(cardX, cardTop + 10 * scale, cardW, Math.min(70 * scale, cardHeight - 5 * scale), panel, border);
