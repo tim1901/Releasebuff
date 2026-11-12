@@ -13,7 +13,7 @@ import type { BrandKit, BufferChannel, GitHubAnalysis, LocalDraft, ProductMateri
 import { DEFAULT_BRAND_KIT, normaliseBrandKit } from "@/lib/brand-kit";
 import BrandKitStudio from "@/components/BrandKitStudio";
 import StoryVisualStudio from "@/components/StoryVisualStudio";
-import { localRead, localWrite } from "@/lib/local-db";
+import { localRead, localRemove, localWrite } from "@/lib/local-db";
 import { CATEGORY_GROUPS, ALL_CATEGORIES } from "@/lib/story-categories";
 import { buildBuilderStorySeeds } from "@/lib/builder-story-seeds";
 import { localDateTimeToUtc } from "@/lib/date-time";
@@ -714,6 +714,46 @@ export default function ReleasebuffApp() {
     return true;
   }), [stories, selectedCategory, searchQuery, dismissedIds]);
 
+  const resetProductWorkspace = async () => {
+    const confirmed = window.confirm("Start a new product workspace? This clears the current product profile, source materials, GitHub analysis, discovered stories, interviews, and local drafts from this browser. Buffer and GitHub connections will stay connected.");
+    if (!confirmed) return;
+    setSettings(emptySettings);
+    setAnalysis(null);
+    setAnalysisMode("none");
+    setStories([]);
+    setDrafts([]);
+    setDismissedIds([]);
+    setSelectedStoryId(null);
+    setSelectedCategory("All categories");
+    setSearchQuery("");
+    setExtraContext("");
+    setDraftText("");
+    setDraftMode("none");
+    setCurrentDraftId(null);
+    setDraftSearch("");
+    setDraftFilter("all");
+    setProductProfile(null);
+    setProductMaterials([]);
+    setInterviews({});
+    setInterviewAnswerDraft("");
+    setWritingPreferences({ openingStyle: "ai", closingStyle: "ai" });
+    setDraftReviewWarnings([]);
+    setScanError("");
+    setBufferAction(null);
+    setView("setup");
+    setMobileNavOpen(false);
+    const keys = ["settings", "analysis", "stories", "drafts", "dismissed", "product-profile", "product-materials", "story-interviews"];
+    await Promise.all(keys.map(key => localRemove(key).catch(() => undefined)));
+    try {
+      localStorage.removeItem(LS.settings);
+      localStorage.removeItem(LS.analysis);
+      localStorage.removeItem(LS.stories);
+      localStorage.removeItem(LS.drafts);
+      localStorage.removeItem(LS.dismissed);
+    } catch { /* The in-memory workspace is reset even if browser storage is unavailable. */ }
+    say("Workspace reset. Enter your new product details to get started.", "success");
+  };
+
   const go = (target: View) => { setView(target); setMobileNavOpen(false); if (target !== "draft") setBufferAction(null); };
 
   const activeNav = view === "story" ? "inbox" : view;
@@ -757,7 +797,7 @@ export default function ReleasebuffApp() {
             </div>
           </header>
           {view === "brand" && <BrandKitStudio kit={brandKit} onChange={setBrandKit} />}
-          {view === "setup" && <ProjectSetup settings={settings} setSettings={setSettings} analysis={analysis} analysisMode={analysisMode} scanRepository={scanRepository} scanBusy={scanBusy} scanError={scanError} health={health} bufferStatus={bufferStatus} channels={bufferChannels} channelsBusy={channelsBusy} onRefreshChannels={refreshChannels} onConnectBuffer={() => navigateToAuthEndpoint("/api/buffer/connect")} onDisconnectBuffer={disconnectBuffer} profile={productProfile} materials={productMaterials} onAddMaterial={addProductMaterial} onRemoveMaterial={removeProductMaterial} onBuildProfile={buildProductProfile} profileBusy={profileBusy} onFindStories={findStories} storyDiscoveryBusy={storyDiscoveryBusy} githubStatus={githubStatus} onConnectGitHub={() => { setGithubBusy(true); navigateToAuthEndpoint("/api/github/connect"); }} onDisconnectGitHub={disconnectGitHub} githubBusy={githubBusy} />}
+          {view === "setup" && <ProjectSetup onResetWorkspace={resetProductWorkspace} settings={settings} setSettings={setSettings} analysis={analysis} analysisMode={analysisMode} scanRepository={scanRepository} scanBusy={scanBusy} scanError={scanError} health={health} bufferStatus={bufferStatus} channels={bufferChannels} channelsBusy={channelsBusy} onRefreshChannels={refreshChannels} onConnectBuffer={() => navigateToAuthEndpoint("/api/buffer/connect")} onDisconnectBuffer={disconnectBuffer} profile={productProfile} materials={productMaterials} onAddMaterial={addProductMaterial} onRemoveMaterial={removeProductMaterial} onBuildProfile={buildProductProfile} profileBusy={profileBusy} onFindStories={findStories} storyDiscoveryBusy={storyDiscoveryBusy} githubStatus={githubStatus} onConnectGitHub={() => { setGithubBusy(true); navigateToAuthEndpoint("/api/github/connect"); }} onDisconnectGitHub={disconnectGitHub} githubBusy={githubBusy} />}
           {view === "inbox" && <StoryInbox analysis={analysis} stories={visibleStories} allCount={stories.filter(s => !dismissedIds.includes(s.id)).length} analysisMode={analysisMode} loading={storyDiscoveryBusy} scanError={scanError} settings={settings} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onFindStories={findStories} canFindStories={Boolean(settings.productName.trim() && settings.productSummary.trim())} onGoSetup={() => go("setup")} onOpenStory={openStory} onDraftStory={openDraftForStory} onDismiss={dismissStory} onShowCategories={() => go("categories")} />}
           {view === "story" && <StoryDetails story={activeStory} extraContext={extraContext} setExtraContext={setExtraContext} interview={activeInterview} interviewAnswerDraft={interviewAnswerDraft} setInterviewAnswerDraft={setInterviewAnswerDraft} interviewBusy={interviewBusy} onStartInterview={() => activeStory && startInterview(activeStory)} onAnswerInterview={() => answerInterview(false)} onSkipInterview={() => answerInterview(true)} onBack={() => go("inbox")} onDraft={() => activeStory && openDraftForStory(activeStory)} onDismiss={() => activeStory && dismissStory(activeStory)} />}
           {view === "categories" && <StoryCategories stories={stories} onChoose={category => { setSelectedCategory(category); setSearchQuery(""); go("inbox"); }} />}
@@ -902,7 +942,8 @@ function LandingPage({ onGetStarted, onSignIn, bufferConnected, bufferConfigured
   </div>;
 }
 
-function ProjectSetup({ settings, setSettings, analysis, analysisMode, scanRepository, scanBusy, scanError, health, bufferStatus, channels, channelsBusy, onRefreshChannels, onConnectBuffer, onDisconnectBuffer, profile, materials, onAddMaterial, onRemoveMaterial, onBuildProfile, profileBusy, onFindStories, storyDiscoveryBusy, githubStatus, onConnectGitHub, onDisconnectGitHub, githubBusy }: {
+function ProjectSetup({ onResetWorkspace, settings, setSettings, analysis, analysisMode, scanRepository, scanBusy, scanError, health, bufferStatus, channels, channelsBusy, onRefreshChannels, onConnectBuffer, onDisconnectBuffer, profile, materials, onAddMaterial, onRemoveMaterial, onBuildProfile, profileBusy, onFindStories, storyDiscoveryBusy, githubStatus, onConnectGitHub, onDisconnectGitHub, githubBusy }: {
+  onResetWorkspace: () => Promise<void>;
   settings: ProjectPreferences; setSettings: React.Dispatch<React.SetStateAction<ProjectPreferences>>; analysis: GitHubAnalysis | null; analysisMode: "none" | "live";
   scanRepository: (url?: string, force?: boolean) => Promise<void>; scanBusy: boolean; scanError: string; health: { aiConfigured: boolean; claudeGifConfigured?: boolean; bufferConfigured: boolean; githubAppConfigured?: boolean; encryptedIntegrationStore?: boolean } | null;
   bufferStatus: BufferStatus; channels: BufferChannel[]; channelsBusy: boolean; onRefreshChannels: () => Promise<void>; onConnectBuffer: () => void; onDisconnectBuffer: () => void;
@@ -957,7 +998,7 @@ function ProjectSetup({ settings, setSettings, analysis, analysisMode, scanRepos
   };
 
   return <div className="workspace-content">
-    <div className="page-heading"><div><span className="eyebrow">RBF.01 / PRODUCT UNDERSTANDING</span><h1>Let&apos;s get to know your product.</h1><p>Tell us what you&apos;re building, then add whatever evidence you have. A live website or repository is not required to get started.</p></div><div className="heading-actions"><Button variant="outline" onClick={onBuildProfile} disabled={profileBusy || !settings.productName.trim() || !settings.productSummary.trim()}>{profileBusy ? <LoaderCircle className="spinning" size={14}/> : <BrainCircuit size={14}/>} {profileBusy ? "Understanding product…" : "Build Product Profile"}</Button><Button variant="lime" onClick={onFindStories} disabled={storyDiscoveryBusy || !settings.productName.trim() || !settings.productSummary.trim()}>{storyDiscoveryBusy ? <LoaderCircle className="spinning" size={14}/> : <Sparkles size={14}/>} {storyDiscoveryBusy ? "Finding stories…" : "Find stories"}</Button></div></div>
+    <div className="page-heading"><div><span className="eyebrow">RBF.01 / PRODUCT UNDERSTANDING</span><h1>Let&apos;s get to know your product.</h1><p>Tell us what you&apos;re building, then add whatever evidence you have. A live website or repository is not required to get started.</p></div><div className="heading-actions"><Button variant="outline" onClick={onResetWorkspace}><RefreshCw size={14}/> Reset workspace</Button><Button variant="outline" onClick={onBuildProfile} disabled={profileBusy || !settings.productName.trim() || !settings.productSummary.trim()}>{profileBusy ? <LoaderCircle className="spinning" size={14}/> : <BrainCircuit size={14}/>} {profileBusy ? "Understanding product…" : "Build Product Profile"}</Button><Button variant="lime" onClick={onFindStories} disabled={storyDiscoveryBusy || !settings.productName.trim() || !settings.productSummary.trim()}>{storyDiscoveryBusy ? <LoaderCircle className="spinning" size={14}/> : <Sparkles size={14}/>} {storyDiscoveryBusy ? "Finding stories…" : "Find stories"}</Button></div></div>
     <div className="setup-grid">
       <div className="stack">
         <section className="panel">
