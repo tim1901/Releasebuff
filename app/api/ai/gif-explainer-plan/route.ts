@@ -106,7 +106,7 @@ export async function POST(request: Request) {
             : "Claude could not prepare the storyboard. A context-based storyboard is available."
       }, { headers: { "Cache-Control": "no-store" } });
     }
-    const raw = responseText(payload).replace(/^\`\`\`(?:json)?\s*/i, "").replace(/\`\`\`\s*$/, "");
+    const raw = responseText(payload).replace(/^\u0060{3}(?:json)?\s*/i, "").replace(/\u0060{3}\s*$/, "");
     let parsed: unknown;
     try { parsed = JSON.parse(raw); } catch { parsed = null; }
     const plan = parseGifExplainerPlan(parsed, fallback);
