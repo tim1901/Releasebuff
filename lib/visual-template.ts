@@ -14,21 +14,49 @@ function escapeXml(value: string): string {
 }
 function wrapWords(value: string, limit: number, maxLines: number): string[] {
   const normalized = value.replace(/\s+/g, " ").trim();
+  if (!normalized || maxLines < 1) return [];
+  const safeLimit = Math.max(1, Math.floor(limit));
   const words = normalized.split(" ").filter(Boolean);
-  if (!words.length) return [];
   const lines: string[] = [];
   let line = "";
-  let consumed = 0;
-  for (const word of words) {
-    const candidate = line ? line + " " + word : word;
-    if (candidate.length > limit && line) {
-      lines.push(line); consumed += line.length + 1; line = word;
-      if (lines.length === maxLines) break;
-    } else line = candidate;
+  let truncated = false;
+
+  // Split long unbroken tokens so they cannot push SVG text outside the canvas.
+  const splitLongWord = (word: string): string[] => {
+    const chunks: string[] = [];
+    for (let i = 0; i < word.length; i += safeLimit) chunks.push(word.slice(i, i + safeLimit));
+    return chunks;
+  };
+
+  for (const originalWord of words) {
+    const chunks = originalWord.length > safeLimit ? splitLongWord(originalWord) : [originalWord];
+    for (const word of chunks) {
+      const candidate = line ? line + " " + word : word;
+      if (candidate.length > safeLimit && line) {
+        lines.push(line);
+        line = word;
+        if (lines.length >= maxLines) {
+          truncated = true;
+          break;
+        }
+      } else {
+        line = candidate;
+      }
+    }
+    if (truncated) break;
   }
-  if (line && lines.length < maxLines) { lines.push(line); consumed += line.length; }
-  if (consumed < normalized.length && lines.length) lines[lines.length - 1] = lines[lines.length - 1].replace(/[.,;:]?$/, "") + "…";
-  return lines;
+
+  if (!truncated && line) lines.push(line);
+  if (lines.length > maxLines) {
+    lines.length = maxLines;
+    truncated = true;
+  }
+  const consumedText = lines.join(" ").replace(/…$/, "");
+  if (truncated || consumedText.length < normalized.length) {
+    const last = lines.length - 1;
+    if (last >= 0) lines[last] = lines[last].replace(/[\s.,;:!?-]+$/, "") + "…";
+  }
+  return lines.slice(0, maxLines);
 }
 function textMarkup(lines: string[], x: number, y: number, lineHeight: number, fontSize: number, fill: string, font: string, weight: number, letterSpacing = -0.6): string {
   return "<text x=\"" + x + "\" y=\"" + y + "\" fill=\"" + fill + "\" font-family=\"" + escapeXml(font) + "\" font-size=\"" + fontSize + "\" font-weight=\"" + weight + "\" letter-spacing=\"" + letterSpacing + "\">" +
@@ -133,7 +161,7 @@ function buildFactRows(input: { facts: string[]; x: number; y: number; width: nu
     const badgeSize = 15 * scale;
     const textX = x + 46 * scale;
     const fontSize = Math.max(13, 19 * scale);
-    const maxChars = Math.max(18, Math.floor((width - 68 * scale) / (fontSize * 0.54)));
+    const maxChars = Math.max(18, Math.floor((width - 68 * scale) / (fontSize * 0.66)));
     const factLines = wrapWords(fact, maxChars, rowHeight < 62 * scale ? 1 : 2);
     const firstBaseline = top + (rowHeight - factLines.length * fontSize * 1.22) / 2 + fontSize;
     const badge = "<circle cx=\"" + (x + 23 * scale) + "\" cy=\"" + (top + rowHeight / 2) + "\" r=\"" + badgeSize + "\" fill=\"" + accent + "\"/><text x=\"" + (x + 23 * scale) + "\" y=\"" + (top + rowHeight / 2 + 5 * scale) + "\" text-anchor=\"middle\" fill=\"" + primary + "\" font-family=\"JetBrains Mono, monospace\" font-size=\"" + Math.max(10, 12 * scale) + "\" font-weight=\"700\">" + String(index + 1).padStart(2, "0") + "</text>";
@@ -164,12 +192,12 @@ export function buildStoryVisualSvg(input: { kit: BrandKit; story?: StoryOpportu
   const supporting = safeSnippet(input.supportingLineOverride?.trim() || plan.supportingLine || input.story?.summary || input.draftText || "", 240);
   const titleSize = Math.max(28, Math.round((width > height ? 58 : 64) * scale));
   const titleLineHeight = titleSize * 1.08;
-  const titleChars = Math.max(14, Math.floor((width - margin * 2) / (titleSize * 0.52)));
+  const titleChars = Math.max(14, Math.floor((width - margin * 2) / (titleSize * 0.64)));
   const titleLines = wrapWords(headline, titleChars, 3);
   const titleY = margin + 124 * scale;
   const titleBottom = titleY + Math.max(1, titleLines.length) * titleLineHeight;
   const supportSize = Math.max(15, Math.round(21 * scale));
-  const supportLines = wrapWords(supporting, Math.max(20, Math.floor((width - margin * 2) / (supportSize * 0.54))), width > height ? 2 : 3);
+  const supportLines = wrapWords(supporting, Math.max(20, Math.floor((width - margin * 2) / (supportSize * 0.66))), width > height ? 2 : 3);
   const supportY = titleBottom + 30 * scale;
   const supportLineHeight = supportSize * 1.38;
   const contentY = supportY + Math.max(1, supportLines.length) * supportLineHeight + 30 * scale;
@@ -211,7 +239,7 @@ export function buildStoryVisualSvg(input: { kit: BrandKit; story?: StoryOpportu
     const rightText = visibleFacts[1] || input.story?.angle || supporting;
     const cardTitleSize = Math.max(12, 15 * scale);
     const bodySize = Math.max(15, 20 * scale);
-    const leftLines = wrapWords(leftText, Math.max(15, Math.floor((half - 44 * scale) / (bodySize * 0.55))), 4);
+    const leftLines = wrapWords(leftText, Math.max(15, Math.floor((half - 44 * scale) / (bodySize * 0.66))), 4);
     const rightLines = wrapWords(rightText, Math.max(15, Math.floor((half - 44 * scale) / (bodySize * 0.55))), 4);
     content = rect(margin, leftY, half, cardHeight, panel, 22 * scale, primary + "44") +
       rect(margin + half + gap, leftY, half, cardHeight, accent, 22 * scale) +
@@ -223,7 +251,7 @@ export function buildStoryVisualSvg(input: { kit: BrandKit; story?: StoryOpportu
     const cardHeight = contentHeight * 0.9;
     const cardY = contentY;
     const body = visibleFacts[0] || supporting;
-    const maxChars = Math.max(18, Math.floor((width - margin * 2 - 60 * scale) / (Math.max(17, 24 * scale) * 0.53)));
+    const maxChars = Math.max(18, Math.floor((width - margin * 2 - 60 * scale) / (Math.max(17, 24 * scale) * 0.66)));
     const lines = wrapWords(body, maxChars, Math.min(5, Math.max(2, Math.floor(cardHeight / (25 * scale)))));
     content = rect(margin, cardY, width - margin * 2, cardHeight, panel, 24 * scale, primary + "44") +
       rect(margin, cardY, 9 * scale, cardHeight, accent, 4 * scale) +
