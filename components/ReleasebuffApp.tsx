@@ -198,7 +198,7 @@ export default function ReleasebuffApp() {
   const selectedChannel = bufferChannels.find(c => c.id === selectedChannelId) ?? null;
   const activeInterview = activeStory ? interviews[activeStory.id] ?? null : null;
   const interviewMaterials = useMemo<ProductMaterial[]>(() => Object.values(interviews)
-    .map(interview => {
+    .map((interview): ProductMaterial | null => {
       const story = stories.find(item => item.id === interview.storyId);
       const answers = interview.answers.filter(answer => !answer.skipped && answer.answer.trim());
       const textContent = [
