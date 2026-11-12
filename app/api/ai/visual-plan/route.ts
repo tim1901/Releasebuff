@@ -42,6 +42,7 @@ function parsePlan(raw: string, fallback: StoryVisualPlan, facts: string[]): Sto
 }
 
 export async function POST(request: Request) {
+  try { assertSameOrigin(request); } catch (error) { return jsonError(safeErrorMessage(error), 403, "forbidden_origin"); }
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (!allowRequest("visual-plan:" + ip, 15, 60_000)) {
     return NextResponse.json({ error: "Too many visual-planning requests. Wait a minute and try again." }, { status: 429 });
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
   const story = body.story;
   const draftText = typeof body.draftText === "string" ? body.draftText.slice(0, 5_000) : "";
   const productName = typeof body.productName === "string" ? body.productName.slice(0, 120) : "";
-  const brandKit = body.brandKit;\n  const brandKit = body.brandKit;
+  const brandKit = body.brandKit;
   const fallback = createContextualVisualPlan({ story, draftText, productName });
   const anthropicKey = process.env.ANTHROPIC_API_KEY?.trim();
   if (!anthropicKey) {
