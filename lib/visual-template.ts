@@ -186,7 +186,8 @@ export function buildStoryVisualSvg(input: { kit: BrandKit; story?: StoryOpportu
   const supporting = safeSnippet(input.supportingLineOverride?.trim() || plan.supportingLine || input.story?.summary || input.draftText || "", 240);
   const titleSize = Math.max(28, Math.round((width > height ? 58 : 64) * scale));
   const titleLineHeight = titleSize * 1.08;
-  // Use a deliberately conservative glyph-width estimate: SVG text does not wrap automatically, and font metrics vary between browsers and export renderers.\n  const titleChars = Math.max(8, Math.floor((width - margin * 2) / (titleSize * 0.88)));
+  // Use a deliberately conservative glyph-width estimate: SVG text does not wrap automatically, and font metrics vary between browsers and export renderers.
+  const titleChars = Math.max(8, Math.floor((width - margin * 2) / (titleSize * 0.88)));
   const titleLines = wrapWords(headline, titleChars, 3);
   const titleY = margin + 124 * scale;
   const titleBottom = titleY + Math.max(1, titleLines.length) * titleLineHeight;
