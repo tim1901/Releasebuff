@@ -14,7 +14,7 @@ import { DEFAULT_BRAND_KIT, normaliseBrandKit } from "@/lib/brand-kit";
 import BrandKitStudio from "@/components/BrandKitStudio";
 import StoryVisualStudio from "@/components/StoryVisualStudio";
 import { localRead, localRemove, localWrite } from "@/lib/local-db";
-import { CATEGORY_GROUPS, ALL_CATEGORIES } from "@/lib/story-categories";
+import { CATEGORY_GROUPS, ALL_CATEGORIES, categoryDefinition } from "@/lib/story-categories";
 import { buildBuilderStorySeeds } from "@/lib/builder-story-seeds";
 import { localDateTimeToUtc } from "@/lib/date-time";
 
@@ -811,7 +811,31 @@ export default function ReleasebuffApp() {
              setSearchQuery("");
              setScanError("");
              const found = await findStories(undefined, category);
-             const target = found.find(story => story.category === category);
+             let target = found.find(story => story.category === category);
+             // Never strand the user on the category screen if discovery/AI returns
+             // no category match. Build a local interview starter from the profile.
+             if (!target && settings.productName.trim() && settings.productSummary.trim()) {
+               const definition = categoryDefinition(category as StoryCategory);
+               const seed = buildBuilderStorySeeds(settings, productProfile, [...interviewMaterials, ...productMaterials])[0];
+               if (definition && seed) {
+                 target = {
+                   ...seed,
+                   id: `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`,
+                   category: category as StoryCategory,
+                   group: definition.group,
+                   title: `${definition.name}: ${settings.productName.trim()}`,
+                   summary: definition.description,
+                   angle: definition.example,
+                   whyItMatters: definition.evidenceHint,
+                   status: "needs-context",
+                   confidence: "low",
+                   requiresContext: `Let's build a ${definition.name.toLowerCase()} story. What specific event, decision, result, or example can you share?`,
+                   evidenceCoverage: "context-needed",
+                   generatedAt: new Date().toISOString()
+                 };
+                 setStories(prev => [target!, ...prev.filter(story => story.id !== target!.id)]);
+               }
+             }
              if (target) {
                setSelectedStoryId(target.id);
                setExtraContext("");
@@ -820,8 +844,8 @@ export default function ReleasebuffApp() {
                setMobileNavOpen(false);
                if (!interviews[target.id]?.complete) await startInterview(target);
              } else {
-               setView("categories");
-               say(`I couldn't prepare a ${category} story yet. Add product notes or supporting evidence, then try again.`, "info");
+               setView("setup");
+               say("Add your product name and description in Product Setup before starting a story interview.", "error");
              }
            }} />}
           {view === "draft" && <DraftStudio story={activeStory} drafts={drafts} currentDraftId={currentDraftId} draftText={draftText} setDraftText={setDraftText} draftPlatform={draftPlatform} setDraftPlatform={setDraftPlatform} draftMode={draftMode} draftBusy={draftBusy} extraContext={extraContext} setExtraContext={setExtraContext} onGenerate={generateDraft} onSaveLocal={saveLocalDraft} onCopy={copyDraft} onBufferAction={beginBufferAction} onBack={() => go(activeStory ? "story" : "inbox")} bufferStatus={bufferStatus} health={health} writingPreferences={writingPreferences} setWritingPreferences={setWritingPreferences} interviewSummary={activeInterview?.summary ?? ""} reviewWarnings={draftReviewWarnings} brandKit={brandKit} productName={settings.productName} />}
