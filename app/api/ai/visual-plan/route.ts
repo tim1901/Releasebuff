@@ -58,7 +58,8 @@ export async function POST(request: Request) {
   const story = body.story;
   const draftText = typeof body.draftText === "string" ? body.draftText.slice(0, 5_000) : "";
   const productName = typeof body.productName === "string" ? body.productName.slice(0, 120) : "";
-  const brandKit = body.brandKit;\n  const fallback = createContextualVisualPlan({ story, draftText, productName });
+  const brandKit = body.brandKit;\n  const brandKit = body.brandKit;
+  const fallback = createContextualVisualPlan({ story, draftText, productName });
   const anthropicKey = process.env.ANTHROPIC_API_KEY?.trim();
   if (!anthropicKey) {
     return NextResponse.json({ plan: fallback, mode: "contextual-fallback" }, { headers: { "Cache-Control": "no-store" } });
@@ -75,12 +76,17 @@ export async function POST(request: Request) {
       evidence: story.evidence.filter(Boolean).map(item => ({ type: item.type, label: item.label, excerpt: item.excerpt, sourceStatus: item.sourceStatus }))
     },
     draftText,
+    brandDirection: brandKit ? {
+      palette: { primary: brandKit.primaryColor, accent: brandKit.accentColor, background: brandKit.backgroundColor, text: brandKit.textColor },
+      theme: brandKit.theme, style: brandKit.style, fontFamily: brandKit.fontFamily, aspectRatio: brandKit.aspectRatio
+    } : null,
     allowedFacts: facts.map((fact, index) => ({ index, fact }))
   };
   const instructions = [
     "You are a senior editorial art director for builders sharing authentic product work.",
     "Create an art direction plan for a vector graphic that will be drawn by a program. You are NOT generating a bitmap image.",
-    "Choose the composition based on this particular story, not from a one-template-fits-all habit. Available layouts: spotlight, release, metric, decision, lesson, steps.",\n    "Honor the provided brandDirection for visual style, color roles, typography and aspect ratio. Treat colors as fixed brand tokens; do not recommend replacing them. The renderer applies the brand palette.",
+    "Choose the composition based on this particular story, not from a one-template-fits-all habit. Available layouts: spotlight, release, metric, decision, lesson, steps.",
+    "Honor the provided brandDirection for visual style, color roles, typography and aspect ratio. Treat colors as fixed brand tokens; do not recommend replacing them. The renderer applies the brand palette.",
     "Return JSON only with keys: layout, headline, supportingLine, factIndexes, metricFactIndex.",
     "The headline must be human-readable and story-led. Never use a raw package name/version, commit hash, file path or API identifier as the entire headline. Put such identifiers in supporting facts where useful.",
     "Use only information in the story, draft and allowed facts. Do not invent numbers, product claims, customer reactions, outcomes, dates or quotes.",
