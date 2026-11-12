@@ -46,8 +46,8 @@ export function buildBuilderStorySeeds(settings: ProjectPreferences, profile: Pr
       url: "#product-intelligence", excerpt: profile.valueProposition.slice(0, 280), sourceStatus: "builder-provided" as const, collectedAt: updatedAt
     }] : []),
     ...(profile?.capabilities ?? []).slice(0, 3).map((capability, index) => ({
-      id: `profile-capability-${index}`, label: `Product Intelligence · ${capability.name}`, type: "builder_note" as const,
-      url: "#product-intelligence", excerpt: [capability.description, capability.status ? `Status: ${capability.status}` : ""].filter(Boolean).join(" ").slice(0, 280),
+      id: `profile-capability-${index}`, label: `Product Intelligence · Capability ${index + 1}`, type: "builder_note" as const,
+      url: "#product-intelligence", excerpt: String(capability).slice(0, 280),
       sourceStatus: "builder-provided" as const, collectedAt: updatedAt
     })),
     ...(profile?.facts ?? []).slice(0, 4).map((fact, index) => ({
