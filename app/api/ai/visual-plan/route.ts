@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { configuredAiModel, hasAiConfiguration } from "@/lib/ai";
 import { allowRequest } from "@/lib/rate-limit";
 import { createContextualVisualPlan, extractMetricDetails, getVisualFacts, type PlannedVisualLayout, type StoryVisualPlan } from "@/lib/visual-template";
 import type { StoryOpportunity } from "@/lib/types";
