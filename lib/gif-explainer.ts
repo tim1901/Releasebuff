@@ -82,7 +82,7 @@ export function parseGifExplainerPlan(value: unknown, fallback: GifExplainerPlan
   if (!value || typeof value !== "object") return fallback;
   const raw = value as Record<string, unknown>;
   const rawScenes = Array.isArray(raw.scenes) ? raw.scenes : [];
-  const scenes = rawScenes.slice(0, 5).map((item, index): GifExplainerScene | null => {
+  const scenes = rawScenes.slice(0, 4).map((item, index): GifExplainerScene | null => {
     if (!item || typeof item !== "object") return null;
     const source = item as Record<string, unknown>;
     const visual = VISUAL_TYPES.includes(source.visual as GifVisualType) ? source.visual as GifVisualType : "spotlight";
@@ -98,7 +98,7 @@ export function parseGifExplainerPlan(value: unknown, fallback: GifExplainerPlan
       labels
     };
   }).filter((scene): scene is GifExplainerScene => scene !== null);
-  if (scenes.length < 3) return fallback;
+  if (scenes.length !== 4) return fallback;
   return {
     headline: clip(raw.headline, 88, fallback.headline),
     subhead: clip(raw.subhead, 180, fallback.subhead),
@@ -149,9 +149,6 @@ export function buildGifExplainerSvg(input: {
   const cardW = width - margin * 2;
   const labels = scene.labels.slice(0, 4);
   let art = "";
-  const labelMarkup = (x: number, y: number, w: number, value: string, fill = panel, outline = border) =>
-    roundedRect(x, y, w, 34 * scale, fill, outline, 10 * scale) +
-    text(wrap(value, Math.max(8, Math.floor(w / (6.1 * scale))), 2), x + 10 * scale, y + 14 * scale, Math.max(8, 10 * scale), 11 * scale, fill === primary ? (dark ? "#F8F8F2" : "#FFFFFF") : ink, 600);
   if (scene.visual === "comparison" && cardW > 220 * scale) {
     const gap = 10 * scale;
     const half = (cardW - gap) / 2;
