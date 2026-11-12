@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2",
+        model: process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2.5-sunburst",
         prompt: prompt + "\nFinal output: one finished square 1:1 image, intended to be exported at 1080 x 1080 pixels. No extra variants.",
         size: "1024x1024",
         quality: "high",
