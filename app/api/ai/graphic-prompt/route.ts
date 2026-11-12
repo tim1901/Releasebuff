@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   if (!allowRequest("graphic-prompt:" + ip, 10, 60_000)) {
     return NextResponse.json({ error: "Too many prompt requests. Wait a minute and try again." }, { status: 429 });
   }
-  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown; interviewSummary?: unknown; brandKit?: BrandKit; revisionNote?: unknown };
+  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown; interviewSummary?: unknown; brandKit?: BrandKit; revisionNote?: unknown; previousPrompt?: unknown };
   try { body = await request.json() as typeof body; }
   catch { return NextResponse.json({ error: "The prompt request must be valid JSON." }, { status: 400 }); }
   if (!body.story || typeof body.story.title !== "string" || typeof body.story.summary !== "string") {
@@ -46,6 +46,7 @@ export async function POST(request: Request) {
   const interviewSummary = typeof body.interviewSummary === "string" ? body.interviewSummary.slice(0, 5000) : "";
   const productName = typeof body.productName === "string" ? body.productName.slice(0, 160) : "";
   const revisionNote = typeof body.revisionNote === "string" ? body.revisionNote.slice(0, 1200) : "";
+  const previousPrompt = typeof body.previousPrompt === "string" ? body.previousPrompt.slice(0, 12000) : "";
   const kit = body.brandKit;
   const context = {
     productName,
@@ -54,7 +55,8 @@ export async function POST(request: Request) {
       evidence: (story.evidence ?? []).filter(Boolean).map(item => ({ type: item.type, label: item.label, excerpt: item.excerpt, sourceStatus: item.sourceStatus })) },
     postDraft: draftText,
     brandKit: kit ? { primaryColor: kit.primaryColor, accentColor: kit.accentColor, backgroundColor: kit.backgroundColor, textColor: kit.textColor, theme: kit.theme, style: kit.style, fontFamily: kit.fontFamily } : null,
-    requestedRevision: revisionNote || null
+    requestedRevision: revisionNote || null,
+    existingPromptToRevise: previousPrompt || null
   };
   const system = [
     "You are Releasebuff's AI Graphic Creative Director and senior editorial visual designer for builders sharing authentic product work.",
@@ -66,7 +68,7 @@ export async function POST(request: Request) {
     "Respect brand colors and style supplied in the input. Use colors as intentional roles; do not invent a new palette. Avoid claiming a brand logo is present unless a logo asset is explicitly supplied.",
     "Use only claims supported by the builder interview, post draft, story, or evidence. Never invent metrics, traction, testimonials, customers, outcomes, quotes, release dates, or product capabilities. Do not turn unknowns into facts.",
     "Do not include instructions to output SVG, HTML, code, a collage of template cards, a mockup of a social post, watermarks, signatures, device frames, or unnecessary decorative text. This is the actual finished artwork, not a picture of a LinkedIn post.",
-    "Return JSON only with keys concept, emotionalAngle, strongestMessage, prompt. The prompt must be complete, detailed, self-contained, and editable, written for an image-generation model."
+    "Return JSON only with keys concept, emotionalAngle, strongestMessage, prompt. The prompt must be complete, detailed, self-contained, and editable, written for an image-generation model. When existingPromptToRevise and requestedRevision are present, preserve the strong parts of the existing prompt and apply the requested changes instead of starting over blindly."
   ].join("\n");
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
