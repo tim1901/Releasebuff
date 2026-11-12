@@ -59,15 +59,15 @@ function wrapWords(value: string, limit: number, maxLines: number): string[] {
   return lines.slice(0, maxLines);
 }
 function textMarkup(lines: string[], x: number, y: number, lineHeight: number, fontSize: number, fill: string, font: string, weight: number, letterSpacing = -0.6, maxWidth?: number): string {
-  return "<text x=\\"" + x + "\\" y=\\"" + y + "\\" fill=\\"" + fill + "\\" font-family=\\"" + escapeXml(font) + "\\" font-size=\\"" + fontSize + "\\" font-weight=\\"" + weight + "\\" letter-spacing=\\"" + letterSpacing + "\\">" +
+  return "<text x=\"" + x + "\" y=\"" + y + "\" fill=\"" + fill + "\" font-family=\"" + escapeXml(font) + "\" font-size=\"" + fontSize + "\" font-weight=\"" + weight + "\" letter-spacing=\"" + letterSpacing + "\">" +
     lines.map((line, index) => {
       // SVG does not wrap text automatically. Constrain each rendered line to its real
       // column width as a final guard against font-metric differences between preview/export.
       const estimatedWidth = line.length * fontSize * 0.72;
       const fit = maxWidth && estimatedWidth > maxWidth
-        ? " textLength=\\"" + maxWidth + "\\" lengthAdjust=\\"spacingAndGlyphs\\""
+        ? " textLength=\"" + maxWidth + "\" lengthAdjust=\"spacingAndGlyphs\""
         : "";
-      return "<tspan x=\\"" + x + "\\" dy=\\"" + (index === 0 ? 0 : lineHeight) + "\\"" + fit + ">" + escapeXml(line) + "</tspan>";
+      return "<tspan x=\"" + x + "\" dy=\"" + (index === 0 ? 0 : lineHeight) + "\"" + fit + ">" + escapeXml(line) + "</tspan>";
     }).join("") + "</text>";
 }
 function rect(x: number, y: number, w: number, h: number, fill: string, radius: number, stroke?: string): string {
