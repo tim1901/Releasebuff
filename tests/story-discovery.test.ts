@@ -46,6 +46,28 @@ describe("AI-assisted story discovery", () => {
     expect(result.warning).toBeUndefined();
   });
 
+  it("asks for missing category-specific context before marking an AI story ready", async () => {
+    const candidate = TRELLIS_DEMO_STORIES[0];
+    const evidenceId = candidate.evidence[0]?.id;
+    expect(evidenceId).toBeTruthy();
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      output_text: JSON.stringify({ stories: [{
+        category: "Technical decision / trade-off",
+        title: "A technical choice",
+        summary: "A source-backed implementation change.",
+        angle: "Explain why this design was selected.",
+        confidence: "high",
+        evidenceIds: [evidenceId]
+      }] })
+    }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await discoverStories({ candidates: [candidate] });
+    expect(result.stories[0].status).toBe("needs-context");
+    expect(result.stories[0].requiresContext).toContain("alternatives");
+    expect(result.stories[0].confidence).toBe("low");
+  });
+
   it("labels rule-based fallback when the model request fails instead of silently presenting it as AI", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       error: { message: "Model not found" }
