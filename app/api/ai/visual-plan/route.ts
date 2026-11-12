@@ -8,14 +8,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type ResponsePayload = {
-  output_text?: string;
-  output?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }>;
+  content?: Array<{ type?: string; text?: string }>;
   error?: { message?: string };
 };
 function outputText(payload: ResponsePayload): string {
-  if (typeof payload.output_text === "string" && payload.output_text.trim()) return payload.output_text.trim();
-  return (payload.output ?? []).flatMap(item => item.content ?? [])
-    .filter(part => part.type === "output_text" || part.type === "text")
+  return (payload.content ?? []).filter(part => part.type === "text")
     .map(part => part.text ?? "").join("\n").trim();
 }
 function parsePlan(raw: string, fallback: StoryVisualPlan, facts: string[]): StoryVisualPlan | null {
@@ -62,7 +59,8 @@ export async function POST(request: Request) {
   const draftText = typeof body.draftText === "string" ? body.draftText.slice(0, 5_000) : "";
   const productName = typeof body.productName === "string" ? body.productName.slice(0, 120) : "";
   const fallback = createContextualVisualPlan({ story, draftText, productName });
-  if (!hasAiConfiguration()) {
+  const anthropicKey = process.env.ANTHROPIC_API_KEY?.trim();
+  if (!anthropicKey) {
     return NextResponse.json({ plan: fallback, mode: "contextual-fallback" }, { headers: { "Cache-Control": "no-store" } });
   }
   const facts = getVisualFacts(story);
@@ -93,15 +91,18 @@ export async function POST(request: Request) {
     "A logo is not part of this visual system. The product name will be set typographically by the renderer."
   ].join(" ");
   try {
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { Authorization: "Bearer " + process.env.OPENAI_API_KEY!.trim(), "Content-Type": "application/json" },
+      headers: {
+        "x-api-key": anthropicKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json"
+      },
       body: JSON.stringify({
-        model: configuredAiModel(),
-        instructions,
-        input: [{ role: "user", content: [{ type: "input_text", text: JSON.stringify(brief) }] }],
-        max_output_tokens: 650,
-        store: false
+        model: process.env.ANTHROPIC_MODEL?.trim() || "claude-sonnet-4-6",
+        system: instructions + " Return a single valid JSON object only, with no markdown fences.",
+        messages: [{ role: "user", content: JSON.stringify(brief) }],
+        max_tokens: 650
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(25_000)
