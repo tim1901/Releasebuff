@@ -422,7 +422,11 @@ export default function ReleasebuffApp() {
   }, [say]);
 
   const findStories = useCallback(async (githubStoriesOverride?: StoryOpportunity[]) => {
-    const githubStories = githubStoriesOverride ?? analysis?.stories ?? [];
+    const normalizeRepositoryUrl = (value?: string) => (value ?? "").trim().replace(/\.git$/i, "").replace(/\/$/, "").toLowerCase();
+    const configuredRepositoryUrl = normalizeRepositoryUrl(settings.repositoryUrl);
+    const analyzedRepositoryUrl = normalizeRepositoryUrl(analysis?.repository.url);
+    const currentAnalysis = configuredRepositoryUrl && configuredRepositoryUrl === analyzedRepositoryUrl ? analysis : null;
+    const githubStories = githubStoriesOverride ?? currentAnalysis?.stories ?? [];
     if (!settings.productName.trim() || !settings.productSummary.trim()) {
       say("Add a product name and short description first. GitHub is optional.", "error");
       setView("setup");
@@ -491,7 +495,8 @@ export default function ReleasebuffApp() {
       setSelectedStoryId(foundStories[0]?.id ?? null);
       setSelectedCategory("All categories");
       setSearchQuery("");
-      setAnalysisMode(githubStoriesOverride ? "live" : analysis ? analysisMode : "none");
+      setAnalysisMode(githubStoriesOverride !== undefined ? "live" : currentAnalysis ? analysisMode : "none");
+      if (githubStoriesOverride === undefined && !currentAnalysis && analysis) setAnalysis(null);
       setView("inbox");
       setMobileNavOpen(false);
       const contextSummary = [
@@ -499,7 +504,8 @@ export default function ReleasebuffApp() {
         `${materialsForDiscovery.length} supporting source(s)`,
         githubStories.length ? "optional GitHub evidence" : ""
       ].filter(Boolean).join(", ");
-      say(`Found ${foundStories.length} story opportunities using ${contextSummary}.`, "success");
+      if (data.mode === "evidence-rules" && data.warning) say(`Found ${foundStories.length} starting points using ${contextSummary}. ${data.warning}`, "info");
+      else say(`Found ${foundStories.length} story opportunities using ${contextSummary}.`, "success");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not find stories from your product context.";
       setScanError(message);
