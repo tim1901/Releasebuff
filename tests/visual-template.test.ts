@@ -54,6 +54,21 @@ describe("story visual planning and template", () => {
     expect(plan.metricFactIndex).toBeNull();
   });
 
+  it("wraps long headlines and breaks unbroken tokens inside the square canvas", () => {
+    const svg = buildStoryVisualSvg({
+      kit: DEFAULT_BRAND_KIT,
+      productName: "Releasebuff",
+      headlineOverride: "A".repeat(100),
+      supportingLineOverride: "A very long supporting sentence that should wrap safely within the square canvas."
+    });
+    const heading = svg.match(/<text x="70" y="194"[\\s\\S]*?<\\/text>/)?.[0] ?? "";
+    expect(heading).toContain("…");
+    const titleLines = [...heading.matchAll(/<tspan[^>]*>(.*?)<\\/tspan>/g)].map(match => match[1]);
+    expect(titleLines.length).toBeGreaterThan(1);
+    expect(titleLines.length).toBeLessThanOrEqual(3);
+    expect(titleLines.every(line => line.length <= 23)).toBe(true);
+  });
+
   it("encodes an animated GIF container from RGBA frames", () => {
     const frame = new Uint8ClampedArray([30, 40, 50, 255, 200, 220, 100, 255, 15, 20, 25, 255, 240, 245, 230, 255]);
     const gif = encodeAnimatedGif(2, 2, [frame, frame], 180);
