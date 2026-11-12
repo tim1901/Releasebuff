@@ -246,28 +246,9 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
     }
   }
 
-  const downloadExplainerGif = async () => {
-    if (!story || !activeGifPlan) return;
-    setExportBusy("explainer");
-    setExportError("");
-    try {
-      const width = 480;
-      const height = kit.aspectRatio === "landscape" ? 252 : kit.aspectRatio === "portrait" ? 600 : 480;
-      const frames: Uint8ClampedArray[] = [];
-      for (let index = 0; index < activeGifPlan.scenes.length; index++) {
-        const frameSvg = buildGifExplainerSvg({
-          kit, scene: activeGifPlan.scenes[index], sceneIndex: index, sceneCount: activeGifPlan.scenes.length,
-          productName, width, height
-        });
-        frames.push(await renderSvgToRgba(frameSvg, width, height));
-      }
-      const bytes = encodeAnimatedGif(width, height, frames, 1350);
-      downloadBlob(new Blob([bytes.buffer as ArrayBuffer], { type: "image/gif" }), slug(activeGifPlan.headline) + "-explainer.gif");
-    } catch (error) {
-      setExportError(error instanceof Error ? error.message : "Could not export the explainer GIF.");
-    } finally {
-      setExportBusy("");
-    }
+  const downloadExplainerGif = () => {
+    if (!activeGifPlan || !activeGifBlob) return;
+    downloadBlob(activeGifBlob, slug(activeGifPlan.headline) + "-explainer.gif");
   };
 
   const layoutLabel: Record<VisualLayout, string> = {
