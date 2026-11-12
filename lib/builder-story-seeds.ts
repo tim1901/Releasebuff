@@ -35,7 +35,28 @@ export function buildBuilderStorySeeds(settings: ProjectPreferences, profile: Pr
     sourceStatus: "builder-provided",
     collectedAt: updatedAt
   };
-  const evidence = [profileEvidence, ...materials.slice(0, 5).map(materialEvidence)].slice(0, 6);
+  const intelligenceEvidence: StoryEvidence[] = [
+    profileEvidence,
+    ...(profile?.problem && !/^not yet established/i.test(profile.problem) ? [{
+      id: "profile-problem", label: "Product Intelligence · Problem", type: "builder_note" as const,
+      url: "#product-intelligence", excerpt: profile.problem.slice(0, 280), sourceStatus: "builder-provided" as const, collectedAt: updatedAt
+    }] : []),
+    ...(profile?.valueProposition && !/^not yet established/i.test(profile.valueProposition) ? [{
+      id: "profile-value-proposition", label: "Product Intelligence · Value proposition", type: "builder_note" as const,
+      url: "#product-intelligence", excerpt: profile.valueProposition.slice(0, 280), sourceStatus: "builder-provided" as const, collectedAt: updatedAt
+    }] : []),
+    ...(profile?.capabilities ?? []).slice(0, 3).map((capability, index) => ({
+      id: `profile-capability-${index}`, label: `Product Intelligence · ${capability.name}`, type: "builder_note" as const,
+      url: "#product-intelligence", excerpt: [capability.description, capability.status ? `Status: ${capability.status}` : ""].filter(Boolean).join(" ").slice(0, 280),
+      sourceStatus: "builder-provided" as const, collectedAt: updatedAt
+    })),
+    ...(profile?.facts ?? []).slice(0, 4).map((fact, index) => ({
+      id: `profile-fact-${index}`, label: `Product Intelligence · ${fact.field}`, type: "builder_note" as const,
+      url: "#product-intelligence", excerpt: fact.value.slice(0, 280), sourceStatus: "builder-provided" as const, collectedAt: updatedAt
+    })),
+    ...materials.slice(0, 5).map(materialEvidence)
+  ];
+  const evidence = intelligenceEvidence.slice(0, 6);
   const factLines = [
     description ? `Product description: ${description}` : "",
     profile?.problem && !/^not yet established/i.test(profile.problem) ? `Problem: ${profile.problem}` : "",
