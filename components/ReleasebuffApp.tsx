@@ -16,6 +16,7 @@ import StoryVisualStudio from "@/components/StoryVisualStudio";
 import { localRead, localWrite } from "@/lib/local-db";
 import { CATEGORY_GROUPS, ALL_CATEGORIES } from "@/lib/story-categories";
 import { TRELLIS_DEMO_STORIES } from "@/lib/demo-data";
+import { buildBuilderStorySeeds } from "@/lib/builder-story-seeds";
 import { localDateTimeToUtc } from "@/lib/date-time";
 
 type View = "landing" | "setup" | "inbox" | "story" | "categories" | "draft" | "library" | "brand";
@@ -395,18 +396,16 @@ export default function ReleasebuffApp() {
       setSettings(prev => ({ ...prev, productName: profile.productName || prev.productName, productSummary: profile.oneLineDescription || prev.productSummary, audience: profile.targetAudience || prev.audience }));
       say(data.mode === "ai" ? "Product Profile created from your description and supplied sources." : "Product Profile created. Add an OpenAI key for deeper source analysis.", "success");
       if (!stories.length) {
-        const profileStory: StoryOpportunity = {
-          id: `product-intro-${profile.productName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-          category: "Problem and solution", group: "Product marketing", title: `What I'm building: ${profile.productName}`,
-          summary: profile.oneLineDescription || settings.productSummary,
-          angle: "Introduce the product and the problem the builder wants to solve. Keep the distinction between the builder's intention and verified product capabilities explicit.",
-          confidence: "medium", status: "needs-context",
-          evidence: [{ id: `builder-profile-${profile.updatedAt}`, label: "Builder-provided Product Profile", type: "builder_note", url: "#product-profile", excerpt: (profile.oneLineDescription || settings.productSummary).slice(0, 280) }],
-          sourceFacts: [profile.oneLineDescription || settings.productSummary, ...(profile.targetAudience ? [`Intended audience: ${profile.targetAudience}`] : [])],
-          requiresContext: "What led you to start building this product, and what do you most want potential users to understand?",
-          whyItMatters: "A builder-provided description is enough to start introducing an idea before launch; the interview captures the personal perspective.", evidenceCoverage: "partial", generatedAt: new Date().toISOString()
-        };
-        setStories([profileStory]); setSelectedStoryId(profileStory.id); setAnalysisMode("none"); setView("inbox");
+        const profileStories = buildBuilderStorySeeds(
+          { ...settings, productName: profile.productName || settings.productName, productSummary: profile.oneLineDescription || settings.productSummary, audience: profile.targetAudience || settings.audience },
+          profile,
+          materialsForProfile
+        );
+        setStories(profileStories);
+        setSelectedStoryId(profileStories[0]?.id ?? null);
+        setSelectedCategory("All categories");
+        setAnalysisMode("none");
+        setView("inbox");
       }
     } catch (error) { say(error instanceof Error ? error.message : "Could not create the Product Profile.", "error"); }
     finally { setProfileBusy(false); }
