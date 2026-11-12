@@ -74,7 +74,8 @@ export async function POST(request: Request) {
     productProfile: body.productProfile ?? null,
     story: { category: story.category, title: story.title, summary: story.summary, angle: story.angle, sourceFacts: story.sourceFacts ?? [],
       evidence: (story.evidence ?? []).filter(Boolean).map(x => ({ type: x.type, label: x.label, excerpt: x.excerpt, sourceStatus: x.sourceStatus })) },
-    draftText: clean(body.draftText, 6000),\n    previousPlan: body.previousPlan ?? null,
+    draftText: clean(body.draftText, 6000),
+    previousPlan: body.previousPlan ?? null,
     brandKit: body.brandKit ? { primaryColor: body.brandKit.primaryColor, accentColor: body.brandKit.accentColor, backgroundColor: body.brandKit.backgroundColor, textColor: body.brandKit.textColor, style: body.brandKit.style, fontFamily: body.brandKit.fontFamily } : null
   };
   const system = [
