@@ -505,7 +505,7 @@ export default function ReleasebuffApp() {
         `${materialsForDiscovery.length} supporting source(s)`,
         githubStories.length ? "optional GitHub evidence" : ""
       ].filter(Boolean).join(", ");
-      if (targetCategory) say(`Prepared a story path for ${targetCategory}. Review the story and complete the adaptive interview before drafting.`, "success");
+      if (targetCategory) say(`Prepared a story path for ${targetCategory}. Review the story and complete the AI interview before drafting.`, "success");
       else if (data.mode === "evidence-rules" && data.warning) say(`Found ${foundStories.length} starting points using ${contextSummary}. ${data.warning}`, "info");
       else say(`Found ${foundStories.length} story opportunities using ${contextSummary}.`, "success");
       return targetCategory ? categoryStories : foundStories;
@@ -552,43 +552,13 @@ export default function ReleasebuffApp() {
         updateStoryStatus(story.id, "ready-to-draft");
       }
     } catch (error) {
-      // Keep the interview usable if the AI endpoint or its request payload fails.
-      // A guided category question is better than leaving the user blocked.
-      const guides: Record<string, Array<{ dimension: string; question: string }>> = {
-        "Traction and milestones": [
-          { dimension: "metric", question: "What specific progress can you verify so far—such as users, signups, customers, revenue, or usage? If you have no metric yet, what milestone have you reached?" },
-          { dimension: "timeframe", question: "Over what period did this progress happen, and what source could verify it?" },
-          { dimension: "meaning", question: "Why is this milestone meaningful for the product or the people you serve?" }
-        ],
-        "New feature shipped": [
-          { dimension: "motivation", question: "What prompted you to build this feature, and who is it meant to help?" },
-          { dimension: "approach", question: "What was the most important decision or challenge while building it?" },
-          { dimension: "availability", question: "Is it available to users now, still being tested, or not released yet?" }
-        ]
-      };
-      const guide = guides[story.category] ?? [
-        { dimension: "event", question: `What specific event, decision, result, or example would make this “${story.category}” story real and useful?` },
-        { dimension: "approach", question: "What did you do, and what influenced your approach?" },
-        { dimension: "outcome", question: "What happened as a result, and what can you verify?" },
-        { dimension: "takeaway", question: "What did you learn, or what should your audience take away?" }
-      ];
-      const used = new Set(answers.map(answer => answer.dimension).filter(Boolean));
-      const next = guide.find(item => !used.has(item.dimension));
-      const fallbackSummary = answers.filter(answer => !answer.skipped && answer.answer.trim()).map(answer => `${answer.dimension ?? "Context"}: ${answer.answer.trim()}`).join("\\n");
-      setInterviews(prev => ({ ...prev, [story.id]: {
-        storyId: story.id,
-        answers,
-        currentQuestion: next?.question,
-        currentDimension: next?.dimension,
-        complete: !next,
-        summary: next ? undefined : fallbackSummary,
-        readinessNotes: next ? undefined : ["Guided interview completed; review all claims before drafting.", "Do not include metrics that cannot be verified."],
-        updatedAt: new Date().toISOString()
-      }}));
-      setInterviewAnswerDraft("");
-      say("AI interview unavailable, so Releasebuff switched to guided questions.", "info");
-    }
-    finally { setInterviewBusy(false); }
+      const message = error instanceof Error ? error.message : "The AI interview could not continue.";
+      setInterviews(prev => {
+        const existing = prev[story.id];
+        return existing ? { ...prev, [story.id]: { ...existing, currentQuestion: undefined, updatedAt: new Date().toISOString() } } : prev;
+      });
+      say(`AI interview unavailable: ${message} Check the OpenAI API configuration and try again.`, "error");
+    }    finally { setInterviewBusy(false); }
   }, [productProfile, settings.productSummary, productMaterials, interviewMaterials, updateStoryStatus, say]);
 
   const startInterview = useCallback(async (story: StoryOpportunity) => {
@@ -1168,7 +1138,7 @@ function StoryDetails({ story, extraContext, setExtraContext, interview, intervi
         <p className="context-copy">Releasebuff should understand the story behind the change—not just the change itself. The interview asks follow-up questions until it has enough context, skipping what sources already tell us.</p>
         {!interview?.currentQuestion && !interview?.complete && <Button className="button-block" variant="lime" onClick={onStartInterview} disabled={interviewBusy}>{interviewBusy ? <LoaderCircle className="spinning" size={14}/> : <MessageSquareText size={14}/>} {interviewCount ? "Resume interview" : "Start story interview"}</Button>}
         {interviewBusy && <div className="alert alert-info"><LoaderCircle className="spinning" size={15}/><span>Finding the most useful next question…</span></div>}
-        {interview?.currentQuestion && <><div className="question-box"><span className="eyebrow">QUESTION {interviewCount + 1} · ADAPTIVE INTERVIEW</span><p style={{ margin: "7px 0 0", lineHeight: 1.65 }}>{interview.currentQuestion}</p></div><textarea className="textarea" rows={4} value={interviewAnswerDraft} onChange={e => setInterviewAnswerDraft(e.target.value)} placeholder="Answer naturally, in your own words…" aria-label="Your interview answer"/><div className="row wrap"><Button variant="lime" onClick={onAnswerInterview} disabled={interviewBusy || !interviewAnswerDraft.trim()}>{interviewBusy ? <LoaderCircle className="spinning" size={14}/> : <ArrowRight size={14}/>} Answer & continue</Button><Button variant="outline" onClick={onSkipInterview} disabled={interviewBusy}>Skip question</Button></div><div className="form-help">One question at a time. You can skip questions and resume later. Answers are saved locally in this browser.</div></>}
+        {interview?.currentQuestion && <><div className="question-box"><span className="eyebrow">QUESTION {interviewCount + 1} · AI INTERVIEW</span><p style={{ margin: "7px 0 0", lineHeight: 1.65 }}>{interview.currentQuestion}</p></div><textarea className="textarea" rows={4} value={interviewAnswerDraft} onChange={e => setInterviewAnswerDraft(e.target.value)} placeholder="Answer naturally, in your own words…" aria-label="Your interview answer"/><div className="row wrap"><Button variant="lime" onClick={onAnswerInterview} disabled={interviewBusy || !interviewAnswerDraft.trim()}>{interviewBusy ? <LoaderCircle className="spinning" size={14}/> : <ArrowRight size={14}/>} Answer & continue</Button><Button variant="outline" onClick={onSkipInterview} disabled={interviewBusy}>Skip question</Button></div><div className="form-help">One question at a time. You can skip questions and resume later. Answers are saved locally in this browser.</div></>}
         {interview?.complete && <><div className="alert alert-success"><CheckCircle2 size={16}/><span>The interview is complete. Review the captured context below before drafting.</span></div>{interview.summary && <div className="question-box"><div className="context-heading">Story context summary</div><p style={{ whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.65, margin: "7px 0 0" }}>{interview.summary}</p></div>}<div className="stack" style={{ gap: 8 }}>{interview.answers.filter(a => !a.skipped && a.answer.trim()).map((a,i) => <div key={`${i}-${a.question}`} className="library-row"><div className="library-row-main"><div className="small muted">{a.question}</div><div className="small" style={{ marginTop: 4 }}>{a.answer}</div></div></div>)}</div><Button variant="lime" className="button-block" onClick={onDraft}>Continue to Draft Studio <ArrowRight size={14}/></Button></>}
       </div></section>
       {story.requiresContext && <section className="panel"><div className="panel-header"><div className="row"><MessageCircleQuestion size={17}/><span className="panel-title">Additional context</span></div><Badge tone="warning">May be needed</Badge></div><div className="panel-body stack"><div className="question-box">{story.requiresContext}</div><textarea className="textarea" value={extraContext} onChange={e => setExtraContext(e.target.value)} placeholder="Add more context here, or use the structured interview above…" style={{ minHeight: 110 }}/><div className="form-help">This context is included in the Story Brief for drafting. Do not share confidential customer or secret data.</div></div></section>}
