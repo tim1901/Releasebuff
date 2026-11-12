@@ -36,7 +36,7 @@ function Studio({ story, draftText, productName, kit, interviewSummary = "", pro
     try {
       const response = await fetch("/api/ai/editorial-plan", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ story, draftText, productName, interviewSummary, productProfile, brandKit: kit, revisionNote: refine ? revision : "" }),
+        body: JSON.stringify({ story, draftText, productName, interviewSummary, productProfile, brandKit: kit, revisionNote: refine ? revision : "", previousPlan: refine ? plan : null }),
         cache: "no-store"
       });
       const data = await response.json() as PlanResponse;
