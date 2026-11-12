@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { allowRequest } from "@/lib/rate-limit";
+import { assertSameOrigin, jsonError, safeErrorMessage } from "@/lib/http";
 import { createContextualVisualPlan, extractMetricDetails, getVisualFacts, type PlannedVisualLayout, type StoryVisualPlan } from "@/lib/visual-template";
-import type { StoryOpportunity } from "@/lib/types";
+import type { BrandKit, StoryOpportunity } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
   if (!allowRequest("visual-plan:" + ip, 15, 60_000)) {
     return NextResponse.json({ error: "Too many visual-planning requests. Wait a minute and try again." }, { status: 429 });
   }
-  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown };
+  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown; brandKit?: BrandKit };
   try {
     body = await request.json() as typeof body;
   } catch {
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
   const story = body.story;
   const draftText = typeof body.draftText === "string" ? body.draftText.slice(0, 5_000) : "";
   const productName = typeof body.productName === "string" ? body.productName.slice(0, 120) : "";
-  const fallback = createContextualVisualPlan({ story, draftText, productName });
+  const brandKit = body.brandKit;\n  const fallback = createContextualVisualPlan({ story, draftText, productName });
   const anthropicKey = process.env.ANTHROPIC_API_KEY?.trim();
   if (!anthropicKey) {
     return NextResponse.json({ plan: fallback, mode: "contextual-fallback" }, { headers: { "Cache-Control": "no-store" } });
@@ -79,7 +80,7 @@ export async function POST(request: Request) {
   const instructions = [
     "You are a senior editorial art director for builders sharing authentic product work.",
     "Create an art direction plan for a vector graphic that will be drawn by a program. You are NOT generating a bitmap image.",
-    "Choose the composition based on this particular story, not from a one-template-fits-all habit. Available layouts: spotlight, release, metric, decision, lesson, steps.",
+    "Choose the composition based on this particular story, not from a one-template-fits-all habit. Available layouts: spotlight, release, metric, decision, lesson, steps.",\n    "Honor the provided brandDirection for visual style, color roles, typography and aspect ratio. Treat colors as fixed brand tokens; do not recommend replacing them. The renderer applies the brand palette.",
     "Return JSON only with keys: layout, headline, supportingLine, factIndexes, metricFactIndex.",
     "The headline must be human-readable and story-led. Never use a raw package name/version, commit hash, file path or API identifier as the entire headline. Put such identifiers in supporting facts where useful.",
     "Use only information in the story, draft and allowed facts. Do not invent numbers, product claims, customer reactions, outcomes, dates or quotes.",
