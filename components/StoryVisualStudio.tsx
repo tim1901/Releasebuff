@@ -262,7 +262,7 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
   };
 
   return <section className="panel visual-studio-panel">
-    <div className="panel-header"><div className="row"><ImageIcon size={16}/><span className="panel-title">Visual created alongside this draft</span></div><span className="badge badge-success"><Sparkles size={11}/> {planSource === "ai" ? "AI art direction" : "Context-aware preview"}</span></div>
+    <div className="panel-header"><div className="row"><ImageIcon size={16}/><span className="panel-title">Visual created alongside this draft</span></div><span className="badge badge-success"><Sparkles size={11}/> {planSource === "ai" ? "Claude art direction" : "Context-aware preview"}</span></div>
     <div className="panel-body stack">
       <div className="visual-preview-frame" style={{ background: kit.backgroundColor }}><img className="visual-preview-image" src={previewSrc} alt={"Generated graphic: " + headline}/></div>
       <div className="visual-edit-fields">
