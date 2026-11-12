@@ -29,7 +29,16 @@ describe("story visual planning and template", () => {
     expect(svg).not.toContain("brand-mark");
   });
 
-  it("wraps long headlines into separate SVG text lines within the square canvas", () => {\n    const svg = buildStoryVisualSvg({\n      kit: DEFAULT_BRAND_KIT, story: exampleStory, productName: "Releasebuff",\n      width: 1080, height: 1080,\n      headlineOverride: "From What I Built to Why I Built It"\n    });\n    const heading = svg.match(/<text[^>]*font-size="64"[^>]*>([\\s\\S]*?)<\\/text>/);\n    expect(heading).not.toBeNull();\n    expect((heading?.[1].match(/<tspan /g) ?? []).length).toBeGreaterThan(1);\n  });\n\n  it("chooses a release-led headline instead of a raw package version", () => {
+  it("wraps long headlines into separate SVG text lines within the square canvas", () => {
+    const svg = buildStoryVisualSvg({
+      kit: DEFAULT_BRAND_KIT, story: exampleStory, productName: "Releasebuff",
+      width: 1080, height: 1080,
+      headlineOverride: "From What I Built to Why I Built It"
+    });
+    const heading = svg.match(/<text[^>]*font-size="64"[^>]*>([\s\S]*?)<\/text>/);
+    expect(heading).not.toBeNull();
+    expect((heading?.[1].match(/<tspan /g) ?? []).length).toBeGreaterThan(1);
+  });\n\n  it("chooses a release-led headline instead of a raw package version", () => {
     const story = { ...exampleStory, category: "New feature shipped" as const, title: "astro@7.4.4-beta.0", summary: "A published release is available." };
     const plan = createContextualVisualPlan({ story, productName: "Releasebuff" });
     expect(plan.layout).toBe("release");
