@@ -11,6 +11,7 @@ import {
   type VisualLayout
 } from "@/lib/visual-template";
 import { encodeAnimatedGif } from "@/lib/gif-encoder";
+import { buildGifExplainerSvg, createFallbackGifExplainer, type GifExplainerPlan, type GifPlanMode } from "@/lib/gif-explainer";
 
 async function renderSvgToRgba(svg: string, width: number, height: number): Promise<Uint8ClampedArray> {
   const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
@@ -63,7 +64,12 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
   const [visualPlan, setVisualPlan] = useState<StoryVisualPlan | null>(null);
   const [planSource, setPlanSource] = useState<"context" | "ai">("context");
   const [planning, setPlanning] = useState(false);
-  const [exportBusy, setExportBusy] = useState<"" | "png" | "gif">("");
+  const [exportBusy, setExportBusy] = useState<"" | "png" | "gif" | "explainer">("");
+  const [gifPlan, setGifPlan] = useState<GifExplainerPlan | null>(null);
+  const [gifPlanMode, setGifPlanMode] = useState<GifPlanMode>("fallback");
+  const [gifPlanBusy, setGifPlanBusy] = useState(false);
+  const [gifPlanMessage, setGifPlanMessage] = useState("");
+  const [gifPlanSignature, setGifPlanSignature] = useState("");
   const [exportError, setExportError] = useState("");
   const requestedStoryId = useRef<string | null>(null);
   const hasDraft = Boolean(draftText.trim());
@@ -78,6 +84,8 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
   }), [kit, story, draftText, productName, headlineOverride, supportingOverride, layout, activePlan]);
   const previewSrc = useMemo(() => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg), [svg]);
   const canExport = Boolean(story || draftText.trim());
+  const gifSignature = JSON.stringify([story?.id, draftText, productName, kit.primaryColor, kit.accentColor, kit.backgroundColor, kit.textColor, kit.theme, kit.style, kit.fontFamily, kit.aspectRatio]);
+  const activeGifPlan = gifPlanSignature === gifSignature ? gifPlan : null;
 
   async function requestArtDirection() {
     if (!story) return;
@@ -165,6 +173,60 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
     finally { setExportBusy(""); }
   };
 
+  async function createGifExplainerPlan() {
+    if (!story) return;
+    setGifPlanBusy(true);
+    setGifPlanMessage("");
+    setExportError("");
+    try {
+      const response = await fetch("/api/ai/gif-explainer-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ story, draftText, productName, brandKit: kit }),
+        cache: "no-store"
+      });
+      const data = await response.json() as { plan?: GifExplainerPlan; mode?: "claude" | "fallback"; message?: string; error?: string };
+      if (!response.ok || !data.plan) throw new Error(data.error || "Could not create the explainer storyboard.");
+      setGifPlan(data.plan);
+      setGifPlanMode(data.mode === "claude" ? "claude" : "fallback");
+      setGifPlanSignature(gifSignature);
+      setGifPlanMessage(data.message || (data.mode === "claude"
+        ? "Claude tailored this storyboard to the current post. Review the scenes before exporting."
+        : "Using a context-based storyboard. Add ANTHROPIC_API_KEY to enable Claude's post-specific art direction."));
+    } catch (error) {
+      setGifPlan(createFallbackGifExplainer(story, draftText, productName));
+      setGifPlanMode("fallback");
+      setGifPlanSignature(gifSignature);
+      setGifPlanMessage(error instanceof Error ? error.message : "Claude was unavailable; a context-based storyboard is ready.");
+    } finally {
+      setGifPlanBusy(false);
+    }
+  }
+
+  const downloadExplainerGif = async () => {
+    if (!story || !activeGifPlan) return;
+    setExportBusy("explainer");
+    setExportError("");
+    try {
+      const width = 480;
+      const height = kit.aspectRatio === "landscape" ? 252 : kit.aspectRatio === "portrait" ? 600 : 480;
+      const frames: Uint8ClampedArray[] = [];
+      for (let index = 0; index < activeGifPlan.scenes.length; index++) {
+        const frameSvg = buildGifExplainerSvg({
+          kit, scene: activeGifPlan.scenes[index], sceneIndex: index, sceneCount: activeGifPlan.scenes.length,
+          productName, width, height
+        });
+        frames.push(await renderSvgToRgba(frameSvg, width, height));
+      }
+      const bytes = encodeAnimatedGif(width, height, frames, 1350);
+      downloadBlob(new Blob([bytes.buffer as ArrayBuffer], { type: "image/gif" }), slug(activeGifPlan.headline) + "-explainer.gif");
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : "Could not export the explainer GIF.");
+    } finally {
+      setExportBusy("");
+    }
+  };
+
   const layoutLabel: Record<VisualLayout, string> = {
     auto: "Auto · decide from story context",
     spotlight: "Editorial spotlight",
@@ -187,11 +249,20 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
       <div className="visual-export-row">
         <button className="button button-lime button-sm" onClick={downloadPng} disabled={!canExport || Boolean(exportBusy)}>{exportBusy === "png" ? <LoaderCircle size={13} className="spinning"/> : <Download size={13}/>} PNG</button>
         <button className="button button-outline button-sm" onClick={downloadSvg} disabled={!canExport || Boolean(exportBusy)}><Download size={13}/> SVG</button>
-        <button className="button button-outline button-sm" onClick={downloadGif} disabled={!canExport || Boolean(exportBusy)}>{exportBusy === "gif" ? <LoaderCircle size={13} className="spinning"/> : <RefreshCw size={13}/>} GIF</button>
+        <button className="button button-outline button-sm" onClick={downloadGif} disabled={!canExport || Boolean(exportBusy)}>{exportBusy === "gif" ? <LoaderCircle size={13} className="spinning"/> : <RefreshCw size={13}/>} Quick GIF</button>
+        <button className="button button-lime button-sm" onClick={() => void createGifExplainerPlan()} disabled={!story || gifPlanBusy || Boolean(exportBusy)}>{gifPlanBusy ? <LoaderCircle size={13} className="spinning"/> : <WandSparkles size={13}/>} {gifPlanBusy ? "Storyboarding…" : activeGifPlan ? "Rebuild explainer" : "Create explainer GIF"}</button>
         <button className="button button-outline button-sm" onClick={() => void requestArtDirection()} disabled={!story || planning || Boolean(exportBusy)}>{planning ? <LoaderCircle size={13} className="spinning"/> : <WandSparkles size={13}/>} {planning ? "Thinking…" : "Rethink visual"}</button>
       </div>
+      {activeGifPlan && <div className="gif-storyboard stack">
+        <div className="row-between wrap" style={{ gap: 8 }}><strong style={{ fontSize: 13, color: "var(--forest)" }}>Explainer storyboard</strong><span className="badge badge-success"><Sparkles size={10}/> {gifPlanMode === "claude" ? "Claude-directed" : "Context fallback"}</span></div>
+        <h3 style={{ margin: 0, fontSize: 18, color: "var(--forest)" }}>{activeGifPlan.headline}</h3>
+        <p className="small muted" style={{ margin: 0, lineHeight: 1.6 }}>{activeGifPlan.subhead}</p>
+        <div className="gif-scene-list">{activeGifPlan.scenes.map((scene, index) => <div className="gif-scene-card" key={`${index}-${scene.title}`}><div className="row-between" style={{ gap: 8 }}><span className="eyebrow">{String(index + 1).padStart(2, "0")} / {scene.kicker}</span><span className="badge">{scene.visual}</span></div><strong>{scene.title}</strong><p className="small muted">{scene.caption}</p>{scene.labels.length > 0 && <div className="row wrap">{scene.labels.map((label, i) => <span key={`${i}-${label}`} className="gif-scene-label">{label}</span>)}</div>}</div>)}</div>
+        <button className="button button-lime button-sm" onClick={() => void downloadExplainerGif()} disabled={Boolean(exportBusy)}>{exportBusy === "explainer" ? <LoaderCircle size={13} className="spinning"/> : <Download size={13}/>} {exportBusy === "explainer" ? "Rendering frames…" : "Download explainer GIF"}</button>
+      </div>}
+      {gifPlanMessage && <div className="alert alert-info">{gifPlanMessage}</div>}
       {exportError && <div className="alert alert-error">{exportError}</div>}
-      <p className="form-help">The visual is composed from story context and supported facts. Product names appear as text; no logo is placed on generated graphics. SVG, PNG and GIF are produced locally from the editable vector design.</p>
+      <p className="form-help">The graphic preview is editable. Create explainer GIF asks Claude to storyboard this specific post, then Releasebuff renders the scenes locally as a branded vector animation. Claude directs the visual plan; it does not return a finished image file.</p>
     </div>
   </section>;
 }
