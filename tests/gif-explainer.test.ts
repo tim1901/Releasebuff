@@ -52,8 +52,10 @@ describe("Claude-directed GIF explainer planning", () => {
     };
     const svg = buildGifExplainerSvg({ kit: DEFAULT_BRAND_KIT, scene, sceneIndex: 1, sceneCount: 4, productName: "Releasebuff" });
     expect(svg).toContain("<svg");
-    expect(svg).toContain("A &lt;secure&gt; connection &amp; flow");
-    expect(svg).toContain("Browser &lt;client&gt;");
+    expect(svg).toContain("A &lt;secure&gt; connection &amp;");
+    expect(svg).toContain("flow</tspan>");
+    expect(svg).toContain("Browser");
+    expect(svg).toContain("&lt;client&gt;");
     expect(svg).toContain("EXPLAINER 02/04");
     expect(svg).toContain("#173D2D");
   });
