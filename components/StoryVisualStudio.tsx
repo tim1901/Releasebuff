@@ -64,7 +64,10 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
   const [visualPlan, setVisualPlan] = useState<StoryVisualPlan | null>(null);
   const [planSource, setPlanSource] = useState<"context" | "ai">("context");
   const [planning, setPlanning] = useState(false);
-  const [exportBusy, setExportBusy] = useState<"" | "png" | "gif" | "explainer">("");
+  const [exportBusy, setExportBusy] = useState<"" | "png" | "gif">("");
+  const [gifPreviewUrl, setGifPreviewUrl] = useState<string | null>(null);
+  const [gifBlob, setGifBlob] = useState<Blob | null>(null);
+  const [gifBlobSignature, setGifBlobSignature] = useState("");
   const [gifPlan, setGifPlan] = useState<GifExplainerPlan | null>(null);
   const [gifPlanMode, setGifPlanMode] = useState<GifPlanMode>("fallback");
   const [gifPlanBusy, setGifPlanBusy] = useState(false);
@@ -72,6 +75,7 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
   const [gifPlanSignature, setGifPlanSignature] = useState("");
   const [exportError, setExportError] = useState("");
   const requestedStoryId = useRef<string | null>(null);
+  const gifPreviewUrlRef = useRef<string | null>(null);
   const hasDraft = Boolean(draftText.trim());
   const fallbackPlan = useMemo(() => createContextualVisualPlan({ story, draftText, productName }), [story, draftText, productName]);
   const activePlan = visualPlan ?? fallbackPlan;
@@ -86,6 +90,36 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
   const canExport = Boolean(story || draftText.trim());
   const gifSignature = JSON.stringify([story?.id, draftText, productName, kit.primaryColor, kit.accentColor, kit.backgroundColor, kit.textColor, kit.theme, kit.style, kit.fontFamily, kit.aspectRatio]);
   const activeGifPlan = gifPlanSignature === gifSignature ? gifPlan : null;
+  const activeGifBlob = gifBlobSignature === gifSignature ? gifBlob : null;
+  const activeGifPreviewUrl = gifBlobSignature === gifSignature ? gifPreviewUrl : null;
+
+  useEffect(() => () => {
+    if (gifPreviewUrlRef.current) URL.revokeObjectURL(gifPreviewUrlRef.current);
+  }, []);
+
+  function storeGifPreview(blob: Blob, signature: string) {
+    const nextUrl = URL.createObjectURL(blob);
+    if (gifPreviewUrlRef.current) URL.revokeObjectURL(gifPreviewUrlRef.current);
+    gifPreviewUrlRef.current = nextUrl;
+    setGifPreviewUrl(nextUrl);
+    setGifBlob(blob);
+    setGifBlobSignature(signature);
+  }
+
+  async function renderExplainerGifBlob(plan: GifExplainerPlan): Promise<Blob> {
+    const width = 480;
+    const height = kit.aspectRatio === "landscape" ? 252 : kit.aspectRatio === "portrait" ? 600 : 480;
+    const frames: Uint8ClampedArray[] = [];
+    for (let index = 0; index < plan.scenes.length; index++) {
+      const frameSvg = buildGifExplainerSvg({
+        kit, scene: plan.scenes[index], sceneIndex: index, sceneCount: plan.scenes.length,
+        productName, width, height
+      });
+      frames.push(await renderSvgToRgba(frameSvg, width, height));
+    }
+    const bytes = encodeAnimatedGif(width, height, frames, 1350);
+    return new Blob([bytes.buffer as ArrayBuffer], { type: "image/gif" });
+  }
 
   async function requestArtDirection() {
     if (!story) return;
