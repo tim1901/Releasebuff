@@ -481,7 +481,8 @@ export default function ReleasebuffApp() {
           settings,
           profile: currentProfile ?? productProfile,
           materials: materialsForServerRequest(materialsForDiscovery),
-          githubStories
+          githubStories,
+          ...(targetCategory ? { targetCategory } : {})
         }),
         cache: "no-store"
       });
@@ -491,7 +492,7 @@ export default function ReleasebuffApp() {
       if (!foundStories.length) throw new Error("No stories could be prepared yet. Add a little more context in Product Setup and try again.");
       setStories(foundStories);
       const categoryStories = targetCategory ? foundStories.filter(story => story.category === targetCategory) : foundStories;
-      const selectedStory = categoryStories[0] ?? foundStories[0];
+      const selectedStory = categoryStories[0] ?? (targetCategory ? undefined : foundStories[0]);
       setSelectedStoryId(selectedStory?.id ?? null);
       setSelectedCategory(targetCategory ?? "All categories");
       setSearchQuery("");
@@ -507,7 +508,7 @@ export default function ReleasebuffApp() {
       if (targetCategory) say(`Prepared a story path for ${targetCategory}. Review the story and complete the adaptive interview before drafting.`, "success");
       else if (data.mode === "evidence-rules" && data.warning) say(`Found ${foundStories.length} starting points using ${contextSummary}. ${data.warning}`, "info");
       else say(`Found ${foundStories.length} story opportunities using ${contextSummary}.`, "success");
-      return categoryStories.length ? categoryStories : foundStories;
+      return targetCategory ? categoryStories : foundStories;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not find stories from your product context.";
       setScanError(message);
@@ -814,7 +815,7 @@ export default function ReleasebuffApp() {
                return;
              }
              const found = await findStories(undefined, category);
-             const target = found.find(story => story.category === category) ?? found[0];
+             const target = found.find(story => story.category === category);
              if (target) {
                setSelectedStoryId(target.id); setView("story");
                if (!interviews[target.id]?.complete) await startInterview(target);
