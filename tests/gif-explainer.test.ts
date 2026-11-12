@@ -60,4 +60,18 @@ describe("Claude-directed GIF explainer planning", () => {
     expect(svg).toContain("EXPLAINER 02/04");
     expect(svg).toContain("#173D2D");
   });
+
+  it("emits well-formed self-closing circles for problem and evidence scenes", () => {
+    for (const visual of ["problem", "evidence"] as const) {
+      const svg = buildGifExplainerSvg({
+        kit: DEFAULT_BRAND_KIT,
+        scene: { kicker: "CHECK", title: "A specific detail", caption: "A grounded explanation of the work.", visual, labels: ["Context", "Change", "Evidence"] },
+        sceneIndex: 0,
+        sceneCount: 4,
+        productName: "Releasebuff"
+      });
+      expect(svg).not.toMatch(/<circle\\b[^>]*\\/(?!>)/);
+      expect(svg).toContain("</svg>");
+    }
+  });
 });
