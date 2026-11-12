@@ -388,9 +388,9 @@ export default function ReleasebuffApp() {
     setStoryDiscoveryBusy(true);
     setScanError("");
     try {
-      let materialsForDiscovery = [...productMaterials];
+      let sourceMaterials = [...productMaterials];
       const website = settings.websiteUrl.trim();
-      const alreadyAdded = website && materialsForDiscovery.some(item => item.sourceUrl && item.sourceUrl.replace(/\/$/, "") === website.replace(/\/$/, ""));
+      const alreadyAdded = website && sourceMaterials.some(item => item.sourceUrl && item.sourceUrl.replace(/\/$/, "") === website.replace(/\/$/, ""));
       if (website && !alreadyAdded) {
         try {
           const sourceResponse = await fetch("/api/sources/fetch", {
@@ -406,10 +406,31 @@ export default function ReleasebuffApp() {
               textContent: String(sourceData.text).slice(0, 30_000), addedAt: new Date().toISOString(),
               collectedAt: String(sourceData.collectedAt || new Date().toISOString()), sourceStatus: "fetched"
             };
-            materialsForDiscovery = [websiteMaterial, ...materialsForDiscovery];
+            sourceMaterials = [websiteMaterial, ...sourceMaterials];
           }
         } catch { /* Website context is optional; continue with the builder's supplied information. */ }
       }
+
+      const interviewMaterials: ProductMaterial[] = Object.values(interviews)
+        .map(interview => {
+          const story = stories.find(item => item.id === interview.storyId);
+          const answers = interview.answers.filter(answer => !answer.skipped && answer.answer.trim());
+          const textContent = [
+            interview.summary ? `Interview summary: ${interview.summary}` : "",
+            ...answers.map(answer => `Q: ${answer.question}\nA: ${answer.answer}`)
+          ].filter(Boolean).join("\n\n").slice(0, 5_000);
+          if (!textContent.trim()) return null;
+          return {
+            id: `interview-${interview.storyId}`,
+            kind: "note" as const,
+            title: `Builder interview: ${story?.title ?? interview.storyId}`,
+            textContent,
+            addedAt: interview.updatedAt,
+            sourceStatus: "user-provided" as const
+          };
+        })
+        .filter((item): item is ProductMaterial => item !== null);
+      const materialsForDiscovery = [...interviewMaterials, ...sourceMaterials].slice(0, 20);
 
       let currentProfile: ProductProfile | null = null;
       try {
@@ -424,8 +445,8 @@ export default function ReleasebuffApp() {
           setProductProfile(currentProfile);
         }
       } catch { /* Story discovery remains available from current product details and materials. */ }
-      if (materialsForDiscovery.length !== productMaterials.length || materialsForDiscovery.some((item, index) => item.id !== productMaterials[index]?.id)) {
-        setProductMaterials(materialsForDiscovery);
+      if (sourceMaterials.length !== productMaterials.length || sourceMaterials.some((item, index) => item.id !== productMaterials[index]?.id)) {
+        setProductMaterials(sourceMaterials);
       }
 
       const response = await fetch("/api/stories/discover", {
@@ -462,7 +483,7 @@ export default function ReleasebuffApp() {
     } finally {
       setStoryDiscoveryBusy(false);
     }
-  }, [settings, productMaterials, productProfile, analysis, analysisMode, dismissedIds, say]);
+  }, [settings, productMaterials, productProfile, analysis, analysisMode, dismissedIds, interviews, stories, say]);
 
   const disconnectGitHub = useCallback(async () => {
     try {
