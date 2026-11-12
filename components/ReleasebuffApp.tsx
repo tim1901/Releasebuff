@@ -59,6 +59,28 @@ function materialsForServerRequest(materials: ProductMaterial[]): ProductMateria
     return { ...textOnly, textContent: safeText };
   });
 }
+
+/** Keeps a richer saved profile when AI is unavailable, while updating fields the builder just confirmed. */
+function mergeProductProfile(existing: ProductProfile | null, refreshed: ProductProfile): ProductProfile {
+  if (!existing || refreshed.generatedBy === "ai" || existing.generatedBy !== "ai") return refreshed;
+  const facts = new Map<string, ProductProfile["facts"][number]>();
+  for (const fact of existing.facts ?? []) facts.set(fact.field.trim().toLowerCase(), fact);
+  for (const fact of refreshed.facts ?? []) facts.set(fact.field.trim().toLowerCase(), fact);
+  const keepExistingWhenUnknown = (fresh: string, previous: string) => !fresh.trim() || /^not yet established/i.test(fresh) ? previous : fresh;
+  return {
+    ...existing,
+    productName: refreshed.productName || existing.productName,
+    oneLineDescription: refreshed.oneLineDescription || existing.oneLineDescription,
+    problem: keepExistingWhenUnknown(refreshed.problem, existing.problem),
+    targetAudience: refreshed.targetAudience || existing.targetAudience,
+    valueProposition: keepExistingWhenUnknown(refreshed.valueProposition, existing.valueProposition),
+    productStage: refreshed.productStage,
+    facts: [...facts.values()].slice(-40),
+    unknowns: [...new Set([...(existing.unknowns ?? []), ...(refreshed.unknowns ?? [])])].slice(0, 30),
+    updatedAt: refreshed.updatedAt,
+    generatedBy: "ai"
+  };
+}
 const fmtDate = (value: string) => {
   if (!value) return "Not scanned yet";
   const date = new Date(value);
@@ -368,7 +390,7 @@ export default function ReleasebuffApp() {
       });
       const data = await response.json();
       if (!response.ok || !data.profile) throw new Error(data.error || "Could not create the Product Profile.");
-      const profile = data.profile as ProductProfile;
+      const profile = mergeProductProfile(productProfile, data.profile as ProductProfile);
       setProductProfile(profile);
       setSettings(prev => ({ ...prev, productName: profile.productName || prev.productName, productSummary: profile.oneLineDescription || prev.productSummary, audience: profile.targetAudience || prev.audience }));
       say(data.mode === "ai" ? "Product Profile created from your description and supplied sources." : "Product Profile created. Add an OpenAI key for deeper source analysis.", "success");
@@ -388,7 +410,7 @@ export default function ReleasebuffApp() {
       }
     } catch (error) { say(error instanceof Error ? error.message : "Could not create the Product Profile.", "error"); }
     finally { setProfileBusy(false); }
-  }, [settings, productMaterials, interviewMaterials, stories.length, say]);
+  }, [settings, productMaterials, interviewMaterials, productProfile, stories.length, say]);
 
   const addProductMaterial = useCallback((material: ProductMaterial) => {
     setProductMaterials(prev => [material, ...prev.filter(item => item.id !== material.id)]);
@@ -443,7 +465,7 @@ export default function ReleasebuffApp() {
         });
         const profileData = await profileResponse.json();
         if (profileResponse.ok && profileData.profile) {
-          currentProfile = profileData.profile as ProductProfile;
+          currentProfile = mergeProductProfile(productProfile, profileData.profile as ProductProfile);
           setProductProfile(currentProfile);
         }
       } catch { /* Story discovery remains available from current product details and materials. */ }
