@@ -3,7 +3,8 @@ import { discoverStories } from "@/lib/story-discovery";
 import { assertSameOrigin, jsonError, safeErrorMessage } from "@/lib/http";
 import { allowRequest } from "@/lib/rate-limit";
 import { buildBuilderStorySeeds } from "@/lib/builder-story-seeds";
-import type { ProductMaterial, ProductProfile, ProjectPreferences, StoryOpportunity } from "@/lib/types";
+import { CATEGORY_GROUPS, categoryDefinition } from "@/lib/story-categories";
+import type { ProductMaterial, ProductProfile, ProjectPreferences, StoryCategory, StoryOpportunity } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
       profile?: ProductProfile | null;
       materials?: ProductMaterial[];
       githubStories?: StoryOpportunity[];
+      targetCategory?: StoryCategory;
     };
     const settings = body.settings;
     if (!settings || typeof settings.productName !== "string" || typeof settings.productSummary !== "string") return jsonError("Add a product name and a short product description first.", 400, "product_context_required");
@@ -53,20 +55,39 @@ export async function POST(request: Request) {
     const combinedMaterials = [profileMaterial, builderBrief, ...materials].slice(0, 20);
     const profileCandidates = buildBuilderStorySeeds(settings, profile, materials);
     const githubCandidates = Array.isArray(body.githubStories) ? body.githubStories.filter(story => story && typeof story.title === "string" && Array.isArray(story.evidence)).slice(0, 20) : [];
-    const candidates = [...profileCandidates, ...githubCandidates];
+    const targetCategory = body.targetCategory && CATEGORY_GROUPS.some(group => group.categories.some(category => category.name === body.targetCategory)) ? body.targetCategory : undefined;
+    const categoryMatches = targetCategory ? [...profileCandidates, ...githubCandidates].filter(story => story.category === targetCategory) : [];
+    const categoryInfo = targetCategory ? categoryDefinition(targetCategory) : undefined;
+    const categorySeed: StoryOpportunity | undefined = targetCategory && !categoryMatches.length && profileCandidates[0] && categoryInfo ? {
+      ...profileCandidates[0],
+      id: `builder-${settings.productName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${targetCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      category: targetCategory,
+      group: categoryInfo.group,
+      title: `${categoryInfo.name}: ${settings.productName.trim() || "your product"}`,
+      summary: categoryInfo.description,
+      angle: categoryInfo.example,
+      whyItMatters: `Explore this angle using the product profile and builder-provided context. ${categoryInfo.evidenceHint}`,
+      status: "needs-context",
+      confidence: "low",
+      requiresContext: `For this ${categoryInfo.name.toLowerCase()} story, what specific experience, decision, event, or verified detail can you share?`,
+      evidenceCoverage: "context-needed"
+    } : undefined;
+    const candidates = [...profileCandidates, ...githubCandidates, ...(categorySeed ? [categorySeed] : [])];
     const discovery = await discoverStories({
-      candidates,
+      candidates: targetCategory ? candidates.filter(story => story.category === targetCategory) : candidates,
       profile,
       productDescription: settings.productSummary,
       audience: settings.audience || profile?.targetAudience || "",
       materials: combinedMaterials
     });
-    const stories = (discovery.stories.length ? discovery.stories : profileCandidates).slice(0, 12);
+    const discoveredStories = discovery.stories.length ? discovery.stories : (targetCategory ? [...categoryMatches, ...(categorySeed ? [categorySeed] : [])] : profileCandidates);
+    const stories = (targetCategory ? discoveredStories.filter(story => story.category === targetCategory) : discoveredStories).slice(0, 12);
     return NextResponse.json({
       stories,
       mode: discovery.mode,
       warning: discovery.warning ?? null,
       githubUsed: githubCandidates.length > 0,
+      targetCategory: targetCategory ?? null,
       contextSources: {
         productProfile: Boolean(profile),
         builderMaterials: materials.length,
