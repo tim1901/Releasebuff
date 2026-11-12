@@ -56,6 +56,7 @@ describe("Claude-directed GIF explainer planning", () => {
     expect(svg).toContain("flow</tspan>");
     expect(svg).toContain("Browser");
     expect(svg).toContain("&lt;client&gt;");
+    expect(svg).toContain("API &amp; server");
     expect(svg).toContain("EXPLAINER 02/04");
     expect(svg).toContain("#173D2D");
   });
