@@ -78,7 +78,8 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit, interview
           productName,
           interviewSummary,
           brandKit: { ...kit, aspectRatio: "square" },
-          revisionNote: revise ? revisionNote : ""
+          revisionNote: revise ? revisionNote : "",
+          previousPrompt: revise ? prompt : ""
         }),
         cache: "no-store"
       });
