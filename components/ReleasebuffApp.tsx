@@ -807,21 +807,21 @@ export default function ReleasebuffApp() {
           {view === "inbox" && <StoryInbox analysis={analysis} stories={visibleStories} allCount={stories.filter(s => !dismissedIds.includes(s.id)).length} analysisMode={analysisMode} loading={storyDiscoveryBusy} scanError={scanError} settings={settings} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onFindStories={async () => { await findStories(); }} canFindStories={Boolean(settings.productName.trim() && settings.productSummary.trim())} onGoSetup={() => go("setup")} onOpenStory={openStory} onDraftStory={openDraftForStory} onDismiss={dismissStory} onShowCategories={() => go("categories")} />}
           {view === "story" && <StoryDetails story={activeStory} extraContext={extraContext} setExtraContext={setExtraContext} interview={activeInterview} interviewAnswerDraft={interviewAnswerDraft} setInterviewAnswerDraft={setInterviewAnswerDraft} interviewBusy={interviewBusy} onStartInterview={() => activeStory && startInterview(activeStory)} onAnswerInterview={() => answerInterview(false)} onSkipInterview={() => answerInterview(true)} onBack={() => go("inbox")} onDraft={() => activeStory && openDraftForStory(activeStory)} onDismiss={() => activeStory && dismissStory(activeStory)} />}
           {view === "categories" && <StoryCategories stories={stories} onChoose={async category => {
-             setSelectedCategory(category); setSearchQuery("");
-             const existing = stories.find(story => story.category === category && !dismissedIds.includes(story.id));
-             if (existing) {
-               openStory(existing);
-               if (!interviews[existing.id]?.complete) await startInterview(existing);
-               return;
-             }
+             setSelectedCategory(category);
+             setSearchQuery("");
+             setScanError("");
              const found = await findStories(undefined, category);
              const target = found.find(story => story.category === category);
              if (target) {
-               setSelectedStoryId(target.id); setView("story");
+               setSelectedStoryId(target.id);
+               setExtraContext("");
+               setInterviewAnswerDraft("");
+               setView("story");
+               setMobileNavOpen(false);
                if (!interviews[target.id]?.complete) await startInterview(target);
              } else {
-               setView("inbox");
-               say(`No story could be prepared for ${category} yet. Add more product context and try again.`, "info");
+               setView("categories");
+               say(`I couldn't prepare a ${category} story yet. Add product notes or supporting evidence, then try again.`, "info");
              }
            }} />}
           {view === "draft" && <DraftStudio story={activeStory} drafts={drafts} currentDraftId={currentDraftId} draftText={draftText} setDraftText={setDraftText} draftPlatform={draftPlatform} setDraftPlatform={setDraftPlatform} draftMode={draftMode} draftBusy={draftBusy} extraContext={extraContext} setExtraContext={setExtraContext} onGenerate={generateDraft} onSaveLocal={saveLocalDraft} onCopy={copyDraft} onBufferAction={beginBufferAction} onBack={() => go(activeStory ? "story" : "inbox")} bufferStatus={bufferStatus} health={health} writingPreferences={writingPreferences} setWritingPreferences={setWritingPreferences} interviewSummary={activeInterview?.summary ?? ""} reviewWarnings={draftReviewWarnings} brandKit={brandKit} productName={settings.productName} />}
