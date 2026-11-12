@@ -1154,7 +1154,7 @@ function StoryCategories({ stories, onChoose }: { stories: StoryOpportunity[]; o
   </div>;
 }
 
-function DraftStudio({ story, drafts, currentDraftId, draftText, setDraftText, draftPlatform, setDraftPlatform, draftMode, draftBusy, extraContext, setExtraContext, onGenerate, onSaveLocal, onCopy, onBufferAction, onBack, bufferStatus, health, writingPreferences, setWritingPreferences, interviewSummary, reviewWarnings, brandKit, productName }: {
+function DraftStudio({ story, drafts, currentDraftId, draftText, setDraftText, draftPlatform, setDraftPlatform, draftMode, draftBusy, extraContext, setExtraContext, onGenerate, onSaveLocal, onCopy, onBufferAction, onBack, bufferStatus, health, writingPreferences, setWritingPreferences, interviewSummary, reviewWarnings, brandKit, productName, productProfile }: {
   story: StoryOpportunity | null; drafts: LocalDraft[]; currentDraftId: string | null; draftText: string; setDraftText: (v: string) => void; draftPlatform: "linkedin" | "x"; setDraftPlatform: (v: "linkedin" | "x") => void;
   draftMode: "ai" | "grounded-template" | "none"; draftBusy: boolean; extraContext: string; setExtraContext: (v: string) => void; onGenerate: () => void; onSaveLocal: () => void; onCopy: () => void; onBufferAction: (action: Exclude<BufferAction, null>) => void; onBack: () => void; bufferStatus: BufferStatus; health: { aiConfigured: boolean; bufferConfigured: boolean } | null; writingPreferences: StoryWritingPreferences; setWritingPreferences: React.Dispatch<React.SetStateAction<StoryWritingPreferences>>; interviewSummary: string; reviewWarnings: string[]; brandKit: BrandKit; productName: string; productProfile: ProductProfile | null;
 }) {
