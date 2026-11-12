@@ -88,11 +88,11 @@ export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (!allowRequest(`product-profile:${ip}`, 8, 60_000)) return NextResponse.json({ error: "Too many Product Profile requests. Wait a minute and try again." }, { status: 429 });
   try {
-    const body = await request.json() as { settings?: ProjectPreferences; materials?: ProductMaterial[]; useGitHubApp?: unknown };
+    const body = await request.json() as { settings?: ProjectPreferences; materials?: ProductMaterial[]; useGitHubApp?: unknown; includeGitHub?: boolean };
     if (!body.settings || typeof body.settings.productName !== "string" || typeof body.settings.productSummary !== "string") return NextResponse.json({ error: "Add a product name and description first." }, { status: 400 });
     const materials = Array.isArray(body.materials) ? body.materials.slice(0, 20) : [];
     const settings = body.settings;
-    const scan = await scanRepositoryIfProvided(settings, body.useGitHubApp === true || settings.useGitHubApp === true);
+    const scan = body.includeGitHub === true ? await scanRepositoryIfProvided(settings, body.useGitHubApp === true || settings.useGitHubApp === true) : undefined;
     if (!hasAiConfiguration()) return NextResponse.json({ profile: localProfile(settings, materials, scan), mode: "local-summary", repositoryScanned: Boolean(scan) }, { headers: { "Cache-Control": "no-store" } });
 
     const sourceTexts = materials.map(m => `SOURCE ${m.id} | ${m.kind} | ${m.title} | ${m.sourceUrl ?? "builder-supplied"} | ${m.sourceStatus}\n${(m.textContent ?? "[visual or PDF attachment supplied]").slice(0, 4000)}`).join("\n\n").slice(0, MAX_TEXT);
