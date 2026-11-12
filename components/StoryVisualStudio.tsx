@@ -140,9 +140,10 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
 
   useEffect(() => {
     let cancelled = false;
-    if (!story || !hasDraft || requestedStoryId.current === story.id) return () => { cancelled = true; };
+    const requestSignature = story ? JSON.stringify([story.id, draftText, productName, kit.primaryColor, kit.accentColor, kit.backgroundColor, kit.textColor, kit.theme, kit.style, kit.fontFamily, kit.aspectRatio]) : "";
+    if (!story || !hasDraft || requestedStoryId.current === requestSignature) return () => { cancelled = true; };
     const timer = window.setTimeout(() => {
-      requestedStoryId.current = story.id;
+      requestedStoryId.current = requestSignature;
       void fetchVisualPlan(story, draftText, productName, kit).then(result => {
         if (!cancelled) {
           setVisualPlan(result.plan);
