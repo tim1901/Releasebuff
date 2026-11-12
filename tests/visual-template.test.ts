@@ -75,7 +75,7 @@ describe("story visual planning and template", () => {
     const headingStart = svg.indexOf('<text x="70" y="194"');
     const headingEnd = svg.indexOf("</text>", headingStart);
     const heading = headingStart >= 0 && headingEnd >= 0 ? svg.slice(headingStart, headingEnd + 7) : "";
-    expect(heading).toContain("…");
+    expect(heading).toContain(String.fromCharCode(8230));
     const titleLines = [...heading.matchAll(/<tspan[^>]*>(.*?)<\/tspan>/g)].map(match => match[1]);
     expect(titleLines.length).toBeGreaterThan(1);
     expect(titleLines.length).toBeLessThanOrEqual(3);
