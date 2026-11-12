@@ -61,9 +61,11 @@ describe("story visual planning and template", () => {
       headlineOverride: "A".repeat(100),
       supportingLineOverride: "A very long supporting sentence that should wrap safely within the square canvas."
     });
-    const heading = svg.match(/<text x="70" y="194"[\\s\\S]*?<\\/text>/)?.[0] ?? "";
+    const headingStart = svg.indexOf('<text x="70" y="194"');
+    const headingEnd = svg.indexOf("</text>", headingStart);
+    const heading = headingStart >= 0 && headingEnd >= 0 ? svg.slice(headingStart, headingEnd + 7) : "";
     expect(heading).toContain("…");
-    const titleLines = [...heading.matchAll(/<tspan[^>]*>(.*?)<\\/tspan>/g)].map(match => match[1]);
+    const titleLines = [...heading.matchAll(/<tspan[^>]*>(.*?)<\/tspan>/g)].map(match => match[1]);
     expect(titleLines.length).toBeGreaterThan(1);
     expect(titleLines.length).toBeLessThanOrEqual(3);
     expect(titleLines.every(line => line.length <= 23)).toBe(true);
