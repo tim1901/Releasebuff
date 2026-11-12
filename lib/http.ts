@@ -19,11 +19,13 @@ export function getAppBaseUrl(request: Request): URL {
 }
 
 export function assertSameOrigin(request: Request) {
-  const configuredOrigin = process.env.APP_BASE_URL?.trim() ? new URL(process.env.APP_BASE_URL.trim()).origin : new URL(request.url).origin;
+  // Validate against the origin serving this request. APP_BASE_URL is a canonical URL for
+  // callbacks and may point at production while a Netlify Deploy Preview uses its own host.
+  const requestOrigin = new URL(request.url).origin;
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
   const suppliedOrigin = origin || (referer ? new URL(referer).origin : "");
-  if (!suppliedOrigin || suppliedOrigin !== configuredOrigin) {
+  if (!suppliedOrigin || suppliedOrigin !== requestOrigin) {
     throw Object.assign(new Error("Cross-origin request blocked. Reload the app and try again."), { status: 403, code: "origin_mismatch" });
   }
 }
