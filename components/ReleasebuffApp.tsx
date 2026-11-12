@@ -197,6 +197,27 @@ export default function ReleasebuffApp() {
   const activeStory = stories.find(s => s.id === selectedStoryId) ?? null;
   const selectedChannel = bufferChannels.find(c => c.id === selectedChannelId) ?? null;
   const activeInterview = activeStory ? interviews[activeStory.id] ?? null : null;
+  const interviewMaterials = useMemo<ProductMaterial[]>(() => Object.values(interviews)
+    .map(interview => {
+      const story = stories.find(item => item.id === interview.storyId);
+      const answers = interview.answers.filter(answer => !answer.skipped && answer.answer.trim());
+      const textContent = [
+        interview.summary ? `Interview summary: ${interview.summary}` : "",
+        ...answers.map(answer => `Q: ${answer.question}\nA: ${answer.answer}`)
+      ].filter(Boolean).join("\n\n").slice(0, 5_000);
+      if (!textContent.trim()) return null;
+      return {
+        id: `interview-${interview.storyId}`,
+        kind: "note" as const,
+        title: `Builder interview: ${story?.title ?? interview.storyId}`,
+        textContent,
+        addedAt: interview.updatedAt,
+        sourceStatus: "user-provided" as const
+      };
+    })
+    .filter((item): item is ProductMaterial => item !== null)
+    .sort((a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt))
+    .slice(0, 6), [interviews, stories]);
 
   const say = useCallback((message: string, type: "success" | "error" | "info" = "info") => {
     setToast({ message, type });
@@ -322,7 +343,7 @@ export default function ReleasebuffApp() {
     }
     setProfileBusy(true);
     try {
-      let materialsForProfile = [...productMaterials];
+      let materialsForProfile = [...interviewMaterials, ...productMaterials].slice(0, 20);
       const website = settings.websiteUrl.trim();
       const alreadyAdded = website && materialsForProfile.some(item => item.sourceUrl && item.sourceUrl.replace(/\/$/, "") === website.replace(/\/$/, ""));
       if (website && !alreadyAdded) {
@@ -367,7 +388,7 @@ export default function ReleasebuffApp() {
       }
     } catch (error) { say(error instanceof Error ? error.message : "Could not create the Product Profile.", "error"); }
     finally { setProfileBusy(false); }
-  }, [settings, productMaterials, stories.length, say]);
+  }, [settings, productMaterials, interviewMaterials, stories.length, say]);
 
   const addProductMaterial = useCallback((material: ProductMaterial) => {
     setProductMaterials(prev => [material, ...prev.filter(item => item.id !== material.id)]);
@@ -411,25 +432,6 @@ export default function ReleasebuffApp() {
         } catch { /* Website context is optional; continue with the builder's supplied information. */ }
       }
 
-      const interviewMaterials: ProductMaterial[] = Object.values(interviews)
-        .map(interview => {
-          const story = stories.find(item => item.id === interview.storyId);
-          const answers = interview.answers.filter(answer => !answer.skipped && answer.answer.trim());
-          const textContent = [
-            interview.summary ? `Interview summary: ${interview.summary}` : "",
-            ...answers.map(answer => `Q: ${answer.question}\nA: ${answer.answer}`)
-          ].filter(Boolean).join("\n\n").slice(0, 5_000);
-          if (!textContent.trim()) return null;
-          return {
-            id: `interview-${interview.storyId}`,
-            kind: "note" as const,
-            title: `Builder interview: ${story?.title ?? interview.storyId}`,
-            textContent,
-            addedAt: interview.updatedAt,
-            sourceStatus: "user-provided" as const
-          };
-        })
-        .filter((item): item is ProductMaterial => item !== null);
       const materialsForDiscovery = [...interviewMaterials, ...sourceMaterials].slice(0, 20);
 
       let currentProfile: ProductProfile | null = null;
@@ -483,7 +485,7 @@ export default function ReleasebuffApp() {
     } finally {
       setStoryDiscoveryBusy(false);
     }
-  }, [settings, productMaterials, productProfile, analysis, analysisMode, dismissedIds, interviews, stories, say]);
+  }, [settings, productMaterials, productProfile, analysis, analysisMode, dismissedIds, interviewMaterials, say]);
 
   const disconnectGitHub = useCallback(async () => {
     try {
