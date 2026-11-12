@@ -342,6 +342,13 @@ a { color: inherit; }
 .visual-edit-fields { display: grid; gap: 10px; }
 .visual-export-row { display: flex; flex-wrap: wrap; gap: 7px; }
 .visual-export-row .button { flex: 1; min-width: 70px; }
+.gif-storyboard { padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-low); }
+.gif-scene-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.gif-scene-card { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; min-width: 0; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.gif-scene-card > strong { color: var(--forest); font-size: 13px; line-height: 1.35; }
+.gif-scene-card > p { margin: 0; line-height: 1.55; }
+.gif-scene-label { display: inline-flex; max-width: 100%; padding: 4px 7px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface-mid); color: var(--forest); font-size: 10px; line-height: 1.35; overflow-wrap: anywhere; }
+.gif-storyboard > .button { align-self: flex-start; }
 @keyframes visual-preview-enter { from { opacity: .45; transform: translateY(5px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 /* Landing-page preview animation stays on the marketing page, not the in-app Story Inbox. */
