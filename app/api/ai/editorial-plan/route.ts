@@ -67,7 +67,8 @@ export async function POST(request: Request) {
   if (!story || typeof story.title !== "string" || typeof story.summary !== "string") return NextResponse.json({ error: "Select a story before designing its graphic." }, { status: 400 });
   const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
   if (!apiKey) return NextResponse.json({ error: "Claude is not configured. Add ANTHROPIC_API_KEY." }, { status: 503 });
-  const revisionNote = clean(body.revisionNote, 1200);\n  const brief = {
+  const revisionNote = clean(body.revisionNote, 1200);
+  const brief = {
     productName: clean(body.productName, 160),
     interviewSummary: clean(body.interviewSummary, 5000),
     productProfile: body.productProfile ?? null,
