@@ -39,12 +39,18 @@ function rect(x: number, y: number, w: number, h: number, fill: string, radius: 
 }
 function safeSnippet(value: string, max = 230): string { return value.replace(/\s+/g, " ").trim().slice(0, max); }
 
-export function getVisualFacts(story?: StoryOpportunity | null): string[] {
-  if (!story) return [];
-  const sources = [
+export function getVisualFacts(story?: StoryOpportunity | null, draftText = ""): string[] {
+  const draftFacts = draftText
+    .split(/\n+|(?<=[.!?])\s+/)
+    .map(value => safeSnippet(value.replace(/^[-*•\d.)\s]+/, ""), 230))
+    .filter(value => value.length >= 24)
+    .slice(0, 5);
+  const storyFacts = story ? [
     ...(Array.isArray(story.sourceFacts) ? story.sourceFacts : []),
     ...(Array.isArray(story.evidence) ? story.evidence.filter(Boolean).map(item => item.excerpt?.trim() || "") : [])
-  ];
+  ] : [];
+  // The actual post leads the composition; profile/evidence facts fill gaps rather than overpowering it.
+  const sources = [...draftFacts, ...storyFacts];
   const seen = new Set<string>();
   return sources.map(value => safeSnippet(typeof value === "string" ? value : "")).filter(value => {
     const key = value.toLowerCase();
@@ -97,9 +103,10 @@ function inferLayout(story: StoryOpportunity | null | undefined, facts: string[]
   return { layout: "spotlight", metricFactIndex: null };
 }
 export function createContextualVisualPlan(input: { story?: StoryOpportunity | null; draftText?: string; productName?: string }): StoryVisualPlan {
-  const facts = getVisualFacts(input.story);
+  const facts = getVisualFacts(input.story, input.draftText);
   const inferred = inferLayout(input.story, facts);
-  const supportingLine = safeSnippet(input.story?.summary || (input.draftText ?? "").replace(/\s+/g, " "), 220) || "A closer look at the work, grounded in the details available.";
+  const draftLead = (input.draftText ?? "").split(/\n+|(?<=[.!?])\s+/).map(value => value.trim()).find(Boolean) ?? "";
+  const supportingLine = safeSnippet(draftLead || input.story?.summary || "", 220) || "A closer look at the work, grounded in the details available.";
   let factIndexes = facts.map((_, index) => index).slice(0, 3);
   if (inferred.layout === "metric" && inferred.metricFactIndex !== null) factIndexes = [inferred.metricFactIndex];
   if (inferred.layout === "lesson") factIndexes = facts.length ? [0, ...facts.slice(1, 2).map((_, index) => index + 1)] : [];
