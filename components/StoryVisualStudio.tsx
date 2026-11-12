@@ -33,8 +33,14 @@ function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url; link.download = filename;
-  document.body.appendChild(link); link.click(); link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 30000);
+  document.body.appendChild(link);
+  link.click();
+  // Safari can cancel a Blob download if its anchor or object URL is removed
+  // immediately after click. Keep both alive while the download is handed off.
+  window.setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 60000);
 }
 function slug(value: string) { return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "story-visual"; }
 
