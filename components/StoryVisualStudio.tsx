@@ -260,7 +260,7 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
         <div className="gif-scene-list">{activeGifPlan.scenes.map((scene, index) => <div className="gif-scene-card" key={`${index}-${scene.title}`}><div className="row-between" style={{ gap: 8 }}><span className="eyebrow">{String(index + 1).padStart(2, "0")} / {scene.kicker}</span><span className="badge">{scene.visual}</span></div><strong>{scene.title}</strong><p className="small muted">{scene.caption}</p>{scene.labels.length > 0 && <div className="row wrap">{scene.labels.map((label, i) => <span key={`${i}-${label}`} className="gif-scene-label">{label}</span>)}</div>}</div>)}</div>
         <button className="button button-lime button-sm" onClick={() => void downloadExplainerGif()} disabled={Boolean(exportBusy)}>{exportBusy === "explainer" ? <LoaderCircle size={13} className="spinning"/> : <Download size={13}/>} {exportBusy === "explainer" ? "Rendering frames…" : "Download explainer GIF"}</button>
       </div>}
-      {gifPlanMessage && <div className="alert alert-info">{gifPlanMessage}</div>}
+      {(activeGifPlan || gifPlanBusy) && gifPlanMessage && <div className="alert alert-info">{gifPlanMessage}</div>}
       {exportError && <div className="alert alert-error">{exportError}</div>}
       <p className="form-help">The graphic preview is editable. Create explainer GIF asks Claude to storyboard this specific post, then Releasebuff renders the scenes locally as a branded vector animation. Claude directs the visual plan; it does not return a finished image file.</p>
     </div>
