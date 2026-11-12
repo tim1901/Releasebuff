@@ -42,11 +42,11 @@ function slug(value: string) { return value.toLowerCase().replace(/[^a-z0-9]+/g,
 type StoryVisualStudioProps = { story: StoryOpportunity | null; draftText: string; productName: string; kit: BrandKit };
 type VisualPlanResponse = { plan?: StoryVisualPlan; mode?: "ai" | "contextual-fallback"; error?: string };
 
-async function fetchVisualPlan(story: StoryOpportunity, draftText: string, productName: string): Promise<{ plan: StoryVisualPlan; source: "ai" | "context" }> {
+async function fetchVisualPlan(story: StoryOpportunity, draftText: string, productName: string, brandKit: BrandKit): Promise<{ plan: StoryVisualPlan; source: "ai" | "context" }> {
   const response = await fetch("/api/ai/visual-plan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ story, draftText, productName })
+    body: JSON.stringify({ story, draftText, productName, brandKit })
   });
   const data = await response.json() as VisualPlanResponse;
   if (!response.ok || !data.plan) throw new Error(data.error || "Could not refine the visual plan.");
@@ -126,7 +126,7 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
     setPlanning(true);
     setExportError("");
     try {
-      const result = await fetchVisualPlan(story, draftText, productName);
+      const result = await fetchVisualPlan(story, draftText, productName, kit);
       setVisualPlan(result.plan);
       setPlanSource(result.source);
     } catch {
@@ -143,7 +143,7 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
     if (!story || !hasDraft || requestedStoryId.current === story.id) return () => { cancelled = true; };
     const timer = window.setTimeout(() => {
       requestedStoryId.current = story.id;
-      void fetchVisualPlan(story, draftText, productName).then(result => {
+      void fetchVisualPlan(story, draftText, productName, kit).then(result => {
         if (!cancelled) {
           setVisualPlan(result.plan);
           setPlanSource(result.source);
@@ -156,7 +156,7 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [story, draftText, productName, hasDraft]);
+  }, [story, draftText, productName, kit, hasDraft]);
 
   const downloadSvg = () => {
     setExportError("");
