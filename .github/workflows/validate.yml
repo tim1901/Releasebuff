@@ -1,0 +1,39 @@
+name: Validate Releasebuff
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feat/unified-product-intelligence
+  push:
+    branches:
+      - main
+      - feat/unified-product-intelligence
+      - feat/claude-gif-explainer
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Typecheck, lint, test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm test
+      - name: Production build
+        run: npm run build
