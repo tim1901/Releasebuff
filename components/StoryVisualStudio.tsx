@@ -1,197 +1,116 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Download, Image as ImageIcon, LoaderCircle, RefreshCw, Sparkles, WandSparkles } from "lucide-react";
-import type { BrandKit, StoryOpportunity } from "@/lib/types";
-import {
-  buildStoryVisualSvg,
-  createContextualVisualPlan,
-  getVisualDimensions,
-  type StoryVisualPlan,
-  type VisualLayout
-} from "@/lib/visual-template";
-import { encodeAnimatedGif } from "@/lib/gif-encoder";
+import { useMemo, useState } from "react";
+import { Download, LoaderCircle, RefreshCw, Sparkles, WandSparkles } from "lucide-react";
+import type { BrandKit, ProductProfile, StoryOpportunity } from "@/lib/types";
+import { buildEditorialSvg, type EditorialPlan } from "@/lib/editorial-graphic";
 
-async function renderSvgToRgba(svg: string, width: number, height: number): Promise<Uint8ClampedArray> {
-  const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
-  try {
-    const image = new Image();
-    await new Promise<void>((resolve, reject) => {
-      image.onload = () => resolve();
-      image.onerror = () => reject(new Error("The graphic could not be rendered for export."));
-      image.src = url;
-    });
-    const canvas = document.createElement("canvas");
-    canvas.width = width; canvas.height = height;
-    const context = canvas.getContext("2d", { willReadFrequently: true });
-    if (!context) throw new Error("Canvas export is not available in this browser.");
-    context.drawImage(image, 0, 0, width, height);
-    return context.getImageData(0, 0, width, height).data;
-  } finally { URL.revokeObjectURL(url); }
+const SIZE = 1080;
+type Props = { story: StoryOpportunity | null; draftText: string; productName: string; kit: BrandKit; interviewSummary?: string; productProfile?: ProductProfile | null };
+type PlanResponse = { plan?: EditorialPlan; error?: string };
+function download(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob); const a = document.createElement("a");
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1200);
 }
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url; link.download = filename;
-  document.body.appendChild(link); link.click(); link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+function slug(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "releasebuff-editorial-graphic"; }
+export default function StoryVisualStudio(props: Props) {
+  return <Studio key={props.story?.id ?? "no-story"} {...props}/>;
 }
-function slug(value: string) { return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "story-visual"; }
+function Studio({ story, draftText, productName, kit, interviewSummary = "", productProfile = null }: Props) {
+  const [plan, setPlan] = useState<EditorialPlan | null>(null);
+  const [headline, setHeadline] = useState("");
+  const [subheadline, setSubheadline] = useState("");
+  const [centralInsight, setCentralInsight] = useState("");
+  const [revision, setRevision] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
+  const [approved, setApproved] = useState(false);
+  const ready = Boolean(story && (draftText.trim() || interviewSummary.trim() || story.summary.trim()));
+  const currentPlan = useMemo(() => plan ? { ...plan, headline, subheadline, centralInsight } : null, [plan, headline, subheadline, centralInsight]);
+  const svg = useMemo(() => currentPlan ? buildEditorialSvg(currentPlan, kit, productName) : "", [currentPlan, kit, productName]);
 
-type StoryVisualStudioProps = { story: StoryOpportunity | null; draftText: string; productName: string; kit: BrandKit };
-type VisualPlanResponse = { plan?: StoryVisualPlan; mode?: "ai" | "contextual-fallback"; error?: string };
-
-async function fetchVisualPlan(story: StoryOpportunity, draftText: string, productName: string): Promise<{ plan: StoryVisualPlan; source: "ai" | "context" }> {
-  const response = await fetch("/api/ai/visual-plan", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ story, draftText, productName })
-  });
-  const data = await response.json() as VisualPlanResponse;
-  if (!response.ok || !data.plan) throw new Error(data.error || "Could not refine the visual plan.");
-  return { plan: data.plan, source: data.mode === "ai" ? "ai" : "context" };
-}
-
-export default function StoryVisualStudio(props: StoryVisualStudioProps) {
-  return <StoryVisualStudioEditor key={props.story?.id ?? "no-story"} {...props} />;
-}
-
-function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVisualStudioProps) {
-  const [layout, setLayout] = useState<VisualLayout>("auto");
-  const [headlineOverride, setHeadlineOverride] = useState("");
-  const [supportingOverride, setSupportingOverride] = useState("");
-  const [visualPlan, setVisualPlan] = useState<StoryVisualPlan | null>(null);
-  const [planSource, setPlanSource] = useState<"context" | "ai">("context");
-  const [planning, setPlanning] = useState(false);
-  const [exportBusy, setExportBusy] = useState<"" | "png" | "gif">("");
-  const [exportError, setExportError] = useState("");
-  const requestedStoryId = useRef<string | null>(null);
-  const hasDraft = Boolean(draftText.trim());
-  const fallbackPlan = useMemo(() => createContextualVisualPlan({ story, draftText, productName }), [story, draftText, productName]);
-  const activePlan = visualPlan ?? fallbackPlan;
-  const headline = headlineOverride.trim() || activePlan.headline;
-  const svg = useMemo(() => buildStoryVisualSvg({
-    kit, story, draftText, productName,
-    headlineOverride: headlineOverride.trim() || undefined,
-    supportingLineOverride: supportingOverride.trim() || undefined,
-    layout, visualPlan: activePlan
-  }), [kit, story, draftText, productName, headlineOverride, supportingOverride, layout, activePlan]);
-  const previewSrc = useMemo(() => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg), [svg]);
-  const canExport = Boolean(story || draftText.trim());
-
-  async function requestArtDirection() {
+  async function createPlan(refine = false) {
     if (!story) return;
-    setPlanning(true);
-    setExportError("");
+    setBusy(true); setError(""); setStatus(refine ? "Refining the editorial direction…" : "Analyzing the story and choosing a visual format…"); setApproved(false);
     try {
-      const result = await fetchVisualPlan(story, draftText, productName);
-      setVisualPlan(result.plan);
-      setPlanSource(result.source);
-    } catch {
-      setVisualPlan(fallbackPlan);
-      setPlanSource("context");
-      setExportError("Using the context-based fallback. The visual remains grounded in the selected story.");
-    } finally {
-      setPlanning(false);
-    }
+      const response = await fetch("/api/ai/editorial-plan", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ story, draftText, productName, interviewSummary, productProfile, brandKit: kit, revisionNote: refine ? revision : "", previousPlan: refine ? plan : null }),
+        cache: "no-store"
+      });
+      const data = await response.json() as PlanResponse;
+      if (!response.ok || !data.plan) throw new Error(data.error || "The editorial creative director could not create a plan.");
+      setPlan(data.plan); setHeadline(data.plan.headline); setSubheadline(data.plan.subheadline); setCentralInsight(data.plan.centralInsight);
+      setRevision(""); setStatus("Editorial plan ready. Edit the copy below, inspect the composition, then approve or refine it.");
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Could not create the editorial plan."); setStatus(""); }
+    finally { setBusy(false); }
+  }
+  async function downloadPng() {
+    if (!svg) return;
+    try {
+      const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob); const image = new Image(); image.src = url;
+      await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("Could not prepare the graphic for export.")); });
+      const canvas = document.createElement("canvas"); canvas.width = SIZE; canvas.height = SIZE;
+      const ctx = canvas.getContext("2d"); if (!ctx) throw new Error("Your browser cannot export this graphic.");
+      ctx.drawImage(image, 0, 0, SIZE, SIZE); URL.revokeObjectURL(url);
+      const png = await new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("PNG export failed.")), "image/png"));
+      download(png, slug(headline || story?.title || productName) + "-1080x1080.png");
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "PNG export failed."); }
   }
 
-  useEffect(() => {
-    let cancelled = false;
-    if (!story || !hasDraft || requestedStoryId.current === story.id) return () => { cancelled = true; };
-    const timer = window.setTimeout(() => {
-      requestedStoryId.current = story.id;
-      void fetchVisualPlan(story, draftText, productName).then(result => {
-        if (!cancelled) {
-          setVisualPlan(result.plan);
-          setPlanSource(result.source);
-        }
-      }).catch(() => {
-        /* The context-based plan stays visible if AI art direction is unavailable. */
-      });
-    }, 180);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [story, draftText, productName, hasDraft]);
-
-  const downloadSvg = () => {
-    setExportError("");
-    downloadBlob(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), slug(headline) + ".svg");
-  };
-  const downloadPng = async () => {
-    setExportBusy("png"); setExportError("");
-    try {
-      const dimensions = getVisualDimensions(kit.aspectRatio);
-      const rgba = await renderSvgToRgba(buildStoryVisualSvg({
-        kit, story, draftText, productName,
-        headlineOverride: headlineOverride.trim() || undefined,
-        supportingLineOverride: supportingOverride.trim() || undefined,
-        layout, visualPlan: activePlan,
-        width: dimensions.width, height: dimensions.height, motionProgress: 0.4
-      }), dimensions.width, dimensions.height);
-      const canvas = document.createElement("canvas");
-      canvas.width = dimensions.width; canvas.height = dimensions.height;
-      const context = canvas.getContext("2d");
-      if (!context) throw new Error("PNG export is not available in this browser.");
-      const imageData = context.createImageData(dimensions.width, dimensions.height);
-      imageData.data.set(rgba);
-      context.putImageData(imageData, 0, 0);
-      const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(result => result ? resolve(result) : reject(new Error("Could not encode the PNG file.")), "image/png"));
-      downloadBlob(blob, slug(headline) + ".png");
-    } catch (error) { setExportError(error instanceof Error ? error.message : "Could not export PNG."); }
-    finally { setExportBusy(""); }
-  };
-  const downloadGif = async () => {
-    setExportBusy("gif"); setExportError("");
-    try {
-      const width = 480;
-      const height = kit.aspectRatio === "landscape" ? 252 : kit.aspectRatio === "portrait" ? 600 : 480;
-      const frames: Uint8ClampedArray[] = [];
-      for (let frame = 0; frame < 8; frame++) {
-        const progress = frame / 7;
-        const frameSvg = buildStoryVisualSvg({
-          kit, story, draftText, productName,
-          headlineOverride: headlineOverride.trim() || undefined,
-          supportingLineOverride: supportingOverride.trim() || undefined,
-          layout, visualPlan: activePlan, width, height, motionProgress: progress
-        });
-        frames.push(await renderSvgToRgba(frameSvg, width, height));
-      }
-      const bytes = encodeAnimatedGif(width, height, frames, 180);
-      downloadBlob(new Blob([bytes.buffer as ArrayBuffer], { type: "image/gif" }), slug(headline) + ".gif");
-    } catch (error) { setExportError(error instanceof Error ? error.message : "Could not export GIF."); }
-    finally { setExportBusy(""); }
-  };
-
-  const layoutLabel: Record<VisualLayout, string> = {
-    auto: "Auto · decide from story context",
-    spotlight: "Editorial spotlight",
-    release: "Release recap",
-    metric: "Verified metric",
-    decision: "Decision / trade-off",
-    lesson: "Lesson / takeaway",
-    steps: "Build steps / roadmap"
-  };
-
+  const format = plan?.archetype ? plan.archetype.replace("-", " ") : "not selected";
   return <section className="panel visual-studio-panel">
-    <div className="panel-header"><div className="row"><ImageIcon size={16}/><span className="panel-title">Visual created alongside this draft</span></div><span className="badge badge-success"><Sparkles size={11}/> {planSource === "ai" ? "AI art direction" : "Context-aware preview"}</span></div>
+    <div className="panel-header">
+      <div className="row"><Sparkles size={16}/><span className="panel-title">Editorial graphic studio</span></div>
+      <span className="badge badge-success">Story-first design</span>
+    </div>
     <div className="panel-body stack">
-      <div className="visual-preview-frame" style={{ background: kit.backgroundColor }}><img className="visual-preview-image" src={previewSrc} alt={"Generated graphic: " + headline}/></div>
-      <div className="visual-edit-fields">
-        <div><label className="form-label" htmlFor="visualHeadline">Graphic headline</label><input className="input" id="visualHeadline" value={headlineOverride} onChange={e => setHeadlineOverride(e.target.value)} placeholder={activePlan.headline}/></div>
-        <div><label className="form-label" htmlFor="visualSupportingLine">Supporting line</label><textarea className="textarea" id="visualSupportingLine" rows={3} value={supportingOverride} onChange={e => setSupportingOverride(e.target.value)} placeholder={activePlan.supportingLine}/></div>
-        <div><label className="form-label" htmlFor="visualLayout">Composition</label><select className="select" id="visualLayout" value={layout} onChange={e => setLayout(e.target.value as VisualLayout)}>{Object.entries(layoutLabel).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select><div className="form-help">Auto selects a composition from the story category and supported facts. AI art direction refines the headline, supporting line and evidence selection when available.</div></div>
-      </div>
+      <p className="small muted">Turns the builder interview, product intelligence profile and draft into an editorial explainer. Claude chooses the visual format; a precise renderer creates the headline, diagram, labels and layout. No generic image is substituted.</p>
+      {!story && <div className="alert alert-warning">Select a story first so the creative director has the right context.</div>}
+      {!plan ? <div className="visual-preview-frame" style={{ aspectRatio: "1 / 1", display: "grid", placeItems: "center", textAlign: "center", padding: 28 }}>
+        <div className="stack" style={{ alignItems: "center" }}>
+          {busy ? <LoaderCircle size={30} className="spinning"/> : <WandSparkles size={32}/>}
+          <strong>{busy ? "Finding the clearest way to explain this story…" : "Create an editorial explainer"}</strong>
+          <span className="small muted">System maps · process diagrams · evidence · comparisons · frameworks</span>
+        </div>
+      </div> : <>
+        <div className="row" style={{ justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
+          <span className="badge">{format}</span><span className="small muted">1080 × 1080 px</span>
+        </div>
+        <div className="visual-preview-frame" style={{ background: kit.backgroundColor, aspectRatio: "1 / 1", overflow: "hidden" }}>
+          <div role="img" aria-label={"Editorial graphic preview: " + headline} style={{ width: "100%", height: "100%" }} dangerouslySetInnerHTML={{ __html: svg }}/>
+        </div>
+        <div className="stack">
+          <label className="form-label" htmlFor="editorialHeadline">Headline</label>
+          <input id="editorialHeadline" className="input" value={headline} maxLength={90} onChange={e => { setHeadline(e.target.value); setApproved(false); }}/>
+          <label className="form-label" htmlFor="editorialSubheadline">Supporting line</label>
+          <textarea id="editorialSubheadline" className="textarea" rows={2} value={subheadline} maxLength={180} onChange={e => { setSubheadline(e.target.value); setApproved(false); }}/>
+          <label className="form-label" htmlFor="editorialInsight">Main takeaway</label>
+          <textarea id="editorialInsight" className="textarea" rows={2} value={centralInsight} maxLength={240} onChange={e => { setCentralInsight(e.target.value); setApproved(false); }}/>
+          <div className="question-box stack">
+            <div><div className="context-heading">Why this format?</div><p className="small" style={{ margin: "5px 0 0", lineHeight: 1.6 }}>{plan.rationale}</p></div>
+            <div><div className="context-heading">Visual concept</div><p className="small" style={{ margin: "5px 0 0", lineHeight: 1.6 }}>{plan.illustrationBrief || plan.centralInsight}</p></div>
+            {plan.evidenceNote && <div><div className="context-heading">Evidence note</div><p className="small" style={{ margin: "5px 0 0", lineHeight: 1.6 }}>{plan.evidenceNote}</p></div>}
+          </div>
+          <label className="form-label" htmlFor="editorialRevision">How should the next version change?</label>
+          <textarea id="editorialRevision" className="textarea" rows={2} value={revision} onChange={e => setRevision(e.target.value)} placeholder="e.g. Make the system connections clearer; simplify the headline; emphasize the decision…"/>
+        </div>
+      </>}
       <div className="visual-export-row">
-        <button className="button button-lime button-sm" onClick={downloadPng} disabled={!canExport || Boolean(exportBusy)}>{exportBusy === "png" ? <LoaderCircle size={13} className="spinning"/> : <Download size={13}/>} PNG</button>
-        <button className="button button-outline button-sm" onClick={downloadSvg} disabled={!canExport || Boolean(exportBusy)}><Download size={13}/> SVG</button>
-        <button className="button button-outline button-sm" onClick={downloadGif} disabled={!canExport || Boolean(exportBusy)}>{exportBusy === "gif" ? <LoaderCircle size={13} className="spinning"/> : <RefreshCw size={13}/>} GIF</button>
-        <button className="button button-outline button-sm" onClick={() => void requestArtDirection()} disabled={!story || planning || Boolean(exportBusy)}>{planning ? <LoaderCircle size={13} className="spinning"/> : <WandSparkles size={13}/>} {planning ? "Thinking…" : "Rethink visual"}</button>
+        <button className="button button-lime button-sm" onClick={() => void createPlan(false)} disabled={!ready || busy}>
+          {busy && !revision ? <LoaderCircle size={13} className="spinning"/> : <WandSparkles size={13}/>} {plan ? "Create new direction" : "1. Create editorial plan"}
+        </button>
+        <button className="button button-outline button-sm" onClick={() => void createPlan(true)} disabled={!plan || !revision.trim() || busy}>
+          {busy && Boolean(revision) ? <LoaderCircle size={13} className="spinning"/> : <RefreshCw size={13}/>} Refine design
+        </button>
+        <button className="button button-lime button-sm" onClick={() => { setApproved(true); setStatus("Graphic approved for use. Publishing remains a separate action."); }} disabled={!plan || approved}>Approve graphic</button>
+        <button className="button button-outline button-sm" onClick={() => void downloadPng()} disabled={!plan}><Download size={13}/> Download 1080 PNG</button>
       </div>
-      {exportError && <div className="alert alert-error">{exportError}</div>}
-      <p className="form-help">The visual is composed from story context and supported facts. Product names appear as text; no logo is placed on generated graphics. SVG, PNG and GIF are produced locally from the editable vector design.</p>
+      {approved && <div className="alert alert-info">Graphic approved. You can download it now; publishing the post is still a separate step.</div>}
+      {status && <div className="alert alert-info">{status}</div>}
+      {error && <div className="alert alert-error">{error}</div>}
     </div>
   </section>;
 }

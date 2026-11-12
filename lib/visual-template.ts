@@ -39,12 +39,18 @@ function rect(x: number, y: number, w: number, h: number, fill: string, radius: 
 }
 function safeSnippet(value: string, max = 230): string { return value.replace(/\s+/g, " ").trim().slice(0, max); }
 
-export function getVisualFacts(story?: StoryOpportunity | null): string[] {
-  if (!story) return [];
-  const sources = [
+export function getVisualFacts(story?: StoryOpportunity | null, draftText = ""): string[] {
+  const draftFacts = draftText
+    .split(/\n+|(?<=[.!?])\s+/)
+    .map(value => safeSnippet(value.replace(/^[-*•\d.)\s]+/, ""), 230))
+    .filter(value => value.length >= 24)
+    .slice(0, 5);
+  const storyFacts = story ? [
     ...(Array.isArray(story.sourceFacts) ? story.sourceFacts : []),
     ...(Array.isArray(story.evidence) ? story.evidence.filter(Boolean).map(item => item.excerpt?.trim() || "") : [])
-  ];
+  ] : [];
+  // The actual post leads the composition; profile/evidence facts fill gaps rather than overpowering it.
+  const sources = [...draftFacts, ...storyFacts];
   const seen = new Set<string>();
   return sources.map(value => safeSnippet(typeof value === "string" ? value : "")).filter(value => {
     const key = value.toLowerCase();
@@ -97,9 +103,10 @@ function inferLayout(story: StoryOpportunity | null | undefined, facts: string[]
   return { layout: "spotlight", metricFactIndex: null };
 }
 export function createContextualVisualPlan(input: { story?: StoryOpportunity | null; draftText?: string; productName?: string }): StoryVisualPlan {
-  const facts = getVisualFacts(input.story);
+  const facts = getVisualFacts(input.story, input.draftText);
   const inferred = inferLayout(input.story, facts);
-  const supportingLine = safeSnippet(input.story?.summary || (input.draftText ?? "").replace(/\s+/g, " "), 220) || "A closer look at the work, grounded in the details available.";
+  const draftLead = (input.draftText ?? "").split(/\n+|(?<=[.!?])\s+/).map(value => value.trim()).find(Boolean) ?? "";
+  const supportingLine = safeSnippet(draftLead || input.story?.summary || "", 220) || "A closer look at the work, grounded in the details available.";
   let factIndexes = facts.map((_, index) => index).slice(0, 3);
   if (inferred.layout === "metric" && inferred.metricFactIndex !== null) factIndexes = [inferred.metricFactIndex];
   if (inferred.layout === "lesson") factIndexes = facts.length ? [0, ...facts.slice(1, 2).map((_, index) => index + 1)] : [];
@@ -147,7 +154,7 @@ export function buildStoryVisualSvg(input: { kit: BrandKit; story?: StoryOpportu
   const panel = kit.theme === "dark" ? "#14251D" : "#FFFFFF";
   const muted = kit.theme === "dark" ? "#B5C7BD" : "#52685D";
   const font = ["Hanken Grotesk", "JetBrains Mono", "Georgia", "Arial"].includes(kit.fontFamily) ? kit.fontFamily : "Hanken Grotesk";
-  const facts = getVisualFacts(input.story);
+  const facts = getVisualFacts(input.story, input.draftText);
   const plan = input.visualPlan ?? createContextualVisualPlan(input);
   let layout: PlannedVisualLayout = (input.layout ?? "auto") === "auto" ? plan.layout : input.layout as PlannedVisualLayout;
   const metricIndex = plan.metricFactIndex !== null && facts[plan.metricFactIndex] ? plan.metricFactIndex : facts.findIndex(fact => Boolean(extractMetricDetails(fact)));
@@ -226,15 +233,40 @@ export function buildStoryVisualSvg(input: { kit: BrandKit; story?: StoryOpportu
     const rowFacts = visibleFacts.length ? visibleFacts : [supporting];
     content = buildFactRows({ facts: rowFacts, x: margin, y: contentY, width: width - margin * 2, height: contentHeight * 0.98, font, ink, primary, accent, panel, scale });
   } else {
-    const cardHeight = contentHeight * 0.8;
-    const cardY = contentY + Math.max(0, contentHeight - cardHeight) * 0.1;
-    const fact = visibleFacts[0] || supporting;
-    const maxChars = Math.max(18, Math.floor((width - margin * 2 - 52 * scale) / (Math.max(17, 23 * scale) * 0.53)));
-    const lines = wrapWords(fact, maxChars, Math.min(4, Math.max(2, Math.floor(cardHeight / (26 * scale)))));
-    content = rect(margin, cardY, width - margin * 2, cardHeight, panel, 24 * scale, primary + "44") +
-      "<rect x=\"" + margin + "\" y=\"" + cardY + "\" width=\"" + (width - margin * 2) + "\" height=\"" + (7 * scale) + "\" rx=\"" + (4 * scale) + "\" fill=\"" + accent + "\"/>" +
-      textMarkup(lines, margin + 28 * scale, cardY + 55 * scale, Math.max(22, 30 * scale), Math.max(17, 23 * scale), ink, font, 560, -0.35) +
-      (visibleFacts.length > 1 ? "<text x=\"" + (margin + 28 * scale) + "\" y=\"" + (cardY + cardHeight - 20 * scale) + "\" fill=\"" + muted + "\" font-family=\"JetBrains Mono, monospace\" font-size=\"" + Math.max(10, 12 * scale) + "\" letter-spacing=\"1\">SOURCE-GROUNDED DETAIL</text>" : "");
+    const cardHeight = contentHeight * 0.88;
+    const cardY = contentY + Math.max(0, contentHeight - cardHeight) * 0.04;
+    const cardWidth = width - margin * 2;
+    const fact = visibleFacts[0] || input.story?.angle || supporting;
+    const secondary = visibleFacts[1] || input.story?.summary || supporting;
+    const inner = 24 * scale;
+    const leftWidth = cardWidth * (width > height ? 0.54 : 0.58);
+    const rightX = margin + leftWidth + 12 * scale;
+    const rightWidth = cardWidth - leftWidth - 12 * scale;
+    const bodySize = Math.max(15, 22 * scale);
+    const factLines = wrapWords(fact, Math.max(16, Math.floor((leftWidth - inner * 2) / (bodySize * 0.53))), width > height ? 4 : 5);
+    const secondaryLines = wrapWords(secondary, Math.max(12, Math.floor((rightWidth - 24 * scale) / (Math.max(12, 16 * scale) * 0.52))), 4);
+    const visualY = cardY + 22 * scale;
+    const visualH = Math.max(76 * scale, cardHeight * 0.37);
+    const visualW = Math.max(80 * scale, rightWidth - 18 * scale);
+    const nodeR = Math.max(9 * scale, Math.min(18 * scale, visualW * 0.07));
+    const centerX = rightX + rightWidth / 2;
+    const centerY = visualY + visualH / 2;
+    const motif = "<g stroke=\"" + primary + "\" stroke-width=\"" + Math.max(2, 3 * scale) + "\" stroke-linecap=\"round\" fill=\"none\" opacity=\".8\">" +
+      "<path d=\"M" + (centerX - visualW * .28) + " " + (centerY - visualH * .18) + "L" + centerX + " " + centerY + "L" + (centerX + visualW * .28) + " " + (centerY - visualH * .18) + "\"/>" +
+      "<path d=\"M" + centerX + " " + centerY + "L" + centerX + " " + (centerY + visualH * .28) + "\"/></g>" +
+      "<circle cx=\"" + (centerX - visualW * .28) + "\" cy=\"" + (centerY - visualH * .18) + "\" r=\"" + nodeR + "\" fill=\"" + accent + "\"/>" +
+      "<circle cx=\"" + (centerX + visualW * .28) + "\" cy=\"" + (centerY - visualH * .18) + "\" r=\"" + nodeR + "\" fill=\"" + accent + "\"/>" +
+      "<circle cx=\"" + centerX + "\" cy=\"" + centerY + "\" r=\"" + (nodeR * 1.25) + "\" fill=\"" + primary + "\"/>" +
+      "<circle cx=\"" + centerX + "\" cy=\"" + (centerY + visualH * .28) + "\" r=\"" + nodeR + "\" fill=\"" + panel + "\" stroke=\"" + primary + "\" stroke-width=\"" + Math.max(2, 3 * scale) + "\"/>";
+    content = rect(margin, cardY, cardWidth, cardHeight, panel, 24 * scale, primary + "33") +
+      rect(margin, cardY, 8 * scale, cardHeight, accent, 4 * scale) +
+      "<text x=\"" + (margin + inner) + "\" y=\"" + (cardY + 32 * scale) + "\" fill=\"" + primary + "\" font-family=\"JetBrains Mono, monospace\" font-size=\"" + Math.max(11, 14 * scale) + "\" font-weight=\"700\" letter-spacing=\"1.2\">THE STORY, AT A GLANCE</text>" +
+      rect(margin + inner, cardY + 48 * scale, leftWidth - inner * 2, Math.max(54 * scale, cardHeight * .43), background, 15 * scale, primary + "22") +
+      textMarkup(factLines, margin + inner * 1.6, cardY + 48 * scale + 30 * scale, Math.max(20, 28 * scale), bodySize, ink, font, 650, -0.45) +
+      rect(rightX, visualY, rightWidth, visualH + 12 * scale, background, 18 * scale, primary + "22") + motif +
+      "<text x=\"" + (rightX + 10 * scale) + "\" y=\"" + (visualY + visualH + 30 * scale) + "\" fill=\"" + muted + "\" font-family=\"JetBrains Mono, monospace\" font-size=\"" + Math.max(9, 11 * scale) + "\" letter-spacing=\".7\">PRODUCT CONTEXT</text>" +
+      textMarkup(secondaryLines, rightX + 2 * scale, visualY + visualH + 54 * scale, Math.max(14, 18 * scale), Math.max(12, 16 * scale), muted, font, 500, -0.1) +
+      (visibleFacts.length > 1 ? "<text x=\"" + (margin + inner) + "\" y=\"" + (cardY + cardHeight - 18 * scale) + "\" fill=\"" + muted + "\" font-family=\"JetBrains Mono, monospace\" font-size=\"" + Math.max(9, 11 * scale) + "\" letter-spacing=\".8\">SOURCE-GROUNDED DETAIL · " + visibleFacts.length + " ITEMS</text>" : "");
   }
   const footer = "<path d=\"M" + margin + " " + (footerY - 25 * scale) + "H" + (width - margin) + "\" stroke=\"" + primary + "\" opacity=\".18\"/>" +
     "<text x=\"" + margin + "\" y=\"" + footerY + "\" fill=\"" + muted + "\" font-family=\"JetBrains Mono, monospace\" font-size=\"" + Math.max(10, 12 * scale) + "\" letter-spacing=\"1.1\">STORY / EVIDENCE / CONTEXT</text>" +

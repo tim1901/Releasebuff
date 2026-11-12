@@ -13,6 +13,7 @@ This is an evolving local-first MVP. It includes a Next.js App Router UI and ser
 - **Evidence-first Story Inbox:** up to 16 story categories across product progress, learning and craft, product marketing, and audience and growth. No-evidence generic prompts are not injected into the discovered Story Inbox.
 - **Story interview:** category-aware, multi-question interview. It asks one question at a time, can follow up, skips known context, records answers locally, and offers a guided fallback when no OpenAI API key is configured.
 - **Story Brief and Draft Studio:** OpenAI-backed story drafting when configured; product profile, evidence, interview answers, voice and optional custom opening/closing preferences inform the draft. A rule-based grounded template is labelled as such when AI is unavailable.
+- **Claude-directed explainer GIFs:** an optional Anthropic API call turns the active post and story evidence into a four-scene storyboard. Releasebuff renders branded SVG frames locally and encodes them into an animated GIF; without Claude configuration, a clearly labelled context-based storyboard is used.
 - **Claim review:** the draft UI surfaces heuristics-based review warnings for unsupported numbers, causal impact and customer-reaction claims. These warnings are prompts for human review, not a formal fact-check guarantee.
 - **Buffer:** OAuth connection, channel selection, save-draft, schedule and publish-now route handlers. They require a registered Buffer OAuth app and an authorized account; a successful UI state is only set after a successful API response.
 - **Local project storage:** profile, materials, evidence, stories, interviews, dismissals and drafts use IndexedDB with migration/compatibility mirrors for earlier localStorage values.
@@ -22,7 +23,7 @@ This is an evolving local-first MVP. It includes a Next.js App Router UI and ser
 
 - Node.js 20.9+ (Node 22 recommended)
 - npm 10+
-- Internet access to install packages, scan GitHub, use OpenAI, or call Buffer
+- Internet access to install packages, scan GitHub, call OpenAI/Anthropic, or use Buffer
 
 ## Local setup
 
@@ -53,7 +54,7 @@ This is an evolving local-first MVP. It includes a Next.js App Router UI and ser
    npm run dev
    ```
 
-6. Open <http://localhost:3000>. Start from **Get started** to describe a product, add optional sources, and create a Product Profile. **Explore the agent** loads sample Trellis stories; those are illustrative demo stories and do not run a live GitHub scan.
+6. Open <http://localhost:3000>. Start from **Get started** to describe your product, add optional sources, and create a Product Profile. No sample project is preloaded; connect your own sources or use your Product Profile and notes.
 
 Before calling the rebuild ready for continued development, run:
 
@@ -76,6 +77,19 @@ OPENAI_MODEL=gpt-6.1-sol
 Restart the dev server after changing environment variables. The app calls the OpenAI Responses API from server-side routes and sets `store: false` on one-shot requests. API usage is billed separately from a ChatGPT subscription. If you do not configure an API key, product understanding returns a local, source-limited profile; story generation uses evidence rules; the interview uses a guided question sequence; and drafting uses a clearly labelled grounded template instead of claiming it used AI.
 
 When AI is enabled, material text, relevant repository evidence, story context and interview answers may be sent to the configured OpenAI API to perform the action you requested. For images/PDFs, the client limits media attached to a single request to one small file; files not attached to that request remain stored locally. Do not upload credentials, secrets, customer personal information or material you are not authorized to share with the AI provider.
+
+## Claude / Anthropic for explainer GIFs (optional)
+
+Set the following in `.env.local` to enable post-specific explainer storyboards:
+
+```dotenv
+ANTHROPIC_API_KEY=your-anthropic-api-key
+ANTHROPIC_MODEL=claude-sonnet-4-6
+```
+
+Restart the dev server after changing the environment. In Draft Studio, choose **Create explainer GIF**. Claude receives the current draft, selected story, available supporting facts and Brand Kit style, then returns a validated storyboard of four scenes. Releasebuff draws the frames with its local SVG renderer and encodes the animated GIF in the browser. It does not send the finished GIF to Anthropic, and Claude itself does not return a generated bitmap or GIF. If the key is missing or Claude is unavailable, the app offers a contextual fallback storyboard. Anthropic API usage is billed separately from a Claude subscription.
+
+Configure `ANTHROPIC_API_KEY` and optionally `ANTHROPIC_MODEL` in Netlify's environment-variable settings for the deployed preview or production site. Keep the API key server-side; never put it in client code or commit it to Git.
 
 ## GitHub App and private repositories (optional)
 
@@ -130,7 +144,7 @@ Request only the scopes the Buffer client is allowed to request. Releasebuff ask
 ## Netlify deployment setup
 
 1. Import this GitHub repository into Netlify. The build command is `npm run build` (configured in `netlify.toml`); let Netlify's maintained Next.js adapter handle the App Router and Route Handlers. Do not configure this project as a static export.
-2. In the Netlify site's environment-variable settings, set `APP_BASE_URL` to the site's full HTTPS origin (for example, `https://your-site-name.netlify.app`) and set `SESSION_ENCRYPTION_KEY` to a newly generated secret from `openssl rand -base64 32`. Add `OPENAI_API_KEY` only if you want AI-backed analysis and drafting. Add the GitHub App and Buffer variables only if you intend to enable those integrations.
+2. In the Netlify site's environment-variable settings, set `APP_BASE_URL` to the site's full HTTPS origin (for example, `https://your-site-name.netlify.app`) and set `SESSION_ENCRYPTION_KEY` to a newly generated secret from `openssl rand -base64 32`. Add `OPENAI_API_KEY` for AI-backed product analysis and drafting; add `ANTHROPIC_API_KEY` to enable Claude-directed explainer GIF storyboards. Add the GitHub App and Buffer variables only if you intend to enable those integrations.
 3. For Buffer in a deployed site, set `BUFFER_REDIRECT_URI` to `https://your-site-name.netlify.app/api/buffer/callback` and configure that exact URL in the Buffer OAuth app. For the GitHub App, configure the user-authorization callback as `https://your-site-name.netlify.app/api/github/oauth/callback` and the setup URL as `https://your-site-name.netlify.app/api/github/callback`. Replace the example hostname with the final Netlify site hostname.
 4. Keep all real credentials in Netlify's environment-variable settings, never in GitHub. `.env.example` contains blank placeholders for local setup; use `cp .env.example .env.local` locally, then set the values you need. Do not commit `.env.local`.
 

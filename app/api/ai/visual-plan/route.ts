@@ -1,21 +1,18 @@
 import { NextResponse } from "next/server";
-import { configuredAiModel, hasAiConfiguration } from "@/lib/ai";
 import { allowRequest } from "@/lib/rate-limit";
+import { assertSameOrigin, jsonError, safeErrorMessage } from "@/lib/http";
 import { createContextualVisualPlan, extractMetricDetails, getVisualFacts, type PlannedVisualLayout, type StoryVisualPlan } from "@/lib/visual-template";
-import type { StoryOpportunity } from "@/lib/types";
+import type { BrandKit, StoryOpportunity } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type ResponsePayload = {
-  output_text?: string;
-  output?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }>;
+  content?: Array<{ type?: string; text?: string }>;
   error?: { message?: string };
 };
 function outputText(payload: ResponsePayload): string {
-  if (typeof payload.output_text === "string" && payload.output_text.trim()) return payload.output_text.trim();
-  return (payload.output ?? []).flatMap(item => item.content ?? [])
-    .filter(part => part.type === "output_text" || part.type === "text")
+  return (payload.content ?? []).filter(part => part.type === "text")
     .map(part => part.text ?? "").join("\n").trim();
 }
 function parsePlan(raw: string, fallback: StoryVisualPlan, facts: string[]): StoryVisualPlan | null {
@@ -45,11 +42,12 @@ function parsePlan(raw: string, fallback: StoryVisualPlan, facts: string[]): Sto
 }
 
 export async function POST(request: Request) {
+  try { assertSameOrigin(request); } catch (error) { return jsonError(safeErrorMessage(error), 403, "forbidden_origin"); }
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (!allowRequest("visual-plan:" + ip, 15, 60_000)) {
     return NextResponse.json({ error: "Too many visual-planning requests. Wait a minute and try again." }, { status: 429 });
   }
-  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown };
+  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown; brandKit?: BrandKit };
   try {
     body = await request.json() as typeof body;
   } catch {
@@ -61,11 +59,13 @@ export async function POST(request: Request) {
   const story = body.story;
   const draftText = typeof body.draftText === "string" ? body.draftText.slice(0, 5_000) : "";
   const productName = typeof body.productName === "string" ? body.productName.slice(0, 120) : "";
+  const brandKit = body.brandKit;
   const fallback = createContextualVisualPlan({ story, draftText, productName });
-  if (!hasAiConfiguration()) {
+  const anthropicKey = process.env.ANTHROPIC_API_KEY?.trim();
+  if (!anthropicKey) {
     return NextResponse.json({ plan: fallback, mode: "contextual-fallback" }, { headers: { "Cache-Control": "no-store" } });
   }
-  const facts = getVisualFacts(story);
+  const facts = getVisualFacts(story, draftText);
   const brief = {
     productName,
     story: {
@@ -77,12 +77,19 @@ export async function POST(request: Request) {
       evidence: story.evidence.filter(Boolean).map(item => ({ type: item.type, label: item.label, excerpt: item.excerpt, sourceStatus: item.sourceStatus }))
     },
     draftText,
+    brandDirection: brandKit ? {
+      palette: { primary: brandKit.primaryColor, accent: brandKit.accentColor, background: brandKit.backgroundColor, text: brandKit.textColor },
+      theme: brandKit.theme, style: brandKit.style, fontFamily: brandKit.fontFamily, aspectRatio: brandKit.aspectRatio
+    } : null,
     allowedFacts: facts.map((fact, index) => ({ index, fact }))
   };
   const instructions = [
     "You are a senior editorial art director for builders sharing authentic product work.",
     "Create an art direction plan for a vector graphic that will be drawn by a program. You are NOT generating a bitmap image.",
+    "The actual draft text is the primary creative brief. Build the graphic around its central claim, question, mechanism or takeaway; use profile facts only when they directly support that specific post.",
+    "Avoid generic product-description cards when the draft is about a specific idea. Prefer a composition with a clear visual metaphor or information hierarchy suited to the draft, using the available layout choices and supported facts.",
     "Choose the composition based on this particular story, not from a one-template-fits-all habit. Available layouts: spotlight, release, metric, decision, lesson, steps.",
+    "Honor the provided brandDirection for visual style, color roles, typography and aspect ratio. Treat colors as fixed brand tokens; do not recommend replacing them. The renderer applies the brand palette.",
     "Return JSON only with keys: layout, headline, supportingLine, factIndexes, metricFactIndex.",
     "The headline must be human-readable and story-led. Never use a raw package name/version, commit hash, file path or API identifier as the entire headline. Put such identifiers in supporting facts where useful.",
     "Use only information in the story, draft and allowed facts. Do not invent numbers, product claims, customer reactions, outcomes, dates or quotes.",
@@ -93,15 +100,18 @@ export async function POST(request: Request) {
     "A logo is not part of this visual system. The product name will be set typographically by the renderer."
   ].join(" ");
   try {
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { Authorization: "Bearer " + process.env.OPENAI_API_KEY!.trim(), "Content-Type": "application/json" },
+      headers: {
+        "x-api-key": anthropicKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json"
+      },
       body: JSON.stringify({
-        model: configuredAiModel(),
-        instructions,
-        input: [{ role: "user", content: [{ type: "input_text", text: JSON.stringify(brief) }] }],
-        max_output_tokens: 650,
-        store: false
+        model: process.env.ANTHROPIC_MODEL?.trim() || "claude-sonnet-4-6",
+        system: instructions + " Return a single valid JSON object only, with no markdown fences.",
+        messages: [{ role: "user", content: JSON.stringify(brief) }],
+        max_tokens: 650
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(25_000)

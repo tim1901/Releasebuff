@@ -15,15 +15,17 @@ This file distinguishes current source implementation from planned work and conf
 - Category-aware adaptive story interview endpoint with AI and guided fallback modes, multi-question answer persistence and a maximum interview length.
 - OpenAI Responses API draft generation using the Product Profile, story evidence, builder interview, optional custom opening/closing and writing voice; editor prompts prioritize concrete changes, decisions, reversals and observed outcomes over generic source-document summaries; deterministic fallback is labelled as a grounded template.
 - Browser-local Brand Kit with color/font/theme/style/aspect-ratio settings, saved to IndexedDB; context-planned story graphics generated alongside the draft with typographic product-name signatures and SVG, PNG and animated GIF export.
+- Optional Claude-powered explainer GIF storyboard: the active post, story and known evidence are sent to the Anthropic Messages API when the user requests an explainer. Claude returns a validated four-scene plan, then the browser renders a branded vector GIF locally; a context fallback remains available without the Anthropic API key.
 - Heuristic draft review warnings for common unsupported number/impact/customer reaction claims. These are review aids, not a complete factual-verification system.
 - Buffer OAuth Authorization Code + PKCE routes, account/channel retrieval, save-draft, schedule and publish-now API paths, session-server token handling and UTC scheduling conversion.
 - Encrypted provider integration record storage: encrypted local-file fallback during ordinary local development and encrypted Netlify Blobs records under Netlify. No conventional database required.
-- Tests for repository URL parsing, story category definitions, date/time handling and AI draft generation request/fallback behavior; an evidence-only story-engine test is maintained alongside the other unit tests.
+- Tests for repository URL parsing, story category definitions, date/time handling, AI draft generation request/fallback behavior, and the explainer GIF fallback/parser/vector-renderer. An evidence-only story-engine test is maintained alongside the other unit tests.
 
 ## Requires developer configuration to exercise
 
 - `SESSION_ENCRYPTION_KEY` for encrypted local integration records.
 - `OPENAI_API_KEY` for real AI-assisted Product Profile analysis, story discovery, interviewing and draft writing. Model ID is configured with `OPENAI_MODEL`.
+- `ANTHROPIC_API_KEY` for Claude-directed explainer GIF storyboards. Model ID is configurable with `ANTHROPIC_MODEL`; the default is `claude-sonnet-4-6`.
 - GitHub App client ID/secret, App ID/slug/private key, User authorization callback URL (`/api/github/oauth/callback`), Setup URL (`/api/github/callback`) and installation with selected repositories for private GitHub scanning.
 - Buffer OAuth client ID/secret, exact callback URL, required scopes and a consenting Buffer account for actual channel and post operations.
 - Netlify environment variables and Netlify runtime to test the Netlify Blobs integration path. Ordinary `npm run dev` uses the encrypted local-file provider instead.

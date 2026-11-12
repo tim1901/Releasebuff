@@ -2,12 +2,10 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { analyzePublicRepository, parseGitHubRepositoryUrl } from "@/lib/github";
 import { hasAiConfiguration } from "@/lib/ai";
-import { discoverStories } from "@/lib/story-discovery";
 import { assertSameOrigin, errorStatus, jsonError, safeErrorMessage } from "@/lib/http";
 import { allowRequest } from "@/lib/rate-limit";
 import { getInstallationTokenForRepository } from "@/lib/github-app";
 import { readGitHubInstallation, SESSION_COOKIE } from "@/lib/session-store";
-import type { ProductMaterial, ProductProfile } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,7 +18,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json() as {
       repositoryUrl?: unknown; force?: unknown; useGitHubApp?: unknown;
-      productProfile?: ProductProfile | null; productDescription?: unknown; audience?: unknown; materials?: ProductMaterial[];
     };
     if (typeof body.repositoryUrl !== "string" || body.repositoryUrl.length > 500) return jsonError("Enter a GitHub repository URL.");
     let token: string | undefined;
@@ -34,18 +31,8 @@ export async function POST(request: Request) {
       token = await getInstallationTokenForRepository(installation.installationId, parsed.owner, parsed.repo);
     }
     const analysis = await analyzePublicRepository(body.repositoryUrl, { force: body.force === true, token });
-    const discovery = await discoverStories({
-      candidates: analysis.stories,
-      profile: body.productProfile ?? null,
-      productDescription: typeof body.productDescription === "string" ? body.productDescription.slice(0, 4000) : "",
-      audience: typeof body.audience === "string" ? body.audience.slice(0, 1000) : "",
-      materials: Array.isArray(body.materials) ? body.materials.slice(0, 20) : []
-    });
     return NextResponse.json({
       ...analysis,
-      stories: discovery.stories,
-      storyDiscoveryMode: discovery.mode,
-      storyDiscoveryWarning: discovery.warning ?? null,
       aiConfigured: hasAiConfiguration(),
       accessMode: token ? "github-app" : "public"
     }, { headers: { "Cache-Control": "no-store" } });

@@ -4,7 +4,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import { configuredAiModel, generateGroundedDraft } from "@/lib/ai";
-import { TRELLIS_DEMO_STORIES } from "@/lib/demo-data";
+import { assertSameOrigin } from "@/lib/http";
+import { buildBuilderStorySeeds } from "@/lib/builder-story-seeds";
+import type { ProjectPreferences } from "@/lib/types";
+
+const testSettings: ProjectPreferences = {
+  productName: "Launchpad",
+  productSummary: "A tool that helps independent founders turn product work into useful public stories.",
+  audience: "solo SaaS founders",
+  productStage: "actively-building",
+  websiteUrl: "",
+  repositoryUrl: "",
+  goals: ["Grow an audience"],
+  writingVoice: "Natural and specific"
+};
+const testStory = buildBuilderStorySeeds(testSettings, null, [])[0];
 
 beforeEach(() => {
   vi.unstubAllEnvs();
@@ -18,6 +32,33 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+
+describe("same-origin validation behind hosting proxies", () => {
+  it("accepts the public Netlify origin when the server request URL is internal", () => {
+    const request = new Request("http://localhost:8888/api/ai/interview", {
+      method: "POST",
+      headers: {
+        origin: "https://deploy-preview-3--releasebuff.netlify.app",
+        "x-forwarded-host": "deploy-preview-3--releasebuff.netlify.app",
+        "x-forwarded-proto": "https"
+      }
+    });
+    expect(() => assertSameOrigin(request)).not.toThrow();
+  });
+
+  it("still rejects a genuinely different browser origin", () => {
+    const request = new Request("http://localhost:8888/api/ai/interview", {
+      method: "POST",
+      headers: {
+        origin: "https://attacker.example",
+        "x-forwarded-host": "deploy-preview-3--releasebuff.netlify.app",
+        "x-forwarded-proto": "https"
+      }
+    });
+    expect(() => assertSameOrigin(request)).toThrow(/Cross-origin request blocked/);
+  });
+});
+
 describe("OpenAI Responses API draft generation", () => {
   it("defaults to the supported GPT-6.1 Sol model when OPENAI_MODEL is unset", () => {
     expect(configuredAiModel()).toBe("gpt-6.1-sol");
@@ -29,13 +70,13 @@ describe("OpenAI Responses API draft generation", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await generateGroundedDraft({
-      story: TRELLIS_DEMO_STORIES[0],
+      story: testStory,
       platform: "linkedin",
       voice: "natural"
     });
 
     expect(result.mode).toBe("grounded-template");
-    expect(result.draft).toContain(TRELLIS_DEMO_STORIES[0].title);
+    expect(result.draft).toContain(testStory.title);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -49,7 +90,7 @@ describe("OpenAI Responses API draft generation", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await generateGroundedDraft({
-      story: TRELLIS_DEMO_STORIES[0],
+      story: testStory,
       platform: "linkedin",
       voice: "natural, builder-to-builder",
       extraContext: "Keep the copy factual."
@@ -79,7 +120,7 @@ describe("OpenAI Responses API draft generation", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await generateGroundedDraft({
-      story: TRELLIS_DEMO_STORIES[0],
+      story: testStory,
       platform: "x",
       voice: "direct and concise"
     });
@@ -99,7 +140,7 @@ describe("OpenAI Responses API draft generation", () => {
     }), { status: 401, headers: { "Content-Type": "application/json" } })));
 
     await expect(generateGroundedDraft({
-      story: TRELLIS_DEMO_STORIES[0],
+      story: testStory,
       platform: "linkedin",
       voice: "natural"
     })).rejects.toMatchObject({ status: 401, message: expect.stringContaining("OPENAI_API_KEY") });

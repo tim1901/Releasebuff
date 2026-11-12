@@ -162,6 +162,7 @@ export interface StoryInterview {
   currentDimension?: string;
   complete: boolean;
   summary?: string;
+  readinessNotes?: string[];
   updatedAt: string;
 }
 export interface StoryWritingPreferences {
