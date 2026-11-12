@@ -81,7 +81,17 @@ export async function POST(request: Request) {
       materials: combinedMaterials
     });
     const discoveredStories = discovery.stories.length ? discovery.stories : (targetCategory ? [...categoryMatches, ...(categorySeed ? [categorySeed] : [])] : profileCandidates);
-    const stories = (targetCategory ? discoveredStories.filter(story => story.category === targetCategory) : discoveredStories).slice(0, 12);
+    // A general discovery result can contain stories for other categories. For a
+    // category-triggered workflow, never return an empty list just because the
+    // model omitted the requested category: fall back to the category-specific
+    // profile seed so the adaptive interview can collect the missing details.
+    const matchingDiscoveredStories = targetCategory
+      ? discoveredStories.filter(story => story.category === targetCategory)
+      : discoveredStories;
+    const categoryFallback = targetCategory
+      ? [...categoryMatches, ...(categorySeed ? [categorySeed] : [])]
+      : [];
+    const stories = (matchingDiscoveredStories.length ? matchingDiscoveredStories : categoryFallback).slice(0, 12);
     return NextResponse.json({
       stories,
       mode: discovery.mode,
