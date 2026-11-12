@@ -68,7 +68,7 @@ describe("story visual planning and template", () => {
     const titleLines = [...heading.matchAll(/<tspan[^>]*>(.*?)<\/tspan>/g)].map(match => match[1]);
     expect(titleLines.length).toBeGreaterThan(1);
     expect(titleLines.length).toBeLessThanOrEqual(3);
-    expect(titleLines.every(line => line.length <= 23)).toBe(true);
+    expect(titleLines.every(line => line.length <= 20)).toBe(true);
   });
 
   it("encodes an animated GIF container from RGBA frames", () => {
