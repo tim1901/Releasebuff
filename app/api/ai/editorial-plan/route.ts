@@ -61,13 +61,13 @@ export async function POST(request: Request) {
   try { assertSameOrigin(request); } catch (error) { return jsonError(safeErrorMessage(error), 403, "forbidden_origin"); }
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (!allowRequest("editorial-plan:" + ip, 10, 60_000)) return NextResponse.json({ error: "Too many creative-direction requests. Wait a minute and try again." }, { status: 429 });
-  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown; interviewSummary?: unknown; productProfile?: unknown; brandKit?: BrandKit };
+  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown; interviewSummary?: unknown; productProfile?: unknown; brandKit?: BrandKit; revisionNote?: unknown };
   try { body = await request.json() as typeof body; } catch { return NextResponse.json({ error: "The creative brief must be valid JSON." }, { status: 400 }); }
   const story = body.story;
   if (!story || typeof story.title !== "string" || typeof story.summary !== "string") return NextResponse.json({ error: "Select a story before designing its graphic." }, { status: 400 });
   const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
   if (!apiKey) return NextResponse.json({ error: "Claude is not configured. Add ANTHROPIC_API_KEY." }, { status: 503 });
-  const brief = {
+  const revisionNote = clean(body.revisionNote, 1200);\n  const brief = {
     productName: clean(body.productName, 160),
     interviewSummary: clean(body.interviewSummary, 5000),
     productProfile: body.productProfile ?? null,
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     "Use the actual story subject and at least two specific details from the interview/post. Do not invent product features, interface details, data, metrics, results, testimonials or customer quotes. If evidence is missing, explain the process or intended benefit rather than implying a proven outcome.",
     "Keep headline concise and specific, ideally 4-9 words. Include only facts supported by the brief. Use no more than 4 nodes/steps. Text should be short enough to read on a 1080x1080 mobile graphic.",
     "For process, fill steps. For system-map, fill nodes in logical flow order. For comparison, fill before and after only when the source supports them. For evidence, include numbers only if explicitly supplied; otherwise choose another archetype. For framework, use labels for actual criteria. illustrationBrief should describe only custom line art that supplements the diagram, not the whole graphic.",
-    "Return valid JSON only with keys: archetype, headline, subheadline, centralInsight, audience, nodes (array of {title,detail}), steps (array of {title,detail}), before ({title,detail}), after ({title,detail}), labels (string array), evidenceNote, illustrationBrief, rationale."
+    "If revisionNote is provided, revise the prior direction based on it while retaining the source facts and selected story. Revision note: " + (revisionNote || "No revision requested.") + "\\nReturn valid JSON only with keys: archetype, headline, subheadline, centralInsight, audience, nodes (array of {title,detail}), steps (array of {title,detail}), before ({title,detail}), after ({title,detail}), labels (string array), evidenceNote, illustrationBrief, rationale."
   ].join("\n");
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
