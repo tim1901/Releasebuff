@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     const combinedMaterials = [profileMaterial, builderBrief, ...materials].slice(0, 20);
     const profileCandidates = buildBuilderStorySeeds(settings, profile, materials);
     const githubCandidates = Array.isArray(body.githubStories) ? body.githubStories.filter(story => story && typeof story.title === "string" && Array.isArray(story.evidence)).slice(0, 20) : [];
-    const candidates = [...githubCandidates, ...profileCandidates];
+    const candidates = [...profileCandidates, ...githubCandidates];
     const discovery = await discoverStories({
       candidates,
       profile,
