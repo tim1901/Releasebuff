@@ -146,13 +146,13 @@ export async function discoverStories(input: {
       const hasContextQuestion = typeof item.requiresContext === "string" && item.requiresContext.trim().length > 0;
       const status: StoryOpportunity["status"] = !hasContextQuestion && baseCandidate?.status === "ready-to-draft" && overlapCount >= Math.min(2, baseCandidate.evidence.length) ? "ready-to-draft" : "needs-context";
       const confidence = item.confidence === "high" && pickedIds.length >= 2 ? "high" : pickedIds.length >= 2 ? "medium" : "low";
-      output.push({
+      output.push(assessEvidence({
         id, category, group: groupFor(category), title: item.title.trim().slice(0, 180), summary: item.summary.trim().slice(0, 1200), angle: item.angle.trim().slice(0, 1200),
         whyItMatters: typeof item.whyItMatters === "string" ? item.whyItMatters.trim().slice(0, 800) : undefined,
         confidence, status, evidence, sourceFacts: sourceFacts(evidence),
         requiresContext: typeof item.requiresContext === "string" ? item.requiresContext.trim().slice(0, 500) : (status === "needs-context" ? "What additional context would help explain why this change mattered?" : undefined),
         evidenceCoverage: status === "ready-to-draft" ? "strong" : status === "needs-context" ? "context-needed" : "partial", generatedAt
-      });
+      }));
     }
     if (!output.length) return {
       stories: candidates, mode: "evidence-rules",
