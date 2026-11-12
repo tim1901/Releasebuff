@@ -551,7 +551,43 @@ export default function ReleasebuffApp() {
         say("Story interview complete. Review the summary and continue to the Story Brief.", "success");
         updateStoryStatus(story.id, "ready-to-draft");
       }
-    } catch (error) { say(error instanceof Error ? error.message : "Could not continue the story interview.", "error"); }
+    } catch (error) {
+      // Keep the interview usable if the AI endpoint or its request payload fails.
+      // A guided category question is better than leaving the user blocked.
+      const guides: Record<string, Array<{ dimension: string; question: string }>> = {
+        "Traction and milestones": [
+          { dimension: "metric", question: "What specific progress can you verify so far—such as users, signups, customers, revenue, or usage? If you have no metric yet, what milestone have you reached?" },
+          { dimension: "timeframe", question: "Over what period did this progress happen, and what source could verify it?" },
+          { dimension: "meaning", question: "Why is this milestone meaningful for the product or the people you serve?" }
+        ],
+        "New feature shipped": [
+          { dimension: "motivation", question: "What prompted you to build this feature, and who is it meant to help?" },
+          { dimension: "approach", question: "What was the most important decision or challenge while building it?" },
+          { dimension: "availability", question: "Is it available to users now, still being tested, or not released yet?" }
+        ]
+      };
+      const guide = guides[story.category] ?? [
+        { dimension: "event", question: `What specific event, decision, result, or example would make this “${story.category}” story real and useful?` },
+        { dimension: "approach", question: "What did you do, and what influenced your approach?" },
+        { dimension: "outcome", question: "What happened as a result, and what can you verify?" },
+        { dimension: "takeaway", question: "What did you learn, or what should your audience take away?" }
+      ];
+      const used = new Set(answers.map(answer => answer.dimension).filter(Boolean));
+      const next = guide.find(item => !used.has(item.dimension));
+      const fallbackSummary = answers.filter(answer => !answer.skipped && answer.answer.trim()).map(answer => `${answer.dimension ?? "Context"}: ${answer.answer.trim()}`).join("\\n");
+      setInterviews(prev => ({ ...prev, [story.id]: {
+        storyId: story.id,
+        answers,
+        currentQuestion: next?.question,
+        currentDimension: next?.dimension,
+        complete: !next,
+        summary: next ? undefined : fallbackSummary,
+        readinessNotes: next ? undefined : ["Guided interview completed; review all claims before drafting.", "Do not include metrics that cannot be verified."],
+        updatedAt: new Date().toISOString()
+      }}));
+      setInterviewAnswerDraft("");
+      say("AI interview unavailable, so Releasebuff switched to guided questions.", "info");
+    }
     finally { setInterviewBusy(false); }
   }, [productProfile, settings.productSummary, productMaterials, interviewMaterials, updateStoryStatus, say]);
 
