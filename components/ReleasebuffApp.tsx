@@ -378,7 +378,8 @@ export default function ReleasebuffApp() {
     say("Source removed from this browser's Product Profile.", "info");
   }, [say]);
 
-  const findStories = useCallback(async () => {
+  const findStories = useCallback(async (githubStoriesOverride?: StoryOpportunity[]) => {
+    const githubStories = githubStoriesOverride ?? analysis?.stories ?? [];
     if (!settings.productName.trim() || !settings.productSummary.trim()) {
       say("Add a product name and short description first. GitHub is optional.", "error");
       setView("setup");
@@ -433,7 +434,7 @@ export default function ReleasebuffApp() {
           settings,
           profile: currentProfile ?? productProfile,
           materials: materialsForServerRequest(materialsForDiscovery),
-          githubStories: analysis?.stories ?? []
+          githubStories
         }),
         cache: "no-store"
       });
@@ -445,13 +446,13 @@ export default function ReleasebuffApp() {
       setSelectedStoryId(foundStories[0]?.id ?? null);
       setSelectedCategory("All categories");
       setSearchQuery("");
-      setAnalysisMode(analysis ? analysisMode : "none");
+      setAnalysisMode(githubStoriesOverride ? "live" : analysis ? analysisMode : "none");
       setView("inbox");
       setMobileNavOpen(false);
       const contextSummary = [
         currentProfile ? "Product Intelligence Profile" : "current product details",
         `${materialsForDiscovery.length} supporting source(s)`,
-        analysis?.stories.length ? "optional GitHub evidence" : ""
+        githubStories.length ? "optional GitHub evidence" : ""
       ].filter(Boolean).join(", ");
       say(`Found ${foundStories.length} story opportunities using ${contextSummary}.`, "success");
     } catch (error) {
@@ -546,33 +547,21 @@ export default function ReleasebuffApp() {
     try {
       const response = await fetch("/api/github/analyze", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          repositoryUrl, force, useGitHubApp: Boolean(settings.useGitHubApp),
-          productProfile, productDescription: settings.productSummary, audience: settings.audience,
-          materials: materialsForServerRequest(productMaterials)
-        }), cache: "no-store"
+        body: JSON.stringify({ repositoryUrl, force, useGitHubApp: Boolean(settings.useGitHubApp) }),
+        cache: "no-store"
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Could not analyze this repository.");
       const loadedAnalysis = data as GitHubAnalysis;
-      const mergedStories = loadedAnalysis.stories.filter(s => !dismissedIds.includes(s.id));
       setSettings(prev => ({ ...prev, repositoryUrl: loadedAnalysis.repository.url }));
-      setAnalysis(loadedAnalysis); setStories(mergedStories); setAnalysisMode("live");
-      setSelectedCategory("All categories"); setSelectedStoryId(mergedStories[0]?.id ?? null); setView("inbox"); setMobileNavOpen(false);
-      const storyDiscoveryMode = data.storyDiscoveryMode;
-      const storyDiscoveryWarning = typeof data.storyDiscoveryWarning === "string" ? data.storyDiscoveryWarning : "";
-      if (storyDiscoveryMode === "ai-assisted") {
-        say(`AI-assisted story discovery complete. ${mergedStories.length} story opportunities surfaced from ${loadedAnalysis.repository.fullName}.`, "success");
-      } else if (data.aiConfigured) {
-        say(`Repository scan completed, but AI story refinement failed; the suggestions shown are rule-based, not AI-generated. ${storyDiscoveryWarning}`, "error");
-      } else {
-        say(`Repository scan completed. The ${mergedStories.length} suggestions are rule-based because no OpenAI API key is configured.`, "info");
-      }
+      setAnalysis(loadedAnalysis);
+      setAnalysisMode("live");
+      await findStories(loadedAnalysis.stories);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not analyze this repository.";
       setScanError(message); say(message, "error");
     } finally { setScanBusy(false); }
-  }, [settings.repositoryUrl, settings.useGitHubApp, settings.productSummary, settings.audience, productProfile, productMaterials, dismissedIds, say]);
+  }, [settings.repositoryUrl, settings.useGitHubApp, findStories, say]);
 
   const openStory = (story: StoryOpportunity) => {
     setSelectedStoryId(story.id); setExtraContext(""); setInterviewAnswerDraft(""); setView("story"); setMobileNavOpen(false);
@@ -581,7 +570,7 @@ export default function ReleasebuffApp() {
     setDismissedIds(prev => [...new Set([...prev, story.id])]);
     setStories(prev => prev.filter(s => s.id !== story.id));
     if (selectedStoryId === story.id) setSelectedStoryId(null);
-    say("Story dismissed. You can rescan the repository to discover new opportunities.", "info");
+    say("Story dismissed. Use Find stories again after adding context or sources to refresh opportunities.", "info");
   };
 
   const openDraftForStory = (story: StoryOpportunity) => {
@@ -850,8 +839,8 @@ function StoryInbox({ analysis, stories, allCount, analysisMode, loading, scanEr
 
     {stories.length ? <div className="story-list">{stories.map(story => <StoryCard key={story.id} story={story} onOpen={() => onOpenStory(story)} onDraft={() => onDraftStory(story)} onDismiss={() => onDismiss(story)}/>)}</div> : <div className="empty-state">
       <div className="empty-icon">{loading ? <LoaderCircle className="spinning" size={22}/> : <Layers3 size={22}/>}</div>
-      <h3>{loading ? "Looking for meaningful changes…" : allCount ? "No stories match these filters" : analysisMode === "none" ? "Let's find your first story" : "No evidence-backed stories found yet"}</h3>
-      <p>{loading ? "Releasebuff is collecting repository artifacts and checking them for story opportunities." : allCount ? "Try another search term or category. You can also browse the full set of story categories." : analysisMode === "none" ? "Add your product details, notes, documents, or screenshots. A repository is optional; start with whatever context you have." : "The available sources did not produce a useful story yet. Add more product context or update your materials and try again."}</p>
+      <h3>{loading ? "Combining your product context…" : allCount ? "No stories match these filters" : analysisMode === "none" ? "Let's find your first story" : "No useful stories found yet"}</h3>
+      <p>{loading ? "Releasebuff is combining your Product Intelligence Profile, product details, notes, documents and optional GitHub evidence." : allCount ? "Try another search term or category. You can also browse the full set of story categories." : analysisMode === "none" ? "Add your product details, notes, documents, or screenshots. A repository is optional; start with whatever context you have." : "The available sources did not produce a useful story yet. Add more product context or update your materials and try again."}</p>
       <div className="row wrap" style={{ justifyContent: "center" }}>
         {!loading && <Button variant="lime" onClick={onGoSetup}>{analysisMode === "none" ? "Set up product sources" : "Add more evidence"} <ArrowRight size={13}/></Button>}
         {!loading && canFindStories && <Button variant="lime" onClick={onFindStories}><Sparkles size={13}/> Find stories</Button>}
