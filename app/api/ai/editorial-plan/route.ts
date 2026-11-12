@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   try { assertSameOrigin(request); } catch (error) { return jsonError(safeErrorMessage(error), 403, "forbidden_origin"); }
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (!allowRequest("editorial-plan:" + ip, 10, 60_000)) return NextResponse.json({ error: "Too many creative-direction requests. Wait a minute and try again." }, { status: 429 });
-  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown; interviewSummary?: unknown; productProfile?: unknown; brandKit?: BrandKit; revisionNote?: unknown };
+  let body: { story?: StoryOpportunity; draftText?: unknown; productName?: unknown; interviewSummary?: unknown; productProfile?: unknown; brandKit?: BrandKit; revisionNote?: unknown; previousPlan?: unknown };
   try { body = await request.json() as typeof body; } catch { return NextResponse.json({ error: "The creative brief must be valid JSON." }, { status: 400 }); }
   const story = body.story;
   if (!story || typeof story.title !== "string" || typeof story.summary !== "string") return NextResponse.json({ error: "Select a story before designing its graphic." }, { status: 400 });
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     productProfile: body.productProfile ?? null,
     story: { category: story.category, title: story.title, summary: story.summary, angle: story.angle, sourceFacts: story.sourceFacts ?? [],
       evidence: (story.evidence ?? []).filter(Boolean).map(x => ({ type: x.type, label: x.label, excerpt: x.excerpt, sourceStatus: x.sourceStatus })) },
-    draftText: clean(body.draftText, 6000),
+    draftText: clean(body.draftText, 6000),\n    previousPlan: body.previousPlan ?? null,
     brandKit: body.brandKit ? { primaryColor: body.brandKit.primaryColor, accentColor: body.brandKit.accentColor, backgroundColor: body.brandKit.backgroundColor, textColor: body.brandKit.textColor, style: body.brandKit.style, fontFamily: body.brandKit.fontFamily } : null
   };
   const system = [
