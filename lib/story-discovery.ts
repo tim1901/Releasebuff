@@ -28,6 +28,23 @@ function sourceFacts(evidence: StoryEvidence[]): string[] {
   return evidence.filter(item => item.excerpt?.trim()).slice(0, 4).map(item => `${item.label}: ${item.excerpt}`);
 }
 function overlap(a: string[], b: string[]): number { const set = new Set(a); return b.reduce((sum, item) => sum + (set.has(item) ? 1 : 0), 0); }
+function assessEvidence(story: StoryOpportunity): StoryOpportunity {
+  const usable = story.evidence.filter(item => Boolean(item.excerpt?.trim() || /^https?:\/\//i.test(item.url)));
+  const types = new Set(usable.map(item => item.type));
+  const category = story.category.toLowerCase();
+  let question = "";
+  if (category.includes("bug fixed") || category.includes("problem solved")) {
+    if (!types.has("issue") && !types.has("pull_request") && !types.has("commit") && !story.sourceFacts.some(f => /bug|fix|broken|error|issue|resolved/i.test(f))) question = "What was broken, what changed to fix it, and how did you verify the fix?";
+  } else if (category.includes("feature shipped") || category.includes("product improvement")) {
+    if (!types.has("release") && !types.has("pull_request") && !types.has("commit") && !story.sourceFacts.some(f => /shipped|released|implemented|changed|added/i.test(f))) question = "What specifically changed, and is it available to users yet?";
+  } else if (category.includes("traction") || category.includes("customer feedback")) {
+    if (!types.has("analytics") && !types.has("customer_feedback") && !story.sourceFacts.some(f => /customer|user feedback|metric|sign.?ups|revenue|retention/i.test(f))) question = "What verified customer feedback or measurable result can you share?";
+  }
+  if (!question && story.requiresContext?.trim()) question = story.requiresContext.trim();
+  const ready = usable.length > 0 && !question && story.status === "ready-to-draft";
+  return { ...story, status: ready ? "ready-to-draft" : "needs-context", requiresContext: ready ? undefined : question || "What happened, what changed, and what did you learn?", evidenceCoverage: ready ? "strong" : usable.length ? "partial" : "context-needed", confidence: ready ? story.confidence : "low" };
+}
+
 
 /** Refines rule-generated candidates and may surface additional source-backed stories from supplied materials. */
 export async function discoverStories(input: {
@@ -37,7 +54,7 @@ export async function discoverStories(input: {
   productDescription?: string;
   audience?: string;
 }): Promise<{ stories: StoryOpportunity[]; mode: "ai-assisted" | "evidence-rules"; warning?: string }> {
-  const candidates = (input.candidates ?? []).filter(story => story.evidence.length > 0);
+  const candidates = (input.candidates ?? []).filter(story => story.evidence.length > 0).map(assessEvidence);
   if (!hasAiConfiguration()) return {
     stories: candidates, mode: "evidence-rules",
     warning: "OpenAI is not configured. These are evidence-rule suggestions, not AI-refined stories."
