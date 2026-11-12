@@ -9,7 +9,7 @@ export function getAppBaseUrl(request: Request): URL {
     throw Object.assign(new Error("APP_BASE_URL must be configured in production."), { status: 503, code: "app_base_url_missing" });
   }
   const url = configured ? new URL(configured) : new URL(new URL(request.url).origin);
-  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) {
     throw Object.assign(new Error("APP_BASE_URL must be a valid HTTP(S) origin."), { status: 500, code: "invalid_app_base_url" });
   }
   if (process.env.NODE_ENV === "production" && url.protocol !== "https:") {
@@ -19,12 +19,24 @@ export function getAppBaseUrl(request: Request): URL {
 }
 
 export function assertSameOrigin(request: Request) {
-  // Validate against the origin serving this request. APP_BASE_URL is a canonical URL for
-  // callbacks and may point at production while a Netlify Deploy Preview uses its own host.
-  const requestOrigin = new URL(request.url).origin;
+  // Serverless proxies can expose an internal request.url (for example, localhost)
+  // while the browser Origin is the public Netlify preview URL. Compare against the
+  // externally forwarded origin when the trusted hosting proxy supplies it.
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  let requestOrigin = new URL(request.url).origin;
+  if (forwardedHost && /^[a-z0-9.-]+(?::\d{1,5})?$/i.test(forwardedHost) && (forwardedProto === "http" || forwardedProto === "https")) {
+    requestOrigin = new URL(`${forwardedProto}://${forwardedHost}`).origin;
+  }
+
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
-  const suppliedOrigin = origin || (referer ? new URL(referer).origin : "");
+  let suppliedOrigin = "";
+  try {
+    suppliedOrigin = origin ? new URL(origin).origin : referer ? new URL(referer).origin : "";
+  } catch {
+    suppliedOrigin = "";
+  }
   if (!suppliedOrigin || suppliedOrigin !== requestOrigin) {
     throw Object.assign(new Error("Cross-origin request blocked. Reload the app and try again."), { status: 403, code: "origin_mismatch" });
   }
