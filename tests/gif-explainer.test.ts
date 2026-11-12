@@ -70,7 +70,7 @@ describe("Claude-directed GIF explainer planning", () => {
         sceneCount: 4,
         productName: "Releasebuff"
       });
-      expect(svg).not.toMatch(/<circle\\b[^>]*\\/(?!>)/);
+      expect(svg.match(/<circle\\b/g) ?? []).toHaveLength(svg.match(/<circle\\b[^>]*\\/>/g)?.length ?? 0);
       expect(svg).toContain("</svg>");
     }
   });
