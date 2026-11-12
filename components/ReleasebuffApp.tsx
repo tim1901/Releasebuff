@@ -15,7 +15,6 @@ import BrandKitStudio from "@/components/BrandKitStudio";
 import StoryVisualStudio from "@/components/StoryVisualStudio";
 import { localRead, localWrite } from "@/lib/local-db";
 import { CATEGORY_GROUPS, ALL_CATEGORIES } from "@/lib/story-categories";
-import { TRELLIS_DEMO_STORIES } from "@/lib/demo-data";
 import { buildBuilderStorySeeds } from "@/lib/builder-story-seeds";
 import { localDateTimeToUtc } from "@/lib/date-time";
 
@@ -151,7 +150,7 @@ function StoryCard({ story, onOpen, onDraft, onDismiss }: { story: StoryOpportun
   return <article className="story-card">
     <div className="story-card-top">
       <div className="grow">
-        <div className="row wrap"><Badge>{story.category}</Badge><StoryStatusBadge status={story.status} />{story.demo && <Badge>Sample</Badge>}</div>
+        <div className="row wrap"><Badge>{story.category}</Badge><StoryStatusBadge status={story.status} /></div>
         <h2 className="story-title">{story.title}</h2>
         <p className="story-summary">{story.summary}</p>
       </div>
@@ -176,7 +175,7 @@ export default function ReleasebuffApp() {
   const [brandKit, setBrandKit] = useState<BrandKit>(DEFAULT_BRAND_KIT);
   const [analysis, setAnalysis] = useState<GitHubAnalysis | null>(null);
   const [stories, setStories] = useState<StoryOpportunity[]>([]);
-  const [analysisMode, setAnalysisMode] = useState<"none" | "demo" | "live">("none");
+  const [analysisMode, setAnalysisMode] = useState<"none" | "live">("none");
   const [scanBusy, setScanBusy] = useState(false);
   const [scanError, setScanError] = useState("");
   const [drafts, setDrafts] = useState<LocalDraft[]>([]);
@@ -569,27 +568,6 @@ export default function ReleasebuffApp() {
     await getNextInterviewQuestion(activeStory, answers);
   }, [activeStory, interviews, interviewAnswerDraft, getNextInterviewQuestion, say]);
 
-  const loadDemoWorkspace = useCallback(() => {
-    const demoAnalysis: GitHubAnalysis = {
-      repository: {
-        owner: "bearstouch", name: "trellis", fullName: "bearstouch/trellis", url: "https://github.com/bearstouch/trellis",
-        description: "A native macOS terminal workspace with managed windows, tabs, panes, saved SSH hosts and automation.", defaultBranch: "main", language: "Swift", stars: 0, forks: 0, openIssues: 0, updatedAt: "", readme: null,
-        topics: ["macos", "swift", "terminal"], dataWarnings: ["This is sample data assembled from specific public issues and PRs; repository metadata was not live-scanned."]
-      }, stories: TRELLIS_DEMO_STORIES, scannedAt: new Date().toISOString(), scannedArtifacts: { commits: 0, pullRequests: 4, issues: 1, releases: 1 }
-    };
-    setSettings(prev => ({ ...prev, repositoryUrl: "https://github.com/bearstouch/trellis", productSummary: "A native macOS terminal workspace with managed windows, tabs, panes, saved SSH hosts and automation." }));
-    setAnalysis(demoAnalysis);
-    setStories(TRELLIS_DEMO_STORIES.filter(s => !dismissedIds.includes(s.id)));
-    setAnalysisMode("demo");
-    setSelectedCategory("All categories");
-    setSearchQuery("");
-    setSelectedStoryId(TRELLIS_DEMO_STORIES[0]?.id ?? null);
-    setView("inbox");
-    setMobileNavOpen(false);
-    setScanError("");
-    say("Demo workspace loaded. These examples use public Trellis sources; no live scan was run.", "info");
-  }, [dismissedIds, say]);
-
   const scanRepository = useCallback(async (url?: string, force = false) => {
     const repositoryUrl = (url ?? settings.repositoryUrl).trim();
     if (!repositoryUrl) { setScanError("Add a public GitHub repository URL, or build your Product Profile without a repository."); return; }
@@ -742,14 +720,14 @@ export default function ReleasebuffApp() {
 
   return <>
     {view === "landing" ? (
-      <LandingPage onGetStarted={() => go("setup")} onTryDemo={loadDemoWorkspace} onSignIn={() => { if (!bufferStatus.connected) navigateToAuthEndpoint("/api/buffer/connect"); else say("Buffer is already connected.", "success"); }} bufferConnected={bufferStatus.connected} bufferConfigured={bufferStatus.configured} />
+      <LandingPage onGetStarted={() => go("setup")} onSignIn={() => { if (!bufferStatus.connected) navigateToAuthEndpoint("/api/buffer/connect"); else say("Buffer is already connected.", "success"); }} bufferConnected={bufferStatus.connected} bufferConfigured={bufferStatus.configured} />
     ) : (
       <div className="workspace">
         <aside className={`sidebar ${mobileNavOpen ? "open" : ""}`}>
           <Brand onClick={() => go("landing")} />
           <button className="sidebar-project" onClick={() => go("setup")}>
             <span className="project-avatar"><FolderGit2 size={16} /></span>
-            <span className="grow"><span className="project-title">{analysis?.repository.name ?? (settings.productName || "Your project")}</span><span className="project-caption">{analysisMode === "demo" ? "Sample workspace" : analysisMode === "live" ? "Optional GitHub evidence" : "Product workspace"}</span></span>
+            <span className="grow"><span className="project-title">{analysis?.repository.name ?? (settings.productName || "Your project")}</span><span className="project-caption">{analysisMode === "live" ? "Optional GitHub evidence" : "Product workspace"}</span></span>
             <ChevronDown size={14} />
           </button>
           <div className="sidebar-section-label">Workspace</div>
@@ -779,8 +757,8 @@ export default function ReleasebuffApp() {
             </div>
           </header>
           {view === "brand" && <BrandKitStudio kit={brandKit} onChange={setBrandKit} />}
-          {view === "setup" && <ProjectSetup settings={settings} setSettings={setSettings} analysis={analysis} analysisMode={analysisMode} scanRepository={scanRepository} scanBusy={scanBusy} scanError={scanError} health={health} bufferStatus={bufferStatus} channels={bufferChannels} channelsBusy={channelsBusy} onRefreshChannels={refreshChannels} onConnectBuffer={() => navigateToAuthEndpoint("/api/buffer/connect")} onDisconnectBuffer={disconnectBuffer} onDemo={loadDemoWorkspace} profile={productProfile} materials={productMaterials} onAddMaterial={addProductMaterial} onRemoveMaterial={removeProductMaterial} onBuildProfile={buildProductProfile} profileBusy={profileBusy} onFindStories={findStories} storyDiscoveryBusy={storyDiscoveryBusy} githubStatus={githubStatus} onConnectGitHub={() => { setGithubBusy(true); navigateToAuthEndpoint("/api/github/connect"); }} onDisconnectGitHub={disconnectGitHub} githubBusy={githubBusy} />}
-          {view === "inbox" && <StoryInbox analysis={analysis} stories={visibleStories} allCount={stories.filter(s => !dismissedIds.includes(s.id)).length} analysisMode={analysisMode} loading={storyDiscoveryBusy} scanError={scanError} settings={settings} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onFindStories={findStories} canFindStories={Boolean(settings.productName.trim() && settings.productSummary.trim())} onGoSetup={() => go("setup")} onOpenStory={openStory} onDraftStory={openDraftForStory} onDismiss={dismissStory} onShowCategories={() => go("categories")} onDemo={loadDemoWorkspace} />}
+          {view === "setup" && <ProjectSetup settings={settings} setSettings={setSettings} analysis={analysis} analysisMode={analysisMode} scanRepository={scanRepository} scanBusy={scanBusy} scanError={scanError} health={health} bufferStatus={bufferStatus} channels={bufferChannels} channelsBusy={channelsBusy} onRefreshChannels={refreshChannels} onConnectBuffer={() => navigateToAuthEndpoint("/api/buffer/connect")} onDisconnectBuffer={disconnectBuffer} profile={productProfile} materials={productMaterials} onAddMaterial={addProductMaterial} onRemoveMaterial={removeProductMaterial} onBuildProfile={buildProductProfile} profileBusy={profileBusy} onFindStories={findStories} storyDiscoveryBusy={storyDiscoveryBusy} githubStatus={githubStatus} onConnectGitHub={() => { setGithubBusy(true); navigateToAuthEndpoint("/api/github/connect"); }} onDisconnectGitHub={disconnectGitHub} githubBusy={githubBusy} />}
+          {view === "inbox" && <StoryInbox analysis={analysis} stories={visibleStories} allCount={stories.filter(s => !dismissedIds.includes(s.id)).length} analysisMode={analysisMode} loading={storyDiscoveryBusy} scanError={scanError} settings={settings} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onFindStories={findStories} canFindStories={Boolean(settings.productName.trim() && settings.productSummary.trim())} onGoSetup={() => go("setup")} onOpenStory={openStory} onDraftStory={openDraftForStory} onDismiss={dismissStory} onShowCategories={() => go("categories")} />}
           {view === "story" && <StoryDetails story={activeStory} extraContext={extraContext} setExtraContext={setExtraContext} interview={activeInterview} interviewAnswerDraft={interviewAnswerDraft} setInterviewAnswerDraft={setInterviewAnswerDraft} interviewBusy={interviewBusy} onStartInterview={() => activeStory && startInterview(activeStory)} onAnswerInterview={() => answerInterview(false)} onSkipInterview={() => answerInterview(true)} onBack={() => go("inbox")} onDraft={() => activeStory && openDraftForStory(activeStory)} onDismiss={() => activeStory && dismissStory(activeStory)} />}
           {view === "categories" && <StoryCategories stories={stories} onChoose={category => { setSelectedCategory(category); setSearchQuery(""); go("inbox"); }} />}
           {view === "draft" && <DraftStudio story={activeStory} drafts={drafts} currentDraftId={currentDraftId} draftText={draftText} setDraftText={setDraftText} draftPlatform={draftPlatform} setDraftPlatform={setDraftPlatform} draftMode={draftMode} draftBusy={draftBusy} extraContext={extraContext} setExtraContext={setExtraContext} onGenerate={generateDraft} onSaveLocal={saveLocalDraft} onCopy={copyDraft} onBufferAction={beginBufferAction} onBack={() => go(activeStory ? "story" : "inbox")} bufferStatus={bufferStatus} health={health} writingPreferences={writingPreferences} setWritingPreferences={setWritingPreferences} interviewSummary={activeInterview?.summary ?? ""} reviewWarnings={draftReviewWarnings} brandKit={brandKit} productName={settings.productName} />}
@@ -794,11 +772,11 @@ export default function ReleasebuffApp() {
 }
 
 
-function StoryInbox({ analysis, stories, allCount, analysisMode, loading, scanError, settings, selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, onFindStories, canFindStories, onGoSetup, onOpenStory, onDraftStory, onDismiss, onShowCategories, onDemo }: {
+function StoryInbox({ analysis, stories, allCount, analysisMode, loading, scanError, settings, selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, onFindStories, canFindStories, onGoSetup, onOpenStory, onDraftStory, onDismiss, onShowCategories }: {
   analysis: GitHubAnalysis | null;
   stories: StoryOpportunity[];
   allCount: number;
-  analysisMode: "none" | "demo" | "live";
+  analysisMode: "none" | "live";
   loading: boolean;
   scanError: string;
   settings: ProjectPreferences;
@@ -813,7 +791,7 @@ function StoryInbox({ analysis, stories, allCount, analysisMode, loading, scanEr
   onDraftStory: (story: StoryOpportunity) => void;
   onDismiss: (story: StoryOpportunity) => void;
   onShowCategories: () => void;
-  onDemo: () => void;
+ 
 }) {
   const categoryOptions = ["All categories", ...ALL_CATEGORIES.map(category => category.name)];
   const readyCount = stories.filter(story => story.status === "ready-to-draft" || story.status === "new").length;
@@ -857,7 +835,7 @@ function StoryInbox({ analysis, stories, allCount, analysisMode, loading, scanEr
           <div className="small muted">{repository.description || "Repository connected for development-story discovery."}</div>
           <div className="row wrap small muted" style={{ marginTop: 6, gap: 10 }}>
             <span>{repository.language || "Language not detected"}</span><span>·</span><span>{repository.stars} stars</span><span>·</span><span>Scanned {fmtDate(analysis?.scannedAt ?? "")}</span>
-            {analysisMode === "demo" && <Badge>Sample data</Badge>}
+            
           </div>
         </div>
         <a className="button button-outline button-sm" href={repository.url} target="_blank" rel="noreferrer">View repository <ExternalLink size={12}/></a>
@@ -894,7 +872,6 @@ function StoryInbox({ analysis, stories, allCount, analysisMode, loading, scanEr
       <div className="row wrap" style={{ justifyContent: "center" }}>
         {!loading && <Button variant="lime" onClick={onGoSetup}>{analysisMode === "none" ? "Set up product sources" : "Add more evidence"} <ArrowRight size={13}/></Button>}
         {!loading && canFindStories && <Button variant="lime" onClick={onFindStories}><Sparkles size={13}/> Find stories</Button>}
-        {!loading && analysisMode === "none" && <Button variant="outline" onClick={onDemo}><Eye size={13}/> Explore sample stories</Button>}
       </div>
     </div>}
     <div className="row-between small muted" style={{ marginTop: 14, gap: 12 }}><span>Source-backed stories take priority over generic prompts.</span><span>{stories.length} shown</span></div>
@@ -911,12 +888,12 @@ function StatusLine({ label, value, ok }: { label: string; value: string; ok: bo
   </div>;
 }
 
-function LandingPage({ onGetStarted, onTryDemo, onSignIn, bufferConnected, bufferConfigured }: { onGetStarted: () => void; onTryDemo: () => void; onSignIn: () => void; bufferConnected: boolean; bufferConfigured: boolean }) {
+function LandingPage({ onGetStarted, onSignIn, bufferConnected, bufferConfigured }: { onGetStarted: () => void; onSignIn: () => void; bufferConnected: boolean; bufferConfigured: boolean }) {
   return <div className="app-shell">
     <nav className="public-nav"><Brand onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} /><div className="public-nav-links"><button className="text-button" onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}>How it works</button><button className="text-button" onClick={() => document.getElementById("stories")?.scrollIntoView({ behavior: "smooth" })}>Story types</button><Button variant="outline" size="sm" onClick={onSignIn}>{bufferConnected ? <CheckCircle2 size={14} /> : <LockKeyhole size={14} />}{bufferConnected ? "Buffer connected" : "Sign in with Buffer"}</Button><Button variant="lime" size="sm" onClick={onGetStarted}>Get started <ArrowRight size={14} /></Button></div></nav>
     <section className="hero">
-      <div className="hero-copy"><span className="badge"><span className="connection-dot live" /> FOR BUILDERS BUILDING IN PUBLIC</span><h1 className="hero-title">Build the product. Find the story worth sharing.</h1><p className="hero-description">Releasebuff helps you turn product decisions, experiments, customer conversations and progress into authentic stories, then create a branded visual for review before publishing. GitHub is optional.</p><div className="hero-actions"><Button variant="lime" onClick={onGetStarted}>Find your first story <ArrowRight size={16} /></Button><Button variant="outline" onClick={onTryDemo}><Eye size={15} /> Explore the agent</Button></div><div className="hero-proof"><span className="hero-proof-dot" /> Evidence-backed story ideas <span>·</span> Human-approved publishing</div></div>
-      <div className="hero-window" aria-label="Product preview illustration"><div className="hero-window-top"><span className="window-dot"/><span className="window-dot"/><span className="window-dot"/><span className="hero-window-title">releasebuff / story-inbox</span><span style={{ marginLeft: "auto" }}><span className="badge badge-success">PREVIEW</span></span></div><div className="hero-preview-body"><aside className="preview-nav"><div className="preview-nav-label">WORKSPACE</div><div className="preview-nav-item active"><Layers3 size={12}/>Story Inbox</div><div className="preview-nav-item"><Tag size={12}/>Categories</div><div className="preview-nav-item"><FileText size={12}/>Draft Studio</div><div className="preview-nav-item"><BookMarked size={12}/>Draft Library</div><div className="preview-nav-item"><Settings2 size={12}/>Project Setup</div></aside><div className="preview-content"><div className="eyebrow">RBF.01 / DISCOVER</div><div className="preview-content-title hero-preview-heading" style={{ marginTop: 8 }}>Your Story Inbox</div><div className="preview-meta">SAMPLE PROJECT: TRELLIS</div><div className="preview-stat-row"><div className="preview-stat hero-stat-in"><div className="preview-stat-value">16</div><div className="preview-stat-label">STORY TYPES</div></div><div className="preview-stat hero-stat-in"><div className="preview-stat-value">4</div><div className="preview-stat-label">GROUPS</div></div><div className="preview-stat hero-stat-in"><div className="preview-stat-value">↗</div><div className="preview-stat-label">SOURCE LINKS</div></div></div><div className="preview-story hero-story-in"><div className="preview-story-top"><span className="badge badge-success">PRODUCT DECISION</span><span className="badge">BUILDER NOTE</span></div><div className="preview-story-title">We removed a feature to simplify the core workflow</div><div className="preview-story-description">The decision started with a simple question: what should be easiest for a new user to do?</div><div className="preview-story-footer"><span>Evidence-backed</span><span>Review story →</span></div></div><div className="preview-story hero-story-in"><div className="preview-story-top"><span className="badge badge-warning">CUSTOMER INSIGHT</span><span className="badge">INTERVIEW</span></div><div className="preview-story-title">Feedback raised a question worth investigating</div><div className="preview-story-description">The next step is to understand what the person was trying to accomplish before choosing a solution.</div><div className="preview-story-footer"><span>Issue + fix</span><span>Inspect →</span></div></div></div></div></div>
+      <div className="hero-copy"><span className="badge"><span className="connection-dot live" /> FOR BUILDERS BUILDING IN PUBLIC</span><h1 className="hero-title">Build the product. Find the story worth sharing.</h1><p className="hero-description">Releasebuff helps you turn product decisions, experiments, customer conversations and progress into authentic stories, then create a branded visual for review before publishing. GitHub is optional.</p><div className="hero-actions"><Button variant="lime" onClick={onGetStarted}>Find your first story <ArrowRight size={16} /></Button></div><div className="hero-proof"><span className="hero-proof-dot" /> Evidence-backed story ideas <span>·</span> Human-approved publishing</div></div>
+      <div className="hero-window" aria-label="Product preview illustration"><div className="hero-window-top"><span className="window-dot"/><span className="window-dot"/><span className="window-dot"/><span className="hero-window-title">releasebuff / story-inbox</span><span style={{ marginLeft: "auto" }}><span className="badge badge-success">PREVIEW</span></span></div><div className="hero-preview-body"><aside className="preview-nav"><div className="preview-nav-label">WORKSPACE</div><div className="preview-nav-item active"><Layers3 size={12}/>Story Inbox</div><div className="preview-nav-item"><Tag size={12}/>Categories</div><div className="preview-nav-item"><FileText size={12}/>Draft Studio</div><div className="preview-nav-item"><BookMarked size={12}/>Draft Library</div><div className="preview-nav-item"><Settings2 size={12}/>Project Setup</div></aside><div className="preview-content"><div className="eyebrow">RBF.01 / DISCOVER</div><div className="preview-content-title hero-preview-heading" style={{ marginTop: 8 }}>Your Story Inbox</div><div className="preview-meta">YOUR PRODUCT WORKSPACE</div><div className="preview-stat-row"><div className="preview-stat hero-stat-in"><div className="preview-stat-value">16</div><div className="preview-stat-label">STORY TYPES</div></div><div className="preview-stat hero-stat-in"><div className="preview-stat-value">4</div><div className="preview-stat-label">GROUPS</div></div><div className="preview-stat hero-stat-in"><div className="preview-stat-value">↗</div><div className="preview-stat-label">SOURCE LINKS</div></div></div><div className="preview-story hero-story-in"><div className="preview-story-top"><span className="badge badge-success">PRODUCT DECISION</span><span className="badge">BUILDER NOTE</span></div><div className="preview-story-title">We removed a feature to simplify the core workflow</div><div className="preview-story-description">The decision started with a simple question: what should be easiest for a new user to do?</div><div className="preview-story-footer"><span>Evidence-backed</span><span>Review story →</span></div></div><div className="preview-story hero-story-in"><div className="preview-story-top"><span className="badge badge-warning">CUSTOMER INSIGHT</span><span className="badge">INTERVIEW</span></div><div className="preview-story-title">Feedback raised a question worth investigating</div><div className="preview-story-description">The next step is to understand what the person was trying to accomplish before choosing a solution.</div><div className="preview-story-footer"><span>Issue + fix</span><span>Inspect →</span></div></div></div></div></div>
     </section>
     <section className="marketing-section" id="how-it-works" style={{ background: "#fff" }}><div className="marketing-inner"><span className="eyebrow">HOW IT WORKS</span><h2 className="section-title">From development work to a story worth sharing.</h2><p className="section-lede">You keep building. Releasebuff helps you notice meaningful moments, combine product context with evidence, and turn them into posts and branded visuals that sound like you.</p><div className="feature-grid"><div className="feature-card"><IconBox icon={Github}/><span className="eyebrow">01 / ADD PROJECT</span><h3>Start wherever you are</h3><p>Start with a description of your product and what you are trying to achieve. Add notes, documents, screenshots or public URLs; connect GitHub only if development evidence would help.</p></div><div className="feature-card"><IconBox icon={WandSparkles}/><span className="eyebrow">02 / DISCOVER</span><h3>Find the story</h3><p>Combine the Product Intelligence Profile, founder context, notes, documents and optional connected tools to find story opportunities worth exploring.</p></div><div className="feature-card"><IconBox icon={Send}/><span className="eyebrow">03 / DRAFT</span><h3>Draft + visual together</h3><p>Create a platform-appropriate post and a matching branded graphic or GIF in the same workflow. Edit each independently, then choose whether to save, schedule or publish through Buffer.</p></div></div></div></section>
     <section className="marketing-section" id="stories"><div className="marketing-inner"><span className="eyebrow">STORY CATEGORIES</span><h2 className="section-title">More than “I shipped a feature.”</h2><p className="section-lede">Your experience is the source of stories. The agent looks across product progress, lessons, product marketing and audience growth—and asks for context instead of guessing. GitHub can add supporting evidence.</p><div className="feature-grid">{CATEGORY_GROUPS.map(group => { const Icon = groupIcon[group.name]; return <div className="feature-card" key={group.name}><IconBox icon={Icon}/><h3>{group.name}</h3><p>{group.tagline}. Includes {group.categories.slice(0, 3).map(c => c.name.toLowerCase()).join(", ")} and more.</p></div>; })}</div></div></section>
@@ -925,10 +902,10 @@ function LandingPage({ onGetStarted, onTryDemo, onSignIn, bufferConnected, buffe
   </div>;
 }
 
-function ProjectSetup({ settings, setSettings, analysis, analysisMode, scanRepository, scanBusy, scanError, health, bufferStatus, channels, channelsBusy, onRefreshChannels, onConnectBuffer, onDisconnectBuffer, onDemo, profile, materials, onAddMaterial, onRemoveMaterial, onBuildProfile, profileBusy, onFindStories, storyDiscoveryBusy, githubStatus, onConnectGitHub, onDisconnectGitHub, githubBusy }: {
-  settings: ProjectPreferences; setSettings: React.Dispatch<React.SetStateAction<ProjectPreferences>>; analysis: GitHubAnalysis | null; analysisMode: "none" | "demo" | "live";
+function ProjectSetup({ settings, setSettings, analysis, analysisMode, scanRepository, scanBusy, scanError, health, bufferStatus, channels, channelsBusy, onRefreshChannels, onConnectBuffer, onDisconnectBuffer, profile, materials, onAddMaterial, onRemoveMaterial, onBuildProfile, profileBusy, onFindStories, storyDiscoveryBusy, githubStatus, onConnectGitHub, onDisconnectGitHub, githubBusy }: {
+  settings: ProjectPreferences; setSettings: React.Dispatch<React.SetStateAction<ProjectPreferences>>; analysis: GitHubAnalysis | null; analysisMode: "none" | "live";
   scanRepository: (url?: string, force?: boolean) => Promise<void>; scanBusy: boolean; scanError: string; health: { aiConfigured: boolean; claudeGifConfigured?: boolean; bufferConfigured: boolean; githubAppConfigured?: boolean; encryptedIntegrationStore?: boolean } | null;
-  bufferStatus: BufferStatus; channels: BufferChannel[]; channelsBusy: boolean; onRefreshChannels: () => Promise<void>; onConnectBuffer: () => void; onDisconnectBuffer: () => void; onDemo: () => void;
+  bufferStatus: BufferStatus; channels: BufferChannel[]; channelsBusy: boolean; onRefreshChannels: () => Promise<void>; onConnectBuffer: () => void; onDisconnectBuffer: () => void;
   profile: ProductProfile | null; materials: ProductMaterial[]; onAddMaterial: (material: ProductMaterial) => void; onRemoveMaterial: (id: string) => void; onBuildProfile: () => Promise<void>; profileBusy: boolean; onFindStories: () => Promise<void>; storyDiscoveryBusy: boolean;
   githubStatus: { connected: boolean; configured: boolean }; onConnectGitHub: () => void; onDisconnectGitHub: () => void; githubBusy: boolean;
 }) {
@@ -980,7 +957,7 @@ function ProjectSetup({ settings, setSettings, analysis, analysisMode, scanRepos
   };
 
   return <div className="workspace-content">
-    <div className="page-heading"><div><span className="eyebrow">RBF.01 / PRODUCT UNDERSTANDING</span><h1>Let&apos;s get to know your product.</h1><p>Tell us what you&apos;re building, then add whatever evidence you have. A live website or repository is not required to get started.</p></div><div className="heading-actions"><Button variant="outline" onClick={onDemo}><Eye size={14}/> Load sample project</Button><Button variant="outline" onClick={onBuildProfile} disabled={profileBusy || !settings.productName.trim() || !settings.productSummary.trim()}>{profileBusy ? <LoaderCircle className="spinning" size={14}/> : <BrainCircuit size={14}/>} {profileBusy ? "Understanding product…" : "Build Product Profile"}</Button><Button variant="lime" onClick={onFindStories} disabled={storyDiscoveryBusy || !settings.productName.trim() || !settings.productSummary.trim()}>{storyDiscoveryBusy ? <LoaderCircle className="spinning" size={14}/> : <Sparkles size={14}/>} {storyDiscoveryBusy ? "Finding stories…" : "Find stories"}</Button></div></div>
+    <div className="page-heading"><div><span className="eyebrow">RBF.01 / PRODUCT UNDERSTANDING</span><h1>Let&apos;s get to know your product.</h1><p>Tell us what you&apos;re building, then add whatever evidence you have. A live website or repository is not required to get started.</p></div><div className="heading-actions"><Button variant="outline" onClick={onBuildProfile} disabled={profileBusy || !settings.productName.trim() || !settings.productSummary.trim()}>{profileBusy ? <LoaderCircle className="spinning" size={14}/> : <BrainCircuit size={14}/>} {profileBusy ? "Understanding product…" : "Build Product Profile"}</Button><Button variant="lime" onClick={onFindStories} disabled={storyDiscoveryBusy || !settings.productName.trim() || !settings.productSummary.trim()}>{storyDiscoveryBusy ? <LoaderCircle className="spinning" size={14}/> : <Sparkles size={14}/>} {storyDiscoveryBusy ? "Finding stories…" : "Find stories"}</Button></div></div>
     <div className="setup-grid">
       <div className="stack">
         <section className="panel">
@@ -1060,7 +1037,7 @@ function StoryDetails({ story, extraContext, setExtraContext, interview, intervi
   return <div className="workspace-content">
     <div className="page-heading"><div><button className="text-button row" onClick={onBack}><ArrowLeft size={14}/> Back to Story Inbox</button><span className="eyebrow">RBF.02 / INTERPRET</span><h1>Story details</h1><p>Understand what happened, why it matters, and what still needs your perspective.</p></div><div className="heading-actions"><Button variant="outline" onClick={onDismiss}><X size={14}/> Dismiss idea</Button><Button variant="lime" onClick={onDraft}><FileText size={14}/> Create draft</Button></div></div>
     <div className="two-col"><div className="stack">
-      <section className="panel"><div className="panel-body"><div className="row wrap"><Badge>{story.category}</Badge><StoryStatusBadge status={story.status}/><Badge>{story.confidence} evidence</Badge>{story.demo && <Badge>Sample</Badge>}</div><h2 style={{ fontSize: 27, lineHeight: 1.1, letterSpacing: "-.045em", color: "var(--forest)", margin: "16px 0 11px" }}>{story.title}</h2><p style={{ fontSize: 14, lineHeight: 1.75, color: "var(--ink-muted)", margin: 0 }}>{story.summary}</p>{story.whyItMatters && <><hr className="separator"/><div className="context-heading">Why this story might matter</div><p style={{ fontSize: 13, lineHeight: 1.7, margin: 0 }}>{story.whyItMatters}</p></>}<hr className="separator"/><div className="context-heading">Suggested story angle</div><p style={{ fontSize: 13, lineHeight: 1.7, margin: 0 }}>{story.angle}</p></div></section>
+      <section className="panel"><div className="panel-body"><div className="row wrap"><Badge>{story.category}</Badge><StoryStatusBadge status={story.status}/><Badge>{story.confidence} evidence</Badge></div><h2 style={{ fontSize: 27, lineHeight: 1.1, letterSpacing: "-.045em", color: "var(--forest)", margin: "16px 0 11px" }}>{story.title}</h2><p style={{ fontSize: 14, lineHeight: 1.75, color: "var(--ink-muted)", margin: 0 }}>{story.summary}</p>{story.whyItMatters && <><hr className="separator"/><div className="context-heading">Why this story might matter</div><p style={{ fontSize: 13, lineHeight: 1.7, margin: 0 }}>{story.whyItMatters}</p></>}<hr className="separator"/><div className="context-heading">Suggested story angle</div><p style={{ fontSize: 13, lineHeight: 1.7, margin: 0 }}>{story.angle}</p></div></section>
       <section className="panel"><div className="panel-header"><div className="row"><FileCheck size={17}/><span className="panel-title">Source evidence</span></div><Badge>{story.evidence.length} source{story.evidence.length===1?"":"s"}</Badge></div><div className="panel-body stack">{story.evidence.length ? story.evidence.map(e => <div key={e.id} className="library-row"><span className="feature-icon" style={{ margin: 0 }}><FileCode2 size={17}/></span><div className="library-row-main"><a href={e.url.startsWith("http") ? e.url : undefined} onClick={e.url.startsWith("http") ? undefined : ev => ev.preventDefault()} target={e.url.startsWith("http") ? "_blank" : undefined} rel="noreferrer" style={{ fontWeight: 750, fontSize: 12, textDecoration: "none", color: "var(--forest)" }}>{e.label} {e.url.startsWith("http") && <ExternalLink size={11} style={{ display: "inline" }}/>}</a><div className="small muted" style={{ marginTop: 5 }}>{e.excerpt || (e.url.startsWith("http") ? "Source artifact linked for review." : "Builder-provided material stored in this browser.")}</div><div className="row wrap" style={{ marginTop: 6, gap: 6 }}>{e.sourceStatus && <Badge tone={e.sourceStatus === "source-supported" ? "success" : e.sourceStatus === "builder-provided" ? "neutral" : "warning"}>{e.sourceStatus === "source-supported" ? "Source-supported" : e.sourceStatus === "builder-provided" ? "Builder-provided" : e.sourceStatus === "hypothesis" ? "Hypothesis" : "Unknown"}</Badge>}{e.collectedAt && <span className="small muted">Collected {fmtDate(e.collectedAt)}</span>}</div></div></div>) : <div className="alert alert-warning"><CircleHelp size={16}/><span>No external source has been attached. Treat this as builder-provided context and avoid unsupported factual claims.</span></div>}{story.sourceFacts.length > 0 && <div><div className="context-heading">Facts extracted from sources</div><ul style={{ paddingLeft: 18, margin: 0, color: "var(--ink-muted)", fontSize: 12, lineHeight: 1.8 }}>{story.sourceFacts.map((fact, i) => <li key={i}>{fact}</li>)}</ul></div>}</div></section>
     </div><aside className="stack">
       <section className="panel"><div className="panel-header"><div className="row"><MessageCircleQuestion size={17}/><span className="panel-title">Interview the builder</span></div><Badge tone={interview?.complete ? "success" : interviewCount ? "warning" : "neutral"}>{interview?.complete ? "Complete" : interviewCount ? `${interviewCount} answered` : "Optional but useful"}</Badge></div><div className="panel-body stack">
