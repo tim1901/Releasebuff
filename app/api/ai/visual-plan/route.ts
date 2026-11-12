@@ -65,7 +65,7 @@ export async function POST(request: Request) {
   if (!anthropicKey) {
     return NextResponse.json({ plan: fallback, mode: "contextual-fallback" }, { headers: { "Cache-Control": "no-store" } });
   }
-  const facts = getVisualFacts(story);
+  const facts = getVisualFacts(story, draftText);
   const brief = {
     productName,
     story: {
@@ -86,6 +86,8 @@ export async function POST(request: Request) {
   const instructions = [
     "You are a senior editorial art director for builders sharing authentic product work.",
     "Create an art direction plan for a vector graphic that will be drawn by a program. You are NOT generating a bitmap image.",
+    "The actual draft text is the primary creative brief. Build the graphic around its central claim, question, mechanism or takeaway; use profile facts only when they directly support that specific post.",
+    "Avoid generic product-description cards when the draft is about a specific idea. Prefer a composition with a clear visual metaphor or information hierarchy suited to the draft, using the available layout choices and supported facts.",
     "Choose the composition based on this particular story, not from a one-template-fits-all habit. Available layouts: spotlight, release, metric, decision, lesson, steps.",
     "Honor the provided brandDirection for visual style, color roles, typography and aspect ratio. Treat colors as fixed brand tokens; do not recommend replacing them. The renderer applies the brand palette.",
     "Return JSON only with keys: layout, headline, supportingLine, factIndexes, metricFactIndex.",
