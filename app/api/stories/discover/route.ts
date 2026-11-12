@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       audience: settings.audience || profile?.targetAudience || "",
       materials: combinedMaterials
     });
-    const stories = discovery.stories.length ? discovery.stories : profileCandidates;
+    const stories = (discovery.stories.length ? discovery.stories : profileCandidates).slice(0, 12);
     return NextResponse.json({
       stories,
       mode: discovery.mode,
