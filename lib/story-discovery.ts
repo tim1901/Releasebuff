@@ -33,12 +33,35 @@ function assessEvidence(story: StoryOpportunity): StoryOpportunity {
   const types = new Set(usable.map(item => item.type));
   const category = story.category.toLowerCase();
   let question = "";
+  const facts = story.sourceFacts.join(" ");
   if (category.includes("bug fixed") || category.includes("problem solved")) {
-    if (!types.has("issue") && !types.has("pull_request") && !types.has("commit") && !story.sourceFacts.some(f => /bug|fix|broken|error|issue|resolved/i.test(f))) question = "What was broken, what changed to fix it, and how did you verify the fix?";
+    if (!types.has("issue") && !types.has("pull_request") && !types.has("commit") && !/bug|fix|broken|error|issue|resolved/i.test(facts)) question = "What was broken, what changed to fix it, and how did you verify the fix?";
   } else if (category.includes("feature shipped") || category.includes("product improvement")) {
-    if (!types.has("release") && !types.has("pull_request") && !types.has("commit") && !story.sourceFacts.some(f => /shipped|released|implemented|changed|added/i.test(f))) question = "What specifically changed, and is it available to users yet?";
+    if (!types.has("release") && !types.has("pull_request") && !types.has("commit") && !/shipped|released|implemented|changed|added/i.test(facts)) question = "What specifically changed, and is it available to users yet?";
+  } else if (category.includes("weekly build recap")) {
+    if (usable.length < 2) question = "What were the other meaningful things you worked on this week, and which one mattered most?";
+  } else if (category.includes("technical decision")) {
+    if (!/because|trade.?off|chose|decision|instead of|alternative|constraint/i.test(facts)) question = "What alternatives did you consider, why did you choose this approach, and what trade-off did you accept?";
+  } else if (category.includes("lesson learned")) {
+    if (!/learned|realized|discovered|unexpected|changed my|taught me/i.test(facts)) question = "What surprised you or changed your thinking while doing this work?";
+  } else if (category.includes("failed experiment")) {
+    if (!/failed|did not work|didn't work|revert|rolled back|changed direction|experiment/i.test(facts)) question = "What did you try, what happened, and what evidence made you change direction?";
+  } else if (category.includes("behind the scenes")) {
+    if (!/implementation|architecture|under the hood|technical|design|test|workflow/i.test(facts)) question = "What specific implementation detail or hidden challenge would be interesting to show?";
+  } else if (category.includes("showcase") || category.includes("demo")) {
+    if (!/how to|workflow|step|demo|screenshot|feature|capability/i.test(facts)) question = "What exact user workflow should the demo show, step by step?";
+  } else if (category.includes("problem and solution")) {
+    if (!/problem|pain point|struggle|manual|slow|difficult|solution/i.test(facts)) question = "Who experiences the problem, what makes it painful, and how does your product address it?";
+  } else if (category.includes("launch promotion")) {
+    if (!/launch|available|released|release|sign up|try it|waitlist/i.test(facts)) question = "What is actually available now, who can access it, and what should interested people do next?";
+  } else if (category.includes("roadmap") || category.includes("what's next")) {
+    if (!/plan|next|roadmap|priorit|explor|consider|intend/i.test(facts)) question = "What are you considering or planning next, and what makes it the priority?";
+  } else if (category.includes("ask the audience")) {
+    if (!/question|feedback|choose|decide|unsure|input/i.test(facts)) question = "What genuine open question would you like your audience to help you answer?";
   } else if (category.includes("traction") || category.includes("customer feedback")) {
-    if (!types.has("analytics") && !types.has("customer_feedback") && !story.sourceFacts.some(f => /customer|user feedback|metric|sign.?ups|revenue|retention/i.test(f))) question = "What verified customer feedback or measurable result can you share?";
+    if (!types.has("analytics") && !types.has("customer_feedback") && !/customer|user feedback|metric|sign.?ups|revenue|retention/i.test(facts)) question = "What verified customer feedback or measurable result can you share?";
+  } else if (category.includes("founder journey") || category.includes("personal reflection")) {
+    if (!/i |my |we |felt|thought|learned|realized|underestimated|experience/i.test(facts.toLowerCase())) question = "What personal experience, feeling, or lesson from building this product do you want to share?";
   }
   if (!question && story.requiresContext?.trim()) question = story.requiresContext.trim();
   const ready = usable.length > 0 && !question && story.status === "ready-to-draft";
