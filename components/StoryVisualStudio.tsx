@@ -225,13 +225,22 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
       setGifPlanMode(data.mode === "claude" ? "claude" : "fallback");
       setGifPlanSignature(gifSignature);
       setGifPlanMessage(data.message || (data.mode === "claude"
-        ? "Claude tailored this storyboard to the current post. Review the scenes before exporting."
+        ? "Claude tailored this storyboard to the current post. Review the animation below before downloading."
         : "Using a context-based storyboard. Add ANTHROPIC_API_KEY to enable Claude's post-specific art direction."));
+      const blob = await renderExplainerGifBlob(data.plan);
+      storeGifPreview(blob, gifSignature);
     } catch (error) {
-      setGifPlan(createFallbackGifExplainer(story, draftText, productName));
+      const fallback = createFallbackGifExplainer(story, draftText, productName);
+      setGifPlan(fallback);
       setGifPlanMode("fallback");
       setGifPlanSignature(gifSignature);
       setGifPlanMessage(error instanceof Error ? error.message : "Claude was unavailable; a context-based storyboard is ready.");
+      try {
+        const blob = await renderExplainerGifBlob(fallback);
+        storeGifPreview(blob, gifSignature);
+      } catch (renderError) {
+        setExportError(renderError instanceof Error ? renderError.message : "Could not render the fallback explainer GIF.");
+      }
     } finally {
       setGifPlanBusy(false);
     }
