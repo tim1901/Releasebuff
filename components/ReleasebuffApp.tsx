@@ -821,6 +821,10 @@ function StoryInbox({ analysis, stories, allCount, analysisMode, loading, scanEr
   onDemo: () => void;
 }) {
   const categoryOptions = ["All categories", ...ALL_CATEGORIES.map(category => category.name)];
+  // Keep category navigation responsive when a workspace has accumulated many stories.
+  // Render the first page immediately instead of mounting every story card at once.
+  const [showAllStories, setShowAllStories] = useState(false);
+  const displayedStories = showAllStories ? stories : stories.slice(0, 12);
   const readyCount = stories.filter(story => story.status === "ready-to-draft" || story.status === "new").length;
   const evidenceCount = stories.filter(story => story.evidence.length > 0).length;
   const repository = analysis?.repository;
@@ -892,7 +896,7 @@ function StoryInbox({ analysis, stories, allCount, analysisMode, loading, scanEr
       <Button variant="outline" size="sm" onClick={onShowCategories}><Tag size={13}/> Browse categories</Button>
     </div>
 
-    {stories.length ? <div className="story-list">{stories.map(story => <StoryCard key={story.id} story={story} onOpen={() => onOpenStory(story)} onDraft={() => onDraftStory(story)} onDismiss={() => onDismiss(story)}/>)}</div> : <div className="empty-state">
+    {stories.length ? <><div className="story-list">{displayedStories.map(story => <StoryCard key={story.id} story={story} onOpen={() => onOpenStory(story)} onDraft={() => onDraftStory(story)} onDismiss={() => onDismiss(story)}/>)}</div>{stories.length > 12 && <div className="row" style={{ justifyContent: "center", marginTop: 16 }}><Button variant="outline" onClick={() => setShowAllStories(value => !value)}>{showAllStories ? "Show fewer stories" : `Show all ${stories.length} stories`} <ChevronDown size={14}/></Button></div>}</> : <div className="empty-state">
       <div className="empty-icon">{loading ? <LoaderCircle className="spinning" size={22}/> : <Layers3 size={22}/>}</div>
       <h3>{loading ? "Combining your product context…" : allCount ? "No stories match these filters" : analysisMode === "none" ? "Let's find your first story" : "No useful stories found yet"}</h3>
       <p>{loading ? "Releasebuff is combining your Product Intelligence Profile, product details, notes, documents and optional GitHub evidence." : allCount ? "Try another search term or category. You can also browse the full set of story categories." : analysisMode === "none" ? "Add your product details, notes, documents, or screenshots. A repository is optional; start with whatever context you have." : "The available sources did not produce a useful story yet. Add more product context or update your materials and try again."}</p>
@@ -902,7 +906,7 @@ function StoryInbox({ analysis, stories, allCount, analysisMode, loading, scanEr
         {!loading && analysisMode === "none" && <Button variant="outline" onClick={onDemo}><Eye size={13}/> Explore sample stories</Button>}
       </div>
     </div>}
-    <div className="row-between small muted" style={{ marginTop: 14, gap: 12 }}><span>Source-backed stories take priority over generic prompts.</span><span>{stories.length} shown</span></div>
+    <div className="row-between small muted" style={{ marginTop: 14, gap: 12 }}><span>Source-backed stories take priority over generic prompts.</span><span>{displayedStories.length} of {stories.length} shown</span></div>
   </div>;
 }
 
