@@ -38,7 +38,9 @@ describe("story visual planning and template", () => {
     const heading = svg.match(/<text[^>]*font-size="64"[^>]*>([\s\S]*?)<\/text>/);
     expect(heading).not.toBeNull();
     expect((heading?.[1].match(/<tspan /g) ?? []).length).toBeGreaterThan(1);
-  });\n\n  it("chooses a release-led headline instead of a raw package version", () => {
+  });
+
+  it("chooses a release-led headline instead of a raw package version", () => {
     const story = { ...exampleStory, category: "New feature shipped" as const, title: "astro@7.4.4-beta.0", summary: "A published release is available." };
     const plan = createContextualVisualPlan({ story, productName: "Releasebuff" });
     expect(plan.layout).toBe("release");
