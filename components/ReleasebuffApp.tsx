@@ -729,17 +729,29 @@ export default function ReleasebuffApp() {
     } catch (error) { say(error instanceof Error ? error.message : "Could not disconnect Buffer.", "error"); }
   };
 
-  // Keep navigation urgent: filtering the inbox is deferred so selecting a category
-  // can paint the inbox shell immediately, then update the list without blocking the click.
-  const deferredSelectedCategory = useDeferredValue(selectedCategory);
+  // Prepare category feeds whenever the saved/discovered story set changes, not on click.
+  // A category-card click is now a constant-time lookup into this prebuilt index.
+  const storiesByCategory = useMemo(() => {
+    const grouped = new Map<string, StoryOpportunity[]>();
+    grouped.set("All categories", []);
+    for (const story of stories) {
+      if (dismissedIds.includes(story.id) || story.status === "dismissed") continue;
+      grouped.get("All categories")!.push(story);
+      const categoryStories = grouped.get(story.category);
+      if (categoryStories) categoryStories.push(story);
+      else grouped.set(story.category, [story]);
+    }
+    return grouped;
+  }, [stories, dismissedIds]);
   const deferredSearchQuery = useDeferredValue(searchQuery);
-  const visibleStories = useMemo(() => stories.filter(story => {
-    if (dismissedIds.includes(story.id) || story.status === "dismissed") return false;
-    if (deferredSelectedCategory !== "All categories" && story.category !== deferredSelectedCategory) return false;
+  const categoryStories = storiesByCategory.get(selectedCategory) ?? storiesByCategory.get("All categories") ?? [];
+  const visibleStories = useMemo(() => {
     const q = deferredSearchQuery.trim().toLowerCase();
-    if (q && !`${story.title} ${story.summary} ${story.category} ${story.evidence.map(e => e.label).join(" ")}`.toLowerCase().includes(q)) return false;
-    return true;
-  }), [stories, deferredSelectedCategory, deferredSearchQuery, dismissedIds]);
+    if (!q) return categoryStories;
+    return categoryStories.filter(story =>
+      `${story.title} ${story.summary} ${story.category} ${story.evidence.map(e => e.label).join(" ")}`.toLowerCase().includes(q)
+    );
+  }, [categoryStories, deferredSearchQuery]);
 
   const go = (target: View) => { setView(target); setMobileNavOpen(false); if (target !== "draft") setBufferAction(null); };
 
