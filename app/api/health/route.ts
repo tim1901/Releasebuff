@@ -14,6 +14,8 @@ export async function GET() {
     capabilities: {
       publicGitHubAnalysis: true, privateGitHubApp: isGitHubAppConfigured(),
       aiDrafts: hasAiConfiguration(), aiModel: hasAiConfiguration() ? configuredAiModel() : null,
+      claudeGifExplainer: Boolean(process.env.ANTHROPIC_API_KEY?.trim()),
+      claudeGifModel: process.env.ANTHROPIC_API_KEY?.trim() ? (process.env.ANTHROPIC_MODEL?.trim() || "claude-sonnet-4-6") : null,
       bufferOAuth: isBufferOAuthConfigured(),
       encryptedIntegrationStore: isSessionEncryptionConfigured() && persistentIntegrationStoreConfigured(),
       productMaterials: true, adaptiveStoryInterview: true
