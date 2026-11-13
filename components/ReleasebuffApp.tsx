@@ -8,7 +8,7 @@ import {
   Send, Settings2, Sparkles, Tag, Target, Trash2, X, CalendarDays, CheckCheck,
   Braces, WandSparkles, BookMarked, Eye, Radio, LogOut, FileUp, MessageSquareText, BrainCircuit, Palette, type LucideIcon
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { BrandKit, BufferChannel, GitHubAnalysis, LocalDraft, ProductMaterial, ProductProfile, ProjectPreferences, StoryCategory, StoryInterview, StoryInterviewAnswer, StoryOpportunity, StoryStatus, StoryWritingPreferences } from "@/lib/types";
 import { DEFAULT_BRAND_KIT, normaliseBrandKit } from "@/lib/brand-kit";
 import BrandKitStudio from "@/components/BrandKitStudio";
@@ -718,13 +718,28 @@ export default function ReleasebuffApp() {
     } catch (error) { say(error instanceof Error ? error.message : "Could not disconnect Buffer.", "error"); }
   };
 
-  const visibleStories = useMemo(() => stories.filter(story => {
-    if (dismissedIds.includes(story.id) || story.status === "dismissed") return false;
-    if (selectedCategory !== "All categories" && story.category !== selectedCategory) return false;
-    const q = searchQuery.trim().toLowerCase();
-    if (q && !`${story.title} ${story.summary} ${story.category} ${story.evidence.map(e => e.label).join(" ")}`.toLowerCase().includes(q)) return false;
-    return true;
-  }), [stories, selectedCategory, searchQuery, dismissedIds]);
+  // Build category feeds whenever stories change; category navigation is now an O(1) lookup.
+  const storiesByCategory = useMemo(() => {
+    const grouped = new Map<string, StoryOpportunity[]>();
+    grouped.set("All categories", []);
+    for (const story of stories) {
+      if (dismissedIds.includes(story.id) || story.status === "dismissed") continue;
+      grouped.get("All categories")!.push(story);
+      const categoryFeed = grouped.get(story.category);
+      if (categoryFeed) categoryFeed.push(story);
+      else grouped.set(story.category, [story]);
+    }
+    return grouped;
+  }, [stories, dismissedIds]);
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const categoryStories = storiesByCategory.get(selectedCategory) ?? storiesByCategory.get("All categories") ?? [];
+  const visibleStories = useMemo(() => {
+    const q = deferredSearchQuery.trim().toLowerCase();
+    if (!q) return categoryStories;
+    return categoryStories.filter(story =>
+      `${story.title} ${story.summary} ${story.category} ${story.evidence.map(e => e.label).join(" ")}`.toLowerCase().includes(q)
+    );
+  }, [categoryStories, deferredSearchQuery]);
 
   const resetProductWorkspace = async () => {
     const confirmed = window.confirm("Start a new product workspace? This clears the current product profile, source materials, GitHub analysis, discovered stories, interviews, and local drafts from this browser. Buffer and GitHub connections will stay connected.");
