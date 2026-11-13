@@ -11,6 +11,7 @@ import {
   type VisualLayout
 } from "@/lib/visual-template";
 import { encodeAnimatedGif } from "@/lib/gif-encoder";
+import { buildGifExplainerSvg, createFallbackGifExplainer, type GifExplainerPlan } from "@/lib/gif-explainer";
 
 async function renderSvgToRgba(svg: string, width: number, height: number): Promise<Uint8ClampedArray> {
   const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
@@ -46,6 +47,7 @@ function slug(value: string) { return value.toLowerCase().replace(/[^a-z0-9]+/g,
 
 type StoryVisualStudioProps = { story: StoryOpportunity | null; draftText: string; productName: string; kit: BrandKit };
 type VisualPlanResponse = { plan?: StoryVisualPlan; mode?: "ai" | "contextual-fallback"; error?: string };
+type GifPlanResponse = { plan?: GifExplainerPlan; mode?: "claude" | "fallback"; message?: string; error?: string };
 
 async function fetchVisualPlan(story: StoryOpportunity, draftText: string, productName: string): Promise<{ plan: StoryVisualPlan; source: "ai" | "context" }> {
   const response = await fetch("/api/ai/visual-plan", {
@@ -71,6 +73,10 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
   const [planning, setPlanning] = useState(false);
   const [exportBusy, setExportBusy] = useState<"" | "png" | "gif">("");
   const [exportError, setExportError] = useState("");
+  const [gifPlan, setGifPlan] = useState<GifExplainerPlan | null>(null);
+  const [gifPlanMode, setGifPlanMode] = useState<"claude" | "fallback" | "context">("context");
+  const [gifPlanning, setGifPlanning] = useState(false);
+  const [gifPlanMessage, setGifPlanMessage] = useState("");
   const requestedStoryId = useRef<string | null>(null);
   const hasDraft = Boolean(draftText.trim());
   const fallbackPlan = useMemo(() => createContextualVisualPlan({ story, draftText, productName }), [story, draftText, productName]);
@@ -84,6 +90,8 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
   }), [kit, story, draftText, productName, headlineOverride, supportingOverride, layout, activePlan]);
   const previewSrc = useMemo(() => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg), [svg]);
   const canExport = Boolean(story || draftText.trim());
+  const activeGifPlan = gifPlan ?? createFallbackGifExplainer(story, draftText, productName);
+  const gifPreviewSvg = useMemo(() => buildGifExplainerSvg({ kit, scene: activeGifPlan.scenes[0], sceneIndex: 0, sceneCount: activeGifPlan.scenes.length, productName }), [kit, activeGifPlan, productName]);
 
   async function requestArtDirection() {
     if (!story) return;
@@ -99,6 +107,54 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
       setExportError("Using the context-based fallback. The visual remains grounded in the selected story.");
     } finally {
       setPlanning(false);
+    }
+  }
+
+  async function requestGifExplainer() {
+    if (!story) return;
+    setGifPlanning(true);
+    setGifPlanMessage("");
+    try {
+      const response = await fetch("/api/ai/gif-explainer-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ story, draftText, productName, brandKit: kit })
+      });
+      const data = await response.json() as GifPlanResponse;
+      if (!response.ok || !data.plan) throw new Error(data.error || "Could not prepare the explainer storyboard.");
+      setGifPlan(data.plan);
+      setGifPlanMode(data.mode === "claude" ? "claude" : "fallback");
+      setGifPlanMessage(data.message || "");
+    } catch (error) {
+      setGifPlan(createFallbackGifExplainer(story, draftText, productName));
+      setGifPlanMode("fallback");
+      setGifPlanMessage(error instanceof Error ? error.message : "Using a context-based storyboard.");
+    } finally {
+      setGifPlanning(false);
+    }
+  }
+
+  async function downloadExplainerGif() {
+    if (!story || !activeGifPlan.scenes.length) return;
+    setExportBusy("gif");
+    setExportError("");
+    try {
+      const width = 480;
+      const height = kit.aspectRatio === "landscape" ? 252 : kit.aspectRatio === "portrait" ? 600 : 480;
+      const frames: Uint8ClampedArray[] = [];
+      for (let sceneIndex = 0; sceneIndex < activeGifPlan.scenes.length; sceneIndex++) {
+        const scene = activeGifPlan.scenes[sceneIndex];
+        const frameSvg = buildGifExplainerSvg({ kit, scene, sceneIndex, sceneCount: activeGifPlan.scenes.length, productName, width, height });
+        frames.push(await renderSvgToRgba(frameSvg, width, height));
+        // Repeat each storyboard scene to make the progression readable in a looping GIF.
+        frames.push(await renderSvgToRgba(frameSvg, width, height));
+      }
+      const bytes = encodeAnimatedGif(width, height, frames, 520);
+      downloadBlob(new Blob([bytes.buffer as ArrayBuffer], { type: "image/gif" }), slug(activeGifPlan.headline) + "-explainer.gif");
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : "Could not export explainer GIF.");
+    } finally {
+      setExportBusy("");
     }
   }
 
@@ -185,6 +241,32 @@ function StoryVisualStudioEditor({ story, draftText, productName, kit }: StoryVi
     <div className="panel-header"><div className="row"><ImageIcon size={16}/><span className="panel-title">Visual created alongside this draft</span></div><span className="badge badge-success"><Sparkles size={11}/> {planSource === "ai" ? "AI art direction" : "Context-aware preview"}</span></div>
     <div className="panel-body stack">
       <div className="visual-preview-frame" style={{ background: kit.backgroundColor }}><img className="visual-preview-image" src={previewSrc} alt={"Generated graphic: " + headline}/></div>
+      <div className="panel" style={{ marginTop: 8 }}>
+        <div className="panel-header">
+          <div className="row"><WandSparkles size={16}/><span className="panel-title">Claude-directed explainer GIF</span></div>
+          <span className="badge badge-success"><Sparkles size={11}/> {gifPlanMode === "claude" ? "Claude storyboard" : gifPlanMode === "fallback" ? "Context storyboard" : "Ready to plan"}</span>
+        </div>
+        <div className="panel-body stack">
+          <p className="form-help">Create a four-scene, post-specific visual story. Claude directs the sequence; Releasebuff renders the editable vector scenes and exports the animated GIF.</p>
+          <div className="visual-preview-frame" style={{ background: kit.backgroundColor }}>
+            <img className="visual-preview-image" src={"data:image/svg+xml;charset=utf-8," + encodeURIComponent(gifPreviewSvg)} alt={"Explainer GIF storyboard preview: " + activeGifPlan.headline}/>
+          </div>
+          <div><strong>{activeGifPlan.headline}</strong><p className="form-help">{activeGifPlan.subhead}</p></div>
+          <div className="stack" style={{ gap: 8 }}>
+            {activeGifPlan.scenes.map((scene, index) => <div className="card" key={index} style={{ padding: 12 }}>
+              <div className="form-help">SCENE {index + 1} · {scene.kicker} · {scene.visual}</div>
+              <strong>{scene.title}</strong>
+              <p className="form-help">{scene.caption}</p>
+              {scene.labels.length > 0 && <div className="row" style={{ flexWrap: "wrap", gap: 6 }}>{scene.labels.map((label, labelIndex) => <span className="badge" key={labelIndex}>{label}</span>)}</div>}
+            </div>)}
+          </div>
+          <div className="visual-export-row">
+            <button className="button button-lime button-sm" onClick={() => void requestGifExplainer()} disabled={!story || gifPlanning || Boolean(exportBusy)}>{gifPlanning ? <LoaderCircle size={13} className="spinning"/> : <WandSparkles size={13}/>} {gifPlanning ? "Planning…" : "Generate storyboard"}</button>
+            <button className="button button-outline button-sm" onClick={() => void downloadExplainerGif()} disabled={!story || Boolean(exportBusy)}>{exportBusy === "gif" ? <LoaderCircle size={13} className="spinning"/> : <Download size={13}/>} Export explainer GIF</button>
+          </div>
+          {gifPlanMessage && <div className="alert">{gifPlanMessage}</div>}
+        </div>
+      </div>
       <div className="visual-edit-fields">
         <div><label className="form-label" htmlFor="visualHeadline">Graphic headline</label><input className="input" id="visualHeadline" value={headlineOverride} onChange={e => setHeadlineOverride(e.target.value)} placeholder={activePlan.headline}/></div>
         <div><label className="form-label" htmlFor="visualSupportingLine">Supporting line</label><textarea className="textarea" id="visualSupportingLine" rows={3} value={supportingOverride} onChange={e => setSupportingOverride(e.target.value)} placeholder={activePlan.supportingLine}/></div>
