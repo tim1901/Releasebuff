@@ -8,7 +8,7 @@ import {
   Send, Settings2, Sparkles, Tag, Target, Trash2, X, CalendarDays, CheckCheck,
   Braces, WandSparkles, BookMarked, Eye, Radio, LogOut, FileUp, MessageSquareText, BrainCircuit, Palette, type LucideIcon
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { BrandKit, BufferChannel, GitHubAnalysis, LocalDraft, ProductMaterial, ProductProfile, ProjectPreferences, StoryCategory, StoryInterview, StoryInterviewAnswer, StoryOpportunity, StoryStatus, StoryWritingPreferences } from "@/lib/types";
 import { DEFAULT_BRAND_KIT, normaliseBrandKit } from "@/lib/brand-kit";
 import BrandKitStudio from "@/components/BrandKitStudio";
@@ -729,13 +729,17 @@ export default function ReleasebuffApp() {
     } catch (error) { say(error instanceof Error ? error.message : "Could not disconnect Buffer.", "error"); }
   };
 
+  // Keep navigation urgent: filtering the inbox is deferred so selecting a category
+  // can paint the inbox shell immediately, then update the list without blocking the click.
+  const deferredSelectedCategory = useDeferredValue(selectedCategory);
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const visibleStories = useMemo(() => stories.filter(story => {
     if (dismissedIds.includes(story.id) || story.status === "dismissed") return false;
-    if (selectedCategory !== "All categories" && story.category !== selectedCategory) return false;
-    const q = searchQuery.trim().toLowerCase();
+    if (deferredSelectedCategory !== "All categories" && story.category !== deferredSelectedCategory) return false;
+    const q = deferredSearchQuery.trim().toLowerCase();
     if (q && !`${story.title} ${story.summary} ${story.category} ${story.evidence.map(e => e.label).join(" ")}`.toLowerCase().includes(q)) return false;
     return true;
-  }), [stories, selectedCategory, searchQuery, dismissedIds]);
+  }), [stories, deferredSelectedCategory, deferredSearchQuery, dismissedIds]);
 
   const go = (target: View) => { setView(target); setMobileNavOpen(false); if (target !== "draft") setBufferAction(null); };
 
@@ -1079,8 +1083,17 @@ function StoryDetails({ story, extraContext, setExtraContext, interview, intervi
 function FileSearchIcon() { return <Search size={22}/>; }
 
 function StoryCategories({ stories, onChoose }: { stories: StoryOpportunity[]; onChoose: (category: StoryCategory) => void }) {
+  const categoryStats = useMemo(() => {
+    const counts = new Map<string, number>();
+    const readyCategories = new Set<string>();
+    for (const story of stories) {
+      counts.set(story.category, (counts.get(story.category) ?? 0) + 1);
+      if (story.status === "ready-to-draft") readyCategories.add(story.category);
+    }
+    return { counts, readyCategories };
+  }, [stories]);
   return <div className="workspace-content"><div className="page-heading"><div><span className="eyebrow">RBF / TAXONOMY</span><h1>Story categories</h1><p>Sixteen ways to talk about building. These categories filter one Story Inbox; they do not create separate feeds.</p></div><Badge>{ALL_CATEGORIES.length} categories · 4 groups</Badge></div>
-    {CATEGORY_GROUPS.map(group => { const Icon = groupIcon[group.name]; return <section className="category-group" key={group.name}><div className="category-group-header"><div><div className="row" style={{ gap: 7, marginBottom: 5 }}><Icon size={16} color="var(--forest)"/><span className="eyebrow">{group.name.toUpperCase()}</span></div><h2>{group.tagline}</h2></div><span className="small muted">{group.categories.length} categories</span></div><div className="category-grid">{group.categories.map(category => { const count = stories.filter(s => s.category === category.name).length; const ready = stories.some(s => s.category === category.name && s.status === "ready-to-draft"); const ContextIcon = categoryIcon[category.name] ?? Sparkles; return <button className="category-card" key={category.name} onClick={() => onChoose(category.name)}><div className="row-between"><span className="feature-icon" style={{ width: 31, height: 31, margin: 0 }}><ContextIcon size={15}/></span><Badge tone={ready ? "success" : count ? "warning" : "neutral"}>{ready ? "Evidence found" : count ? "Needs context" : category.sourceMode === "metrics" ? "Needs metrics" : category.sourceMode === "builder" ? "Builder input" : "Available"}</Badge></div><h3>{category.name}</h3><p>{category.description}</p><div className="category-card-bottom"><span className="small muted">{category.evidenceHint}</span><span className="mono small" style={{ color: "var(--forest)", whiteSpace: "nowrap" }}>{count} {count === 1 ? "story" : "stories"} <ChevronRight size={12} style={{ display: "inline" }}/></span></div></button>; })}</div></section>; })}
+    {CATEGORY_GROUPS.map(group => { const Icon = groupIcon[group.name]; return <section className="category-group" key={group.name}><div className="category-group-header"><div><div className="row" style={{ gap: 7, marginBottom: 5 }}><Icon size={16} color="var(--forest)"/><span className="eyebrow">{group.name.toUpperCase()}</span></div><h2>{group.tagline}</h2></div><span className="small muted">{group.categories.length} categories</span></div><div className="category-grid">{group.categories.map(category => { const count = categoryStats.counts.get(category.name) ?? 0; const ready = categoryStats.readyCategories.has(category.name); const ContextIcon = categoryIcon[category.name] ?? Sparkles; return <button className="category-card" key={category.name} onClick={() => onChoose(category.name)}><div className="row-between"><span className="feature-icon" style={{ width: 31, height: 31, margin: 0 }}><ContextIcon size={15}/></span><Badge tone={ready ? "success" : count ? "warning" : "neutral"}>{ready ? "Evidence found" : count ? "Needs context" : category.sourceMode === "metrics" ? "Needs metrics" : category.sourceMode === "builder" ? "Builder input" : "Available"}</Badge></div><h3>{category.name}</h3><p>{category.description}</p><div className="category-card-bottom"><span className="small muted">{category.evidenceHint}</span><span className="mono small" style={{ color: "var(--forest)", whiteSpace: "nowrap" }}>{count} {count === 1 ? "story" : "stories"} <ChevronRight size={12} style={{ display: "inline" }}/></span></div></button>; })}</div></section>; })}
   </div>;
 }
 
